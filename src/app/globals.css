@@ -1,0 +1,77 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Primary Colors */
+  --primary-900: #2D4A2F;  /* Darker Hunter green */
+  --primary-800: #365937;
+  --primary-700: #3F673F;
+  --primary-600: #466D4B;  /* Hunter green */
+  --primary-500: #557A5A;
+  --primary-400: #779E7B;  /* Cambridge blue */
+  --primary-300: #8AAE8E;
+  --primary-200: #9DBEA1;
+  --primary-100: #B0CEB4;
+  --primary-50: #C3DEC7;
+
+  /* Accent Colors */
+  --accent-900: #8B4F5F;
+  --accent-800: #9A5B6B;
+  --accent-700: #A96777;
+  --accent-600: #B87283;  /* Blush */
+  --accent-500: #CB7286;
+  --accent-400: #D38296;
+  --accent-300: #DB92A6;
+  --accent-200: #E3A2B6;
+  --accent-100: #EBB2C6;
+  --accent-50: #F3C2D6;
+
+  /* Neutral Colors */
+  --neutral-900: #2C2C2C;
+  --neutral-800: #404040;
+  --neutral-700: #575757;
+  --neutral-600: #6E6E6E;
+  --neutral-500: #858585;
+  --neutral-400: #F4F4F4;  /* White smoke */
+  --neutral-300: #EFEFDB;  /* Linen */
+  --neutral-200: #F2F2F2;
+  --neutral-100: #F7F7F7;
+  --neutral-50: #FCFCFC;
+
+  /* Additional Theme Colors */
+  --verdigris: #3CA6A6;    /* Verdigris */
+  --cherry: #E9A6B3;       /* Cherry blossom pink */
+}
+
+@layer base {
+  body {
+    @apply text-neutral-900 bg-neutral-300;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading text-primary-600;
+  }
+}
+
+@layer components {
+  .container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-full shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500;
+  }
+
+  .btn-outline {
+    @apply inline-flex items-center justify-center px-6 py-3 border border-primary-600 text-base font-medium rounded-full text-primary-600 bg-transparent hover:bg-primary-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500;
+  }
+
+  .input {
+    @apply block w-full rounded-lg border-neutral-300 shadow-sm focus:border-primary-500 focus:ring-primary-500;
+  }
+
+  .card {
+    @apply bg-white rounded-xl shadow-lg p-6;
+  }
+}
