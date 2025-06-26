@@ -8,17 +8,26 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        'hunter': '#466D4B',
+        'cambridge': '#779E7B',
+        'blush': '#CB7286',
+        'linen': '#EFE4DB',
+        'smoke': '#F4F4F4',
+        'verdigris': '#3CA6A6',
+        'cherry': '#E9A6B3',
         primary: {
-          50: 'var(--primary-50)',
-          100: 'var(--primary-100)',
-          200: 'var(--primary-200)',
-          300: 'var(--primary-300)',
-          400: 'var(--primary-400)',
-          500: 'var(--primary-500)',
-          600: 'var(--primary-600)',
-          700: 'var(--primary-700)',
-          800: 'var(--primary-800)',
-          900: 'var(--primary-900)',
+          DEFAULT: '#CB7286',
+          dark: '#466D4B',
+          light: '#E9A6B3',
+        },
+        secondary: {
+          DEFAULT: '#779E7B',
+          dark: '#3CA6A6',
+          light: '#EFE4DB',
+        },
+        background: {
+          DEFAULT: '#F4F4F4',
+          alt: '#EFE4DB',
         },
         accent: {
           50: 'var(--accent-50)',
@@ -44,8 +53,6 @@ module.exports = {
           800: 'var(--neutral-800)',
           900: 'var(--neutral-900)',
         },
-        verdigris: 'var(--verdigris)',
-        cherry: 'var(--cherry)',
       },
       fontFamily: {
         heading: ['var(--font-playfair)', 'serif'],
@@ -56,4 +63,4 @@ module.exports = {
   plugins: [
     require('@tailwindcss/forms'),
   ],
-} 
+}

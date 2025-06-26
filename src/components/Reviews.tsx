@@ -1,3 +1,5 @@
+'use client';
+
 type Review = {
   id: string
   name: string

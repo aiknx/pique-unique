@@ -46,11 +46,11 @@
 
 @layer base {
   body {
-    @apply text-neutral-900 bg-neutral-300;
+    @apply text-hunter bg-smoke;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-heading text-primary-600;
+    @apply font-heading text-hunter;
   }
 }
 
@@ -60,15 +60,15 @@
   }
 
   .btn {
-    @apply inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-full shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500;
+    @apply inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-full shadow-sm text-smoke bg-cambridge hover:bg-hunter focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-verdigris;
   }
 
   .btn-outline {
-    @apply inline-flex items-center justify-center px-6 py-3 border border-primary-600 text-base font-medium rounded-full text-primary-600 bg-transparent hover:bg-primary-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500;
+    @apply inline-flex items-center justify-center px-6 py-3 border border-cambridge text-base font-medium rounded-full text-cambridge bg-transparent hover:bg-linen focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-verdigris;
   }
 
   .input {
-    @apply block w-full rounded-lg border-neutral-300 shadow-sm focus:border-primary-500 focus:ring-primary-500;
+    @apply block w-full rounded-lg border-linen shadow-sm focus:border-blush focus:ring-blush;
   }
 
   .card {
