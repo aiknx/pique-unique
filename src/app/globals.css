@@ -3,75 +3,62 @@
 @tailwind utilities;
 
 :root {
-  /* Primary Colors */
-  --primary-900: #2D4A2F;  /* Darker Hunter green */
-  --primary-800: #365937;
-  --primary-700: #3F673F;
-  --primary-600: #466D4B;  /* Hunter green */
-  --primary-500: #557A5A;
-  --primary-400: #779E7B;  /* Cambridge blue */
-  --primary-300: #8AAE8E;
-  --primary-200: #9DBEA1;
-  --primary-100: #B0CEB4;
-  --primary-50: #C3DEC7;
-
-  /* Accent Colors */
-  --accent-900: #8B4F5F;
-  --accent-800: #9A5B6B;
-  --accent-700: #A96777;
-  --accent-600: #B87283;  /* Blush */
-  --accent-500: #CB7286;
-  --accent-400: #D38296;
-  --accent-300: #DB92A6;
-  --accent-200: #E3A2B6;
-  --accent-100: #EBB2C6;
-  --accent-50: #F3C2D6;
-
-  /* Neutral Colors */
-  --neutral-900: #2C2C2C;
-  --neutral-800: #404040;
-  --neutral-700: #575757;
-  --neutral-600: #6E6E6E;
-  --neutral-500: #858585;
-  --neutral-400: #F4F4F4;  /* White smoke */
-  --neutral-300: #EFEFDB;  /* Linen */
-  --neutral-200: #F2F2F2;
-  --neutral-100: #F7F7F7;
-  --neutral-50: #FCFCFC;
-
-  /* Additional Theme Colors */
-  --verdigris: #3CA6A6;    /* Verdigris */
-  --cherry: #E9A6B3;       /* Cherry blossom pink */
+  --hunter-green: #466D4B;
+  --cambridge-blue: #779E7B;
+  --blush: #CB7286;
+  --linen: #EFE4DB;
+  --white-smoke: #F4F4F4;
+  --verdigris: #3CA6A6;
+  --cherry-blossom: #E9A6B3;
 }
 
 @layer base {
   body {
-    @apply text-hunter bg-smoke;
+    @apply bg-white-smoke text-hunter-green;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-heading text-hunter;
+    @apply font-bold text-hunter-green;
   }
 }
 
 @layer components {
-  .container {
-    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  .btn-primary {
+    @apply bg-blush text-white px-4 py-2 rounded-lg hover:bg-opacity-90 transition-all duration-200;
   }
 
-  .btn {
-    @apply inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-full shadow-sm text-smoke bg-cambridge hover:bg-hunter focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-verdigris;
-  }
-
-  .btn-outline {
-    @apply inline-flex items-center justify-center px-6 py-3 border border-cambridge text-base font-medium rounded-full text-cambridge bg-transparent hover:bg-linen focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-verdigris;
-  }
-
-  .input {
-    @apply block w-full rounded-lg border-linen shadow-sm focus:border-blush focus:ring-blush;
+  .btn-secondary {
+    @apply bg-cambridge-blue text-white px-4 py-2 rounded-lg hover:bg-opacity-90 transition-all duration-200;
   }
 
   .card {
-    @apply bg-white rounded-xl shadow-lg p-6;
+    @apply bg-white rounded-lg shadow-md p-6;
+  }
+
+  .input {
+    @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cambridge-blue;
+  }
+
+  .container-custom {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
   }
 }
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-white-smoke;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-cambridge-blue rounded-full;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+

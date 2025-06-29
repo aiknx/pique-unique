@@ -1,21 +1,31 @@
-import Image from 'next/image'
+'use client';
+
+import Image from 'next/image';
 
 interface LogoProps {
-  variant?: 'horizontal' | 'vertical'
-  className?: string
+  className?: string;
+  variant?: 'horizontal' | 'vertical';
 }
 
-export default function Logo({ variant = 'horizontal', className = '' }: LogoProps) {
+export default function Logo({ className = '', variant = 'horizontal' }: LogoProps) {
+  const dimensions = variant === 'horizontal' 
+    ? { width: 800, height: 240 }
+    : { width: 600, height: 600 };
+
   return (
-    <div className={`flex items-center ${className}`}>
+    <div className={`relative flex items-center ${className}`}>
       <Image
-        src={`/images/logo-${variant}.png`}
+        src={variant === 'vertical' ? '/images/logo-vertical.png' : '/images/logo-horizontal.png'}
         alt="Pique Unique"
-        width={variant === 'horizontal' ? 200 : 150}
-        height={variant === 'horizontal' ? 50 : 150}
-        className="object-contain"
+        {...dimensions}
+        style={{ 
+          objectFit: 'contain',
+          width: '100%',
+          height: 'auto',
+          maxHeight: variant === 'horizontal' ? '120px' : '300px'
+        }}
         priority
       />
     </div>
-  )
+  );
 } 

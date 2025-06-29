@@ -1,22 +1,19 @@
-import { redirect } from 'next/navigation';
-import { useAuth } from '@/lib/auth';
+'use client'
+
+import { AuthProvider } from '@/lib/auth'
 
 export default function AuthLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
-  const { user } = useAuth();
-
-  if (user) {
-    redirect('/dashboard');
-  }
-
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="max-w-md w-full space-y-8 p-6 bg-white rounded-xl shadow-lg">
-        {children}
+    <AuthProvider>
+      <div className="min-h-screen bg-linen flex items-center justify-center">
+        <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-lg">
+          {children}
+        </div>
       </div>
-    </div>
-  );
+    </AuthProvider>
+  )
 } 

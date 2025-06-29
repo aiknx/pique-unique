@@ -6,27 +6,44 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ['firebasestorage.googleapis.com'],
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: '**.googleapis.com',
+        hostname: '**',
       },
     ],
+    formats: ['image/avif', 'image/webp'],
+    minimumCacheTTL: 60,
   },
-  transpilePackages: ['undici', '@firebase/auth'],
-  // Optimizacijos
+  // Performance Optimizations
   swcMinify: true,
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
   },
   experimental: {
     optimizeCss: true,
-    optimizePackageImports: ['@firebase/auth', '@firebase/firestore'],
   },
-  // Puslapio generavimo strategija
+  // Output optimization
   output: 'standalone',
-}
+  poweredByHeader: false,
+  compress: true,
+  // Cache optimization
+  generateEtags: true,
+  // Build optimization
+  productionBrowserSourceMaps: false,
+  // Build analysis
+  webpack: (config, { isServer }) => {
+    // Enable detailed stats output
+    config.stats = {
+      assets: true,
+      chunks: true,
+      modules: true,
+      reasons: true,
+      errorDetails: true
+    };
+    return config;
+  }
+};
 
 module.exports = withBundleAnalyzer(nextConfig);
  

@@ -8,13 +8,13 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        'hunter': '#466D4B',
-        'cambridge': '#779E7B',
+        'hunter-green': '#466D4B',
+        'cambridge-blue': '#779E7B',
         'blush': '#CB7286',
         'linen': '#EFE4DB',
-        'smoke': '#F4F4F4',
+        'white-smoke': '#F4F4F4',
         'verdigris': '#3CA6A6',
-        'cherry': '#E9A6B3',
+        'cherry-blossom': '#E9A6B3',
         primary: {
           DEFAULT: '#CB7286',
           dark: '#466D4B',
@@ -57,6 +57,10 @@ module.exports = {
       fontFamily: {
         heading: ['var(--font-playfair)', 'serif'],
         sans: ['var(--font-inter)', 'sans-serif'],
+      },
+      backgroundImage: {
+        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+        'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
       },
     },
   },

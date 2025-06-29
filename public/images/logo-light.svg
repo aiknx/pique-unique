@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="200" viewBox="0 0 800 200" version="1.1" xmlns="http://www.w3.org/2000/svg">
+    <g fill="#FFFFFF">
+        <path d="M0 0 L800 0 L800 200 L0 200 L0 0" fill="#000000"/>
+        <path d="M150 50 C150 50, 650 50, 650 50 C650 50, 650 150, 650 150 C650 150, 150 150, 150 150 C150 150, 150 50, 150 50" fill="none" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="400" y="115" font-family="serif" font-size="72" text-anchor="middle" fill="#FFFFFF">PIQUE UNIQUE</text>
+        <path d="M500 40 C500 40, 520 20, 540 40 C560 60, 580 80, 560 100 C540 120, 520 140, 500 120 C480 100, 460 80, 480 60 C500 40, 500 40, 500 40" fill="none" stroke="#FFFFFF" stroke-width="2"/>
+    </g>
+</svg> 

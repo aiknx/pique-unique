@@ -1,15 +1,13 @@
-import { Inter } from 'next/font/google';
-import './globals.css';
+import './globals.css'
+import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
+import Navbar from '@/components/Navbar'
+import Footer from '@/components/Footer'
+import defaultMetadata from './metadata'
 
-const inter = Inter({ 
-  subsets: ['latin'],
-  display: 'swap',
-});
+const inter = Inter({ subsets: ['latin'] })
 
-export const metadata = {
-  title: 'Pique Unique | Luxury Picnic Experiences',
-  description: 'Experience luxury picnics with Pique Unique.',
-};
+export const metadata: Metadata = defaultMetadata
 
 export default function RootLayout({
   children,
@@ -17,14 +15,11 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={inter.className}>
-      <body className="bg-background">
-        <nav className="w-full bg-white border-b border-neutral-200 p-4">
-          <div className="max-w-7xl mx-auto">
-            <a href="/" className="text-2xl font-bold">Pique Unique</a>
-          </div>
-        </nav>
+    <html lang="lt">
+      <body className={inter.className}>
+        <Navbar />
         <main>{children}</main>
+        <Footer />
       </body>
     </html>
   )

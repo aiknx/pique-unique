@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="300" height="300" viewBox="0 0 300 300" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <g fill="none" stroke="#E5989B" stroke-width="2">
+    <!-- Shell outline -->
+    <path d="M50 200 C50 200, 100 250, 150 250 C200 250, 250 200, 250 200 C250 200, 200 100, 150 100 C100 100, 50 200, 50 200"/>
+    <!-- Shell ridges -->
+    <path d="M70 190 C70 190, 110 230, 150 230 C190 230, 230 190, 230 190"/>
+    <path d="M90 170 C90 170, 120 200, 150 200 C180 200, 210 170, 210 170"/>
+    <path d="M110 150 C110 150, 130 170, 150 170 C170 170, 190 150, 190 150"/>
+    <!-- Disco ball -->
+    <circle cx="150" cy="150" r="30"/>
+    <!-- Grid pattern -->
+    <path d="M120 150 L180 150"/>
+    <path d="M150 120 L150 180"/>
+    <path d="M130 130 L170 170"/>
+    <path d="M130 170 L170 130"/>
+  </g>
+</svg> 
