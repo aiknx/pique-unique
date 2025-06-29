@@ -117,7 +117,7 @@ export default function ThemesPage() {
                   </ul>
                   <div className="pt-4">
                     <Link
-                      href="/contact"
+                      href="/booking"
                       className="inline-block bg-hunter-green text-white py-3 px-8 rounded-md hover:bg-hunter-green/90 transition-colors"
                     >
                       Rezervuoti

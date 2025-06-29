@@ -26,7 +26,7 @@ export default function Home() {
               PIQUE UNIQUE tai ne tik piknikai, tai kruopščiai kurtos patirtys kviečiančios sustoti, būti su artimaisiais ir švęsti gyvenimą kartu.
             </p>
             <div className="flex gap-4">
-              <Link href="/book" className="btn-primary text-lg px-8 py-3">
+              <Link href="/booking" className="btn-primary text-lg px-8 py-3">
                 Rezervuoti Dabar
               </Link>
               <Link href="/themes" className="btn-secondary text-lg px-8 py-3">

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 
 // Galerijos nuotraukų duomenys
 const galleryImages = [
@@ -168,12 +169,9 @@ export default function GalleryContent() {
           <p className="text-lg mb-8 max-w-2xl mx-auto">
             Susisiekite su mumis ir sukurkime jūsų svajonių pikniką paplūdimyje kartu!
           </p>
-          <a
-            href="/contact"
-            className="inline-block bg-white text-hunter-green py-3 px-8 rounded-md font-medium hover:bg-sand transition-colors"
-          >
+          <Link href="/booking" className="btn-primary">
             Rezervuoti Dabar
-          </a>
+          </Link>
         </div>
       </section>
     </main>

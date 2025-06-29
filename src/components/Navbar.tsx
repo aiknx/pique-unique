@@ -13,6 +13,7 @@ export default function Navbar() {
     { href: '/gallery', label: 'Galerija' },
     { href: '/about', label: 'Apie Mus' },
     { href: '/contact', label: 'Kontaktai' },
+    { href: '/booking', label: 'Rezervacija' },
   ];
 
   return (
@@ -30,14 +31,13 @@ export default function Navbar() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="text-gray-700 hover:text-hunter-green transition-colors"
+                className={`text-gray-700 hover:text-hunter-green transition-colors ${
+                  item.href === '/booking' ? 'btn-primary' : ''
+                }`}
               >
                 {item.label}
               </Link>
             ))}
-            <Link href="/book" className="btn-primary">
-              Rezervuoti
-            </Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -71,19 +71,16 @@ export default function Navbar() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="block py-2 text-gray-700 hover:text-hunter-green transition-colors"
+                className={`block py-2 transition-colors ${
+                  item.href === '/booking'
+                    ? 'text-hunter-green font-semibold hover:text-cambridge-blue'
+                    : 'text-gray-700 hover:text-hunter-green'
+                }`}
                 onClick={() => setIsOpen(false)}
               >
                 {item.label}
               </Link>
             ))}
-            <Link
-              href="/book"
-              className="block py-2 text-hunter-green font-semibold hover:text-cambridge-blue transition-colors"
-              onClick={() => setIsOpen(false)}
-            >
-              Rezervuoti
-            </Link>
           </div>
         )}
       </div>
