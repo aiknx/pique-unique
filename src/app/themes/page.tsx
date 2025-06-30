@@ -60,7 +60,7 @@ export default function ThemesPage() {
         <div className="container-custom">
           <h1 className="text-4xl md:text-5xl font-bold text-hunter-green text-center mb-8">
             Pikniko Temos
-          </h1>
+      </h1>
           <p className="text-xl text-gray-700 text-center max-w-3xl mx-auto">
             Pasirinkite temą, kuri geriausiai atspindi jūsų įsivaizduojamą šventę.
             Kiekviena tema yra kruopščiai apgalvota ir pritaikyta skirtingoms progoms.
@@ -74,7 +74,7 @@ export default function ThemesPage() {
           <div className="space-y-16">
             {themes.map((theme, index) => (
               <div
-                key={theme.id}
+            key={theme.id}
                 className={`grid md:grid-cols-2 gap-8 items-center ${
                   index % 2 === 1 ? 'md:flex-row-reverse' : ''
                 }`}
@@ -103,7 +103,7 @@ export default function ThemesPage() {
                           fill="none"
                           viewBox="0 0 24 24"
                           stroke="currentColor"
-                        >
+          >
                           <path
                             strokeLinecap="round"
                             strokeLinejoin="round"
@@ -125,9 +125,9 @@ export default function ThemesPage() {
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
+        ))}
+      </div>
+    </div>
       </section>
 
       {/* CTA Section */}

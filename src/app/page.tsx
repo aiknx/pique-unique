@@ -19,16 +19,16 @@ export default function Home() {
         <div className="container-custom relative z-10 text-white">
           <div className="max-w-4xl">
             <h1 className="text-5xl md:text-6xl font-bold mb-8 text-white">
-              Prabangūs Piknikai<br />
-              <span className="text-cherry-blossom">Paplūdimyje</span>
-            </h1>
-            <p className="text-xl md:text-2xl mb-8 max-w-2xl">
-              PIQUE UNIQUE tai ne tik piknikai, tai kruopščiai kurtos patirtys kviečiančios sustoti, būti su artimaisiais ir švęsti gyvenimą kartu.
-            </p>
+            Prabangūs Piknikai<br />
+            <span className="text-cherry-blossom">Paplūdimyje</span>
+          </h1>
+          <p className="text-xl md:text-2xl mb-8 max-w-2xl">
+            PIQUE UNIQUE tai ne tik piknikai, tai kruopščiai kurtos patirtys kviečiančios sustoti, būti su artimaisiais ir švęsti gyvenimą kartu.
+          </p>
             <div className="flex gap-4">
               <Link href="/booking" className="btn-primary text-lg px-8 py-3">
-                Rezervuoti Dabar
-              </Link>
+            Rezervuoti Dabar
+          </Link>
               <Link href="/themes" className="btn-secondary text-lg px-8 py-3">
                 Peržiūrėti Temas
               </Link>
