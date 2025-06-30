@@ -30,21 +30,30 @@ export default function WeatherWidget({ location, date }: WeatherWidgetProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    async function fetchWeather() {
-      try {
-        setLoading(true);
-        setError(null);
-        const data = await getWeatherData(location, date || undefined);
-        setWeather(data);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Įvyko klaida');
-      } finally {
-        setLoading(false);
-      }
+  // Funkcija orų duomenų gavimui
+  async function fetchWeather() {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await getWeatherData(location, date || undefined);
+      setWeather(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Įvyko klaida');
+    } finally {
+      setLoading(false);
     }
+  }
 
+  useEffect(() => {
     fetchWeather();
+
+    // Atnaujinti duomenis kas 30 minučių
+    const refreshInterval = setInterval(() => {
+      fetchWeather();
+    }, 30 * 60 * 1000); // 30 minučių
+
+    // Išvalyti interval kai komponentas išmontuojamas
+    return () => clearInterval(refreshInterval);
   }, [location, date]);
 
   if (loading) {
