@@ -64,18 +64,18 @@ export default function ReviewsPage() {
               <div className="flex items-center space-x-4">
                 <div className="relative w-16 h-16">
                   <Image
-                    src={review.image || '/images/default-avatar.png'}
-                    alt={review.name}
+                    src={review.images?.[0] || '/images/default-avatar.png'}
+                    alt="Reviewer"
                     fill
                     className="rounded-full object-cover"
                   />
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold text-hunter">{review.name}</h3>
-                  <p className="text-gray-600">{review.date}</p>
+                  <h3 className="text-xl font-semibold text-hunter">Klientas</h3>
+                  <p className="text-gray-600">{review.createdAt.toLocaleDateString('lt-LT')}</p>
                 </div>
               </div>
-              <p className="mt-4 text-gray-700">{review.content}</p>
+              <p className="mt-4 text-gray-700">{review.comment}</p>
               {review.rating && (
                 <div className="mt-2 flex items-center">
                   {[...Array(5)].map((_, i) => (

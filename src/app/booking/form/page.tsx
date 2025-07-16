@@ -36,7 +36,7 @@ export default function BookingFormPage() {
     start: timeStartParam, 
     end: timeEndParam 
   };
-  const selectedTheme = themeParam;
+  const selectedTheme = themeParam || undefined;
 
   return (
     <div className="min-h-screen bg-linen py-12">

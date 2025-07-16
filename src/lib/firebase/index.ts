@@ -1,12 +1,13 @@
-import { initializeApp, getApps } from 'firebase/app';
-import { getAuth, connectAuthEmulator } from 'firebase/auth';
+import { initializeApp, getApps, type FirebaseApp } from 'firebase/app';
+import { getAuth, connectAuthEmulator, type Auth } from 'firebase/auth';
 import { 
   connectFirestoreEmulator, 
   initializeFirestore, 
   enableIndexedDbPersistence,
-  CACHE_SIZE_UNLIMITED
+  CACHE_SIZE_UNLIMITED,
+  type Firestore
 } from 'firebase/firestore';
-import { getStorage, connectStorageEmulator } from 'firebase/storage';
+import { getStorage, connectStorageEmulator, type FirebaseStorage } from 'firebase/storage';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -20,10 +21,10 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase only once with error handling
-let app;
-let auth;
-let db;
-let storage;
+let app: FirebaseApp;
+let auth: Auth;
+let db: Firestore;
+let storage: FirebaseStorage;
 let analytics = null;
 
 try {

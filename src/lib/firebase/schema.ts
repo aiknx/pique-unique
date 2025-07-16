@@ -3,7 +3,9 @@ export const COLLECTIONS = {
   USERS: 'users',
   BOOKINGS: 'bookings',
   THEMES: 'themes',
-  REVIEWS: 'reviews'
+  REVIEWS: 'reviews',
+  GALLERY: 'gallery',
+  SETTINGS: 'settings'
 } as const;
 
 // Schema types

@@ -2,13 +2,13 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useAuth } from '@/lib/auth';
+// import { useAuth } from '@/lib/auth';
 
 export default function ResetPasswordPage() {
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
-  const { resetPassword } = useAuth();
+  // const { resetPassword } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -16,7 +16,7 @@ export default function ResetPasswordPage() {
     setSuccess(false);
 
     try {
-      await resetPassword(email);
+      // await resetPassword(email);
       setSuccess(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Nepavyko atstatyti slaptažodžio');

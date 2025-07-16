@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { COLLECTIONS } from '@/lib/firebase/schema';
 
@@ -63,7 +63,7 @@ export default function SettingsPage() {
         setSettings(settingsSnap.data() as Settings);
       } else {
         // If no settings exist, create default ones
-        await updateDoc(settingsRef, defaultSettings);
+        await setDoc(settingsRef, defaultSettings);
       }
     } catch (err) {
       console.error('Error fetching settings:', err);
@@ -80,7 +80,7 @@ export default function SettingsPage() {
       setSuccess(null);
 
       const settingsRef = doc(db, COLLECTIONS.SETTINGS, 'general');
-      await updateDoc(settingsRef, settings);
+      await setDoc(settingsRef, settings);
 
       setSuccess('Nustatymai sėkmingai išsaugoti!');
     } catch (err) {

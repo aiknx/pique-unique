@@ -13,7 +13,6 @@ import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase';
 import { COLLECTIONS } from '../firebase/schema';
 
-// Types
 export type UserRole = 'admin' | 'user';
 
 export interface AuthUser extends User {
@@ -26,12 +25,12 @@ interface AuthContextType {
   isAdmin: boolean;
   error: string | null;
   signIn: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
   clearError: () => void;
 }
 
-// Error messages in Lithuanian
 const AUTH_ERRORS = {
   'auth/invalid-email': 'Neteisingas el. pašto formatas',
   'auth/user-disabled': 'Šis vartotojas yra užblokuotas',
@@ -44,19 +43,18 @@ const AUTH_ERRORS = {
   'default': 'Įvyko klaida. Bandykite dar kartą',
 } as const;
 
-// Create auth context
 const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
   isAdmin: false,
   error: null,
   signIn: async () => { throw new Error('AuthContext not initialized'); },
+  signUp: async () => { throw new Error('AuthContext not initialized'); },
   signInWithGoogle: async () => { throw new Error('AuthContext not initialized'); },
   signOut: async () => { throw new Error('AuthContext not initialized'); },
   clearError: () => { throw new Error('AuthContext not initialized'); },
 });
 
-// Helper function to get error message
 const getErrorMessage = (error: unknown): string => {
   if (
     typeof error === 'object' &&
@@ -70,7 +68,6 @@ const getErrorMessage = (error: unknown): string => {
   return AUTH_ERRORS.default;
 };
 
-// Helper function to check if user is admin
 const isUserAdmin = async (user: AuthUser | null): Promise<boolean> => {
   if (!user) return false;
   try {
@@ -83,7 +80,6 @@ const isUserAdmin = async (user: AuthUser | null): Promise<boolean> => {
   }
 };
 
-// Create session on the server
 const createServerSession = async (idToken: string): Promise<boolean> => {
   try {
     const response = await fetch('/api/auth/session', {
@@ -103,7 +99,6 @@ const createServerSession = async (idToken: string): Promise<boolean> => {
   }
 };
 
-// Auth Provider component
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
@@ -128,6 +123,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signIn = async (email: string, password: string) => {
+    try {
+      setError(null);
+      const result = await signInWithEmailAndPassword(auth, email, password);
+      const idToken = await result.user.getIdToken();
+      await createServerSession(idToken);
+      
+      const authUser = result.user as AuthUser;
+      setIsAdmin(await isUserAdmin(authUser));
+      setUser(authUser);
+    } catch (error: unknown) {
+      setError(getErrorMessage(error));
+      throw error;
+    }
+  };
+
+  const signUp = async (email: string, password: string) => {
     try {
       setError(null);
       const result = await signInWithEmailAndPassword(auth, email, password);
@@ -175,23 +186,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const clearError = () => setError(null);
 
-  return (
-    <AuthContext.Provider value={{
-      user,
-      loading,
-      isAdmin,
-      error,
-      signIn,
-      signInWithGoogle,
-      signOut,
-      clearError
-    }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  const contextValue = {
+    user,
+    loading,
+    isAdmin,
+    error,
+    signIn,
+    signUp,
+    signInWithGoogle,
+    signOut,
+    clearError
+  };
+
+  return React.createElement(AuthContext.Provider, { value: contextValue }, children);
 }
 
-// Auth hook
 export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) {

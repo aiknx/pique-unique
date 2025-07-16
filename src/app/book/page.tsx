@@ -24,9 +24,10 @@ const AddOns = dynamic(() => import('@/components/booking/AddOns'), {
 
 export default function BookPage() {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
+  const selectedTimeSlot = { start: '14:00', end: '17:00' }
   const location = 'klaipeda' // Fiksuota lokacija
 
-  const handleDateSelect = (date: Date) => {
+  const handleDateSelect = (date: Date | null) => {
     setSelectedDate(date)
   }
 
@@ -48,6 +49,7 @@ export default function BookPage() {
               <BookingForm 
                 selectedDate={selectedDate}
                 selectedLocation={location}
+                selectedTimeSlot={selectedTimeSlot}
               />
               <AddOns />
             </>
