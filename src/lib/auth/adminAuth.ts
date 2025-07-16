@@ -3,7 +3,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { 
   signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
   signInWithPopup,
   GoogleAuthProvider,
   signOut as firebaseSignOut,
@@ -20,13 +19,13 @@ export interface AuthUser extends User {
   role?: UserRole;
 }
 
-interface AuthContextType {
+interface AdminAuthContextType {
   user: AuthUser | null;
   loading: boolean;
   isAdmin: boolean;
+  isAuthenticated: boolean;
   error: string | null;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
   clearError: () => void;
@@ -44,16 +43,16 @@ const AUTH_ERRORS = {
   'default': 'Įvyko klaida. Bandykite dar kartą',
 } as const;
 
-const AuthContext = createContext<AuthContextType>({
+const AdminAuthContext = createContext<AdminAuthContextType>({
   user: null,
   loading: true,
   isAdmin: false,
+  isAuthenticated: false,
   error: null,
-  signIn: async () => { throw new Error('AuthContext not initialized'); },
-  signUp: async () => { throw new Error('AuthContext not initialized'); },
-  signInWithGoogle: async () => { throw new Error('AuthContext not initialized'); },
-  signOut: async () => { throw new Error('AuthContext not initialized'); },
-  clearError: () => { throw new Error('AuthContext not initialized'); },
+  signIn: async () => { throw new Error('AdminAuthContext not initialized'); },
+  signInWithGoogle: async () => { throw new Error('AdminAuthContext not initialized'); },
+  signOut: async () => { throw new Error('AdminAuthContext not initialized'); },
+  clearError: () => { throw new Error('AdminAuthContext not initialized'); },
 });
 
 const getErrorMessage = (error: unknown): string => {
@@ -100,10 +99,11 @@ const createServerSession = async (idToken: string): Promise<boolean> => {
   }
 };
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -113,9 +113,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const admin = await isUserAdmin(authUser);
         setIsAdmin(admin);
         setUser(authUser);
+        setIsAuthenticated(true);
       } else {
         setUser(null);
         setIsAdmin(false);
+        setIsAuthenticated(false);
       }
       setLoading(false);
     });
@@ -131,24 +133,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await createServerSession(idToken);
       
       const authUser = result.user as AuthUser;
-      setIsAdmin(await isUserAdmin(authUser));
+      const admin = await isUserAdmin(authUser);
+      if (!admin) {
+        throw new Error('Access denied. Admin privileges required.');
+      }
+      setIsAdmin(admin);
       setUser(authUser);
-    } catch (error: unknown) {
-      setError(getErrorMessage(error));
-      throw error;
-    }
-  };
-
-  const signUp = async (email: string, password: string) => {
-    try {
-      setError(null);
-      const result = await createUserWithEmailAndPassword(auth, email, password);
-      const idToken = await result.user.getIdToken();
-      await createServerSession(idToken);
-      
-      const authUser = result.user as AuthUser;
-      setIsAdmin(await isUserAdmin(authUser));
-      setUser(authUser);
+      setIsAuthenticated(true);
     } catch (error: unknown) {
       setError(getErrorMessage(error));
       throw error;
@@ -164,8 +155,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await createServerSession(idToken);
       
       const authUser = result.user as AuthUser;
-      setIsAdmin(await isUserAdmin(authUser));
+      const admin = await isUserAdmin(authUser);
+      if (!admin) {
+        throw new Error('Access denied. Admin privileges required.');
+      }
+      setIsAdmin(admin);
       setUser(authUser);
+      setIsAuthenticated(true);
     } catch (error: unknown) {
       setError(getErrorMessage(error));
       throw error;
@@ -179,6 +175,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await fetch('/api/auth/logout', { method: 'POST' });
       setUser(null);
       setIsAdmin(false);
+      setIsAuthenticated(false);
     } catch (error: unknown) {
       setError(getErrorMessage(error));
       throw error;
@@ -191,21 +188,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     user,
     loading,
     isAdmin,
+    isAuthenticated,
     error,
     signIn,
-    signUp,
     signInWithGoogle,
     signOut,
     clearError
   };
 
-  return React.createElement(AuthContext.Provider, { value: contextValue }, children);
+  return React.createElement(AdminAuthContext.Provider, { value: contextValue }, children);
 }
 
-export function useAuth() {
-  const context = useContext(AuthContext);
+export function useAdminAuth() {
+  const context = useContext(AdminAuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error('useAdminAuth must be used within an AdminAuthProvider');
   }
   return context;
 } 
