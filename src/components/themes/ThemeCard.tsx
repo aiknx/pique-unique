@@ -30,7 +30,7 @@ export default function ThemeCard({ id, title, description, image, price }: Them
         <div className="flex items-center justify-between">
           <span className="text-2xl font-bold text-hunter">${price}</span>
           <Link
-            href={`/book?theme=${id}`}
+            href={`/booking/form?theme=${id}`}
             className="px-4 py-2 bg-hunter text-white rounded-md hover:bg-hunter-dark transition-colors"
           >
             Book Now

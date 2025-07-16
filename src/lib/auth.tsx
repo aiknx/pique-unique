@@ -1,72 +1,90 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
-import { 
-  getAuth,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  signOut as firebaseSignOut,
-  onAuthStateChanged,
-  type User,
-  type Auth
-} from 'firebase/auth';
-import { initializeApp, type FirebaseApp } from 'firebase/app';
-
-const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
-};
-
-// Initialize Firebase lazily
-let app: FirebaseApp | undefined;
-let auth: Auth | undefined;
-
-function getFirebaseAuth() {
-  if (typeof window === 'undefined') return null;
-  
-  if (!app) {
-    app = initializeApp(firebaseConfig);
-    auth = getAuth(app);
-  }
-  
-  return auth;
-}
+import { User } from 'firebase/auth';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { db } from './firebase';
+import { signInWithEmail, signInWithGoogle as firebaseSignInWithGoogle, signOut as firebaseSignOut, onAuthChange } from './firebase/auth';
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
+  isAdmin: boolean;
+  error: string | null;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string) => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
+  clearError: () => void;
 }
 
 const defaultContext: AuthContextType = {
   user: null,
   loading: true,
+  isAdmin: false,
+  error: null,
   signIn: async () => { throw new Error('AuthContext not initialized'); },
-  signUp: async () => { throw new Error('AuthContext not initialized'); },
-  signOut: async () => { throw new Error('AuthContext not initialized'); }
+  signInWithGoogle: async () => { throw new Error('AuthContext not initialized'); },
+  signOut: async () => { throw new Error('AuthContext not initialized'); },
+  clearError: () => { throw new Error('AuthContext not initialized'); }
 };
 
 const AuthContext = createContext<AuthContextType>(defaultContext);
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
 
 interface AuthProviderProps {
   children: ReactNode;
 }
 
+interface UserData {
+  email: string;
+  displayName?: string;
+  photoURL?: string;
+  isAdmin?: boolean;
+  createdAt: Date;
+}
+
+const createUserDocument = async (user: User): Promise<UserData> => {
+  const userRef = doc(db, 'users', user.uid);
+  const userSnap = await getDoc(userRef);
+
+  if (!userSnap.exists()) {
+    const userData: UserData = {
+      email: user.email!,
+      displayName: user.displayName || undefined,
+      photoURL: user.photoURL || undefined,
+      createdAt: new Date(),
+      isAdmin: false // Default to false for new users
+    };
+    await setDoc(userRef, userData);
+    return userData;
+  }
+
+  return userSnap.data() as UserData;
+};
+
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const auth = getFirebaseAuth();
-    if (!auth) return;
+    if (typeof window === 'undefined') return;
 
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthChange(async (user) => {
+      if (user) {
+        const userData = await createUserDocument(user);
+        setIsAdmin(userData.isAdmin || false);
+      } else {
+        setIsAdmin(false);
+      }
       setUser(user);
       setLoading(false);
     });
@@ -75,30 +93,54 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, []);
 
   const signIn = async (email: string, password: string) => {
-    const auth = getFirebaseAuth();
-    if (!auth) throw new Error('Auth not initialized');
-    await signInWithEmailAndPassword(auth, email, password);
+    try {
+      const result = await signInWithEmail(email, password);
+      const userData = await createUserDocument(result.user);
+      setIsAdmin(userData.isAdmin || false);
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Prisijungimo klaida');
+      throw err;
+    }
   };
 
-  const signUp = async (email: string, password: string) => {
-    const auth = getFirebaseAuth();
-    if (!auth) throw new Error('Auth not initialized');
-    await createUserWithEmailAndPassword(auth, email, password);
+  const handleSignInWithGoogle = async () => {
+    try {
+      const result = await firebaseSignInWithGoogle();
+      const userData = await createUserDocument(result.user);
+      setIsAdmin(userData.isAdmin || false);
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Google prisijungimo klaida');
+      throw err;
+    }
   };
 
   const signOut = async () => {
-    const auth = getFirebaseAuth();
-    if (!auth) throw new Error('Auth not initialized');
-    await firebaseSignOut(auth);
+    try {
+      await firebaseSignOut();
+      setIsAdmin(false);
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Atsijungimo klaida');
+      throw err;
+    }
   };
 
+  const clearError = () => setError(null);
+
   return (
-    <AuthContext.Provider value={{ user, loading, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      loading, 
+      isAdmin,
+      error,
+      signIn, 
+      signInWithGoogle: handleSignInWithGoogle, 
+      signOut,
+      clearError
+    }}>
       {children}
     </AuthContext.Provider>
   );
-}
-
-export function useAuth() {
-  return useContext(AuthContext);
 } 

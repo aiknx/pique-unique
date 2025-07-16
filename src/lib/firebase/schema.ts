@@ -1,10 +1,9 @@
 // Firebase collection names
 export const COLLECTIONS = {
   USERS: 'users',
-  THEMES: 'themes',
   BOOKINGS: 'bookings',
-  ADD_ONS: 'addOns',
-  REVIEWS: 'reviews',
+  THEMES: 'themes',
+  REVIEWS: 'reviews'
 } as const;
 
 // Schema types
@@ -35,10 +34,21 @@ export interface Booking {
   userId: string;
   themeId: string;
   date: Date;
+  timeSlot: {
+    start: string; // 24h format, e.g. "14:00"
+    end: string;   // 24h format, e.g. "17:00"
+  };
+  location: string;
   guests: number;
+  contactInfo: {
+    name: string;
+    email: string;
+    phone: string;
+  };
   addOns: string[];
   specialRequests?: string;
   status: 'pending' | 'confirmed' | 'cancelled';
+  paymentStatus: 'pending' | 'paid' | 'refunded';
   totalPrice: number;
   createdAt: Date;
   updatedAt: Date;

@@ -1,123 +1,113 @@
-interface WeatherData {
+import { addDays, format } from 'date-fns';
+
+// Meteo.lt API response types
+interface MeteoLTForecast {
+  place: {
+    code: string;
+    name: string;
+    coordinates: {
+      latitude: number;
+      longitude: number;
+    };
+  };
+  forecastTimestamps: MeteoLTTimestamp[];
+}
+
+interface MeteoLTTimestamp {
+  forecastTimeUtc: string;
+  airTemperature: number;
+  feelsLikeTemperature: number;
+  windSpeed: number;
+  windGust: number;
+  windDirection: number;
+  cloudCover: number;
+  seaLevelPressure: number;
+  relativeHumidity: number;
+  totalPrecipitation: number;
+  conditionCode: string;
+}
+
+export interface WeatherData {
   temperature: number;
   feelsLike: number;
   description: string;
+  cloudiness: number;
+  precipitation: number;
   windSpeed: number;
   windDirection: string;
-  precipitation: number;
   humidity: number;
   pressure: number;
-  cloudiness: number;
-  uvIndex: number;
-  sunrise: string;
-  sunset: string;
-  waveHeight?: number; // Tik pajūrio vietovėms
-  waterTemperature?: number; // Tik pajūrio vietovėms
+  conditionCode: string;
 }
 
-interface LocationCoordinates {
-  lat: number;
-  lon: number;
-}
-
-const LOCATIONS: Record<string, LocationCoordinates> = {
-  klaipeda: { lat: 55.7033, lon: 21.1443 },
-  juodkrante: { lat: 55.5533, lon: 21.1222 },
-  nida: { lat: 55.3033, lon: 21.0094 },
-};
-
-export async function getWeatherData(location: string, date?: Date): Promise<WeatherData> {
-  try {
-    const coordinates = LOCATIONS[location];
-    if (!coordinates) {
-      throw new Error('Nežinoma vietovė');
-    }
-
-    // Use our Next.js API route instead of calling MeteoLT directly
-    const response = await fetch('/api/weather');
-    if (!response.ok) {
-      throw new Error('Nepavyko gauti orų duomenų');
-    }
-
-    const data = await response.json();
-    
-    // Process the MeteoLT API response
-    const forecast = data.forecastTimestamps[0]; // Get the latest forecast
-    
-    return {
-      temperature: forecast.airTemperature,
-      feelsLike: forecast.feelsLikeTemperature,
-      description: getWeatherDescription(forecast.conditionCode),
-      windSpeed: forecast.windSpeed,
-      windDirection: getWindDirection(forecast.windDirection),
-      precipitation: forecast.totalPrecipitation,
-      humidity: forecast.relativeHumidity,
-      pressure: forecast.seaLevelPressure,
-      cloudiness: forecast.cloudCover,
-      uvIndex: 5, // MeteoLT doesn't provide UV index
-      sunrise: '05:30', // MeteoLT doesn't provide sunrise/sunset times
-      sunset: '21:30', // MeteoLT doesn't provide sunrise/sunset times
-      // Optional coastal data - we'll leave these undefined if not available
-      waveHeight: location === 'klaipeda' ? 0.5 : undefined,
-      waterTemperature: location === 'klaipeda' ? 18 : undefined,
-    };
-  } catch (error) {
-    console.error('Klaida gaunant orų duomenis:', error);
-    throw error;
-  }
-}
-
-function getWeatherDescription(conditionCode: string): string {
-  const descriptions: Record<string, string> = {
-    'clear': 'Giedra',
-    'partly-cloudy': 'Mažai debesuota',
-    'cloudy-with-sunny-intervals': 'Debesuota su pragiedruliais',
-    'cloudy': 'Debesuota',
-    'thunder': 'Perkūnija',
-    'isolated-thunderstorms': 'Vietomis perkūnija',
-    'thunderstorms': 'Perkūnija',
-    'heavy-rain': 'Stiprus lietus',
-    'light-rain': 'Nedidelis lietus',
-    'rain': 'Lietus',
-    'sleet': 'Šlapdriba',
-    'light-snow': 'Nedidelis sniegas',
-    'snow': 'Sniegas',
-    'heavy-snow': 'Stiprus sniegas',
-    'fog': 'Rūkas',
-    'na': 'Nežinoma',
-  };
-  
-  return descriptions[conditionCode] || 'Nežinoma';
-}
-
-export function getWindDirection(degrees: number): string {
+// Convert wind direction degrees to cardinal directions
+function degreesToCardinal(degrees: number): string {
   const directions = ['Š', 'ŠR', 'R', 'PR', 'P', 'PV', 'V', 'ŠV'];
   const index = Math.round(degrees / 45) % 8;
   return directions[index];
 }
 
-export function getUVDescription(index: number): string {
-  if (index <= 2) return 'Žemas';
-  if (index <= 5) return 'Vidutinis';
-  if (index <= 7) return 'Aukštas';
-  if (index <= 10) return 'Labai aukštas';
-  return 'Ekstremalus';
-}
+export async function getWeatherData(location: string, date?: Date): Promise<WeatherData> {
+  try {
+    // Jei data nenurodyta, naudojame dabartinę datą
+    const targetDate = date || new Date();
+    
+    // Tikriname ar data yra ne vėliau nei 7 dienos į priekį
+    const maxDate = addDays(new Date(), 7);
+    if (targetDate > maxDate) {
+      throw new Error('Galima gauti orų prognozę tik 7 dienoms į priekį');
+    }
 
-export function getWaveDescription(height: number): string {
-  if (height <= 0.2) return 'Ramu';
-  if (height <= 0.5) return 'Švelnu';
-  if (height <= 1.0) return 'Vidutinės bangos';
-  if (height <= 1.5) return 'Banguota';
-  return 'Didelės bangos';
+    const formattedDate = format(targetDate, 'yyyy-MM-dd');
+    const response = await fetch(`/api/weather?location=${encodeURIComponent(location)}&date=${formattedDate}`);
+    
+    if (!response.ok) {
+      throw new Error('Nepavyko gauti orų prognozės');
+    }
+
+    const data: MeteoLTForecast = await response.json();
+    const forecast = data.forecastTimestamps[0];
+    
+    // Konvertuojame meteo.lt duomenis į mūsų formatą
+    return {
+      temperature: forecast.airTemperature,
+      feelsLike: forecast.feelsLikeTemperature,
+      description: forecast.conditionCode,
+      cloudiness: forecast.cloudCover,
+      precipitation: forecast.totalPrecipitation,
+      windSpeed: forecast.windSpeed,
+      windDirection: degreesToCardinal(forecast.windDirection),
+      humidity: forecast.relativeHumidity,
+      pressure: forecast.seaLevelPressure,
+      conditionCode: forecast.conditionCode
+    };
+  } catch (error) {
+    console.error('Klaida gaunant orų prognozę:', error);
+    throw error;
+  }
 }
 
 export function isGoodWeatherForPicnic(weather: WeatherData): boolean {
   return (
-    weather.temperature >= 18 &&
-    weather.temperature <= 28 &&
-    weather.precipitation < 20 &&
-    weather.windSpeed < 8 &&
+    weather.temperature >= 15 &&
+    weather.precipitation < 0.5 &&
+    weather.windSpeed < 5 &&
     weather.cloudiness < 70
   );
+}
+
+export function getUVDescription(uvIndex: number): string {
+  if (uvIndex <= 2) return 'Žemas';
+  if (uvIndex <= 5) return 'Vidutinis';
+  if (uvIndex <= 7) return 'Aukštas';
+  if (uvIndex <= 10) return 'Labai aukštas';
+  return 'Ekstremalus';
+}
+
+export function getWaveDescription(waveHeight: number): string {
+  if (waveHeight <= 0.5) return 'Ramu';
+  if (waveHeight <= 1.0) return 'Lengvos bangos';
+  if (waveHeight <= 1.5) return 'Vidutinės bangos';
+  if (waveHeight <= 2.0) return 'Didelės bangos';
+  return 'Labai didelės bangos';
 } 

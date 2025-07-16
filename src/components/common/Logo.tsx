@@ -1,17 +1,50 @@
+'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
 
-export default function Logo() {
+interface LogoProps {
+  className?: string;
+  variant?: 'horizontal' | 'vertical';
+  linkWrapper?: boolean;
+}
+
+export default function Logo({ 
+  className = '', 
+  variant = 'horizontal',
+  linkWrapper = true 
+}: LogoProps) {
+  const dimensions = variant === 'horizontal' 
+    ? { width: 800, height: 240 }
+    : { width: 600, height: 600 };
+
+  const image = (
+    <Image
+      src={variant === 'vertical' ? '/images/logo-vertical.png' : '/images/logo-horizontal.png'}
+      alt="Pique Unique"
+      {...dimensions}
+      style={{ 
+        objectFit: 'contain',
+        width: '100%',
+        height: 'auto',
+        maxHeight: variant === 'horizontal' ? '110px' : '300px'
+      }}
+      priority
+      className=""
+    />
+  );
+
+  if (linkWrapper) {
+    return (
+      <Link href="/" className={`relative flex items-center ${className}`}>
+        {image}
+      </Link>
+    );
+  }
+
   return (
-    <Link href="/" className="flex items-center space-x-2">
-      <Image
-        src="/images/logo.png"
-        alt="Pique Unique"
-        width={40}
-        height={40}
-        className="w-10 h-10"
-      />
-      <span className="text-xl font-semibold text-primary">Pique Unique</span>
-    </Link>
+    <div className={`relative flex items-center ${className}`}>
+      {image}
+    </div>
   );
 } 

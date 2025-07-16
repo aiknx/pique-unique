@@ -3,59 +3,56 @@
 import { useState } from 'react';
 
 export default function ContactForm() {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    message: ''
-  });
-
-  const [status, setStatus] = useState<{
-    type: 'success' | 'error' | null;
-    message: string;
-  }>({
-    type: null,
-    message: ''
-  });
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setStatus({ type: null, message: '' });
+    setError('');
+    setSuccess(false);
 
     try {
-      // TODO: Implement actual form submission
-      // For now, just simulate a successful submission
+      // Čia būtų API iškvietimas
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      setStatus({
-        type: 'success',
-        message: 'Ačiū! Jūsų žinutė sėkmingai išsiųsta. Susisieksime su jumis artimiausiu metu.'
-      });
-      
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        message: ''
-      });
-    } catch (error) {
-      setStatus({
-        type: 'error',
-        message: 'Atsiprašome, įvyko klaida. Prašome pabandyti vėliau arba susisiekti su mumis telefonu.'
-      });
+      setSuccess(true);
+      setName('');
+      setEmail('');
+      setMessage('');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Nepavyko išsiųsti žinutės');
     }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    const { name: fieldName, value } = e.target;
+    switch (fieldName) {
+      case 'name':
+        setName(value);
+        break;
+      case 'email':
+        setEmail(value);
+        break;
+      case 'message':
+        setMessage(value);
+        break;
+    }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {error && (
+        <div className="mb-4 p-4 bg-red-50 text-red-600 rounded-lg">
+          {error}
+        </div>
+      )}
+      {success && (
+        <div className="mb-4 p-4 bg-green-50 text-green-600 rounded-lg">
+          Žinutė sėkmingai išsiųsta!
+        </div>
+      )}
       <div>
         <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
           Vardas *
@@ -64,7 +61,7 @@ export default function ContactForm() {
           type="text"
           id="name"
           name="name"
-          value={formData.name}
+          value={name}
           onChange={handleChange}
           required
           className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-hunter-green focus:border-hunter-green"
@@ -79,23 +76,9 @@ export default function ContactForm() {
           type="email"
           id="email"
           name="email"
-          value={formData.email}
+          value={email}
           onChange={handleChange}
           required
-          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-hunter-green focus:border-hunter-green"
-        />
-      </div>
-
-      <div>
-        <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
-          Telefonas
-        </label>
-        <input
-          type="tel"
-          id="phone"
-          name="phone"
-          value={formData.phone}
-          onChange={handleChange}
           className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-hunter-green focus:border-hunter-green"
         />
       </div>
@@ -107,23 +90,13 @@ export default function ContactForm() {
         <textarea
           id="message"
           name="message"
-          value={formData.message}
+          value={message}
           onChange={handleChange}
           rows={5}
           required
           className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-hunter-green focus:border-hunter-green"
         ></textarea>
       </div>
-
-      {status.message && (
-        <div
-          className={`p-4 rounded-md ${
-            status.type === 'success' ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'
-          }`}
-        >
-          {status.message}
-        </div>
-      )}
 
       <button
         type="submit"

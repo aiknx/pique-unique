@@ -14,33 +14,46 @@
 
 @layer base {
   body {
-    @apply bg-white-smoke text-hunter-green;
+    @apply bg-white-smoke text-hunter-green font-inter;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-bold text-hunter-green;
+    @apply font-playfair font-bold text-hunter-green;
   }
 }
 
 @layer components {
   .btn-primary {
-    @apply bg-blush text-white px-4 py-2 rounded-lg hover:bg-opacity-90 transition-all duration-200;
+    @apply bg-blush text-white px-4 py-2 rounded-lg hover:bg-opacity-90 transition-all duration-200 transform hover:scale-105;
   }
 
   .btn-secondary {
-    @apply bg-cambridge-blue text-white px-4 py-2 rounded-lg hover:bg-opacity-90 transition-all duration-200;
+    @apply bg-cambridge-blue text-white px-4 py-2 rounded-lg hover:bg-opacity-90 transition-all duration-200 transform hover:scale-105;
   }
 
   .card {
-    @apply bg-white rounded-lg shadow-md p-6;
+    @apply bg-white rounded-lg shadow-md p-6 transition-all duration-300 hover:shadow-lg;
   }
 
   .input {
-    @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cambridge-blue;
+    @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cambridge-blue transition-all duration-200;
   }
 
   .container-custom {
-    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+    @apply container mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Animation classes */
+  .fade-in {
+    @apply opacity-0 animate-fadeIn;
+  }
+
+  .slide-up {
+    @apply translate-y-4 opacity-0 animate-slideUp;
+  }
+
+  .scale-in {
+    @apply scale-95 opacity-0 animate-scaleIn;
   }
 }
 
@@ -60,5 +73,46 @@
 /* Smooth scrolling */
 html {
   scroll-behavior: smooth;
+}
+
+/* Animation keyframes */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(1rem);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Font classes */
+.font-inter {
+  font-family: var(--font-inter);
+}
+
+.font-playfair {
+  font-family: var(--font-playfair);
 }
 

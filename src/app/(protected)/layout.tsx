@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { AuthProvider, useAuth } from '@/lib/auth'
 import Navbar from '@/components/Navbar'
+import SessionTimeout from '@/components/auth/SessionTimeout'
 
 function ProtectedContent({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth()
@@ -27,7 +28,12 @@ function ProtectedContent({ children }: { children: React.ReactNode }) {
     return null
   }
 
-  return <>{children}</>
+  return (
+    <>
+      {children}
+      <SessionTimeout />
+    </>
+  )
 }
 
 export default function ProtectedLayout({

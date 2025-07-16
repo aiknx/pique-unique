@@ -1,134 +1,91 @@
-import { useEffect, useState } from 'react'
-import FullCalendar from '@fullcalendar/react'
-import dayGridPlugin from '@fullcalendar/daygrid'
-import timeGridPlugin from '@fullcalendar/timegrid'
-import interactionPlugin from '@fullcalendar/interaction'
-import { DateSelectArg, EventClickArg } from '@fullcalendar/core'
+'use client';
+
+import { useState } from 'react';
+import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, isAfter, isBefore } from 'date-fns';
+import { lt } from 'date-fns/locale';
 
 interface CalendarProps {
-  onDateSelect?: (selectInfo: DateSelectArg) => void
-  onEventClick?: (clickInfo: EventClickArg) => void
-  events?: any[]
+  selectedDate: Date | null;
+  onChange: (date: Date | null) => void;
+  minDate: Date;
+  maxDate: Date;
 }
 
-export default function Calendar({ onDateSelect, onEventClick, events = [] }: CalendarProps) {
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+export default function Calendar({ selectedDate, onChange, minDate, maxDate }: CalendarProps) {
+  const [currentMonth, setCurrentMonth] = useState(new Date());
 
-  useEffect(() => {
-    try {
-      // Add custom styles for calendar
-      const style = document.createElement('style')
-      style.innerHTML = `
-        .fc {
-          --fc-border-color: #EFE4DB;
-          --fc-neutral-bg-color: #F4F4F4;
-          font-family: var(--font-inter);
-        }
-        .fc-button-primary {
-          background-color: #779E7B !important;
-          border-color: #779E7B !important;
-          color: #F4F4F4 !important;
-        }
-        .fc-button-primary:hover {
-          background-color: #466D4B !important;
-          border-color: #466D4B !important;
-        }
-        .fc-button-active {
-          background-color: #3CA6A6 !important;
-          border-color: #3CA6A6 !important;
-        }
-        .fc-day-today {
-          background-color: #EFE4DB !important;
-        }
-        .fc-event {
-          background-color: #CB7286 !important;
-          border-color: #CB7286 !important;
-          padding: 2px 4px;
-        }
-        .fc-event:hover {
-          background-color: #E9A6B3 !important;
-          border-color: #E9A6B3 !important;
-        }
-        .fc-day-sat, .fc-day-sun {
-          background-color: #F4F4F4;
-        }
-        .fc th {
-          padding: 12px 0;
-          background-color: #779E7B;
-          color: #F4F4F4;
-          font-weight: 500;
-        }
-        .fc td {
-          border-color: #EFE4DB;
-        }
-        .fc-toolbar-title {
-          color: #466D4B;
-        }
-        .fc-highlight {
-          background-color: rgba(60, 166, 166, 0.2) !important;
-        }
-      `
-      document.head.appendChild(style)
-      setIsLoading(false)
-      return () => {
-        document.head.removeChild(style)
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to initialize calendar')
-      setIsLoading(false)
-    }
-  }, [])
+  const monthStart = startOfMonth(currentMonth);
+  const monthEnd = endOfMonth(currentMonth);
+  const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
 
-  if (error) {
-    return (
-      <div className="p-4 bg-red-50 rounded-lg text-red-600">
-        <p>Error loading calendar: {error}</p>
-      </div>
-    )
-  }
+  const handlePrevMonth = () => setCurrentMonth(subMonths(currentMonth, 1));
+  const handleNextMonth = () => setCurrentMonth(addMonths(currentMonth, 1));
 
-  if (isLoading) {
-    return (
-      <div className="p-4 bg-linen rounded-lg shadow-lg flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-hunter"></div>
-      </div>
-    )
-  }
+  const isDateSelectable = (date: Date) => {
+    return !isBefore(date, minDate) && !isAfter(date, maxDate);
+  };
 
   return (
-    <div className="p-4 bg-linen rounded-lg shadow-lg">
-      <FullCalendar
-        plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-        headerToolbar={{
-          left: 'prev,next today',
-          center: 'title',
-          right: 'dayGridMonth,timeGridWeek'
-        }}
-        initialView="dayGridMonth"
-        editable={true}
-        selectable={true}
-        selectMirror={true}
-        dayMaxEvents={true}
-        weekends={true}
-        events={events}
-        select={onDateSelect}
-        eventClick={onEventClick}
-        height="auto"
-        contentHeight="auto"
-        aspectRatio={2}
-        firstDay={1} // Week starts on Monday
-        buttonText={{
-          today: 'Today',
-          month: 'Month',
-          week: 'Week'
-        }}
-        slotMinTime="09:00:00" // Day starts at 9 AM
-        slotMaxTime="21:00:00" // Day ends at 9 PM
-        allDaySlot={false}
-        slotDuration="01:00:00"
-        locale="en-GB"
-      />
+    <div className="w-full">
+      {/* Calendar Header */}
+      <div className="flex justify-between items-center mb-4">
+        <button
+          onClick={handlePrevMonth}
+          disabled={isBefore(startOfMonth(currentMonth), startOfMonth(minDate))}
+          className="p-2 hover:bg-gray-100 rounded-full disabled:opacity-50"
+        >
+          ←
+        </button>
+        <h2 className="text-lg font-semibold">
+          {format(currentMonth, 'LLLL yyyy', { locale: lt })}
+        </h2>
+        <button
+          onClick={handleNextMonth}
+          disabled={isAfter(startOfMonth(currentMonth), startOfMonth(maxDate))}
+          className="p-2 hover:bg-gray-100 rounded-full disabled:opacity-50"
+        >
+          →
+        </button>
+      </div>
+
+      {/* Weekday Headers */}
+      <div className="grid grid-cols-7 gap-1 mb-2">
+        {['P', 'A', 'T', 'K', 'Pn', 'Š', 'S'].map((day) => (
+          <div key={day} className="text-center text-sm font-medium text-gray-500">
+            {day}
+          </div>
+        ))}
+      </div>
+
+      {/* Calendar Grid */}
+      <div className="grid grid-cols-7 gap-1">
+        {Array.from({ length: monthStart.getDay() === 0 ? 6 : monthStart.getDay() - 1 }).map((_, i) => (
+          <div key={`empty-${i}`} className="aspect-square" />
+        ))}
+        {days.map((day) => {
+          const isSelectable = isDateSelectable(day);
+          const isSelected = selectedDate && isSameDay(day, selectedDate);
+          
+          return (
+            <button
+              key={day.toISOString()}
+              onClick={() => isSelectable && onChange(day)}
+              disabled={!isSelectable}
+              className={`
+                aspect-square p-2 text-sm rounded-full transition-colors
+                ${isSelectable 
+                  ? isSelected
+                    ? 'bg-hunter-green text-white'
+                    : 'bg-white text-gray-900 hover:bg-hunter-green hover:text-white'
+                  : 'cursor-not-allowed opacity-50'
+                }
+              `}
+            >
+              {format(day, 'd')}
+            </button>
+          );
+        })}
+      </div>
     </div>
-  )
+  );
 } 

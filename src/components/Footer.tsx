@@ -1,8 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import Logo from './Logo';
-import Icon from './Icon';
+import Logo from './common/Logo';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -13,11 +12,13 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
           {/* Logo and Description */}
           <div className="col-span-1 md:col-span-5">
-            <Logo className="h-16 w-auto mb-3" variant="horizontal" />
-            <p className="text-gray-300 mb-3">
-              Kuriame nepamirštamus momentus paplūdimyje su prabangiais piknikais,
-              pritaikytais jūsų ypatingoms progoms.
-            </p>
+            <div className="flex flex-col items-start">
+              <Logo className="mb-1" variant="horizontal" />
+              <p className="text-gray-300">
+                Kuriame nepamirštamus momentus paplūdimyje su prabangiais piknikais,
+                pritaikytais jūsų ypatingoms progoms.
+              </p>
+            </div>
           </div>
 
           {/* Quick Links */}

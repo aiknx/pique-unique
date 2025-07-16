@@ -12,7 +12,7 @@ const themes = [
     id: 'romantic',
     title: 'Romantiški Piknikai',
     description: 'Tobula aplinka romantiškiems pasimatymams, piršlyboms ar vestuvių metinėms. Sukuriame jaukią ir intymią atmosferą su žvakėmis, gėlėmis ir specialiai jums pritaikyta aplinka.',
-    image: '/themes/romantic.jpg',
+    image: 'https://placehold.co/800x600/e2e8f0/1a472a?text=Romantiški+Piknikai',
     features: [
       'Jaukus apšvietimas su žvakėmis ir girliandomis',
       'Romantiška muzika',
@@ -26,7 +26,7 @@ const themes = [
     id: 'family',
     title: 'Šeimos Piknikai',
     description: 'Puiki proga praleisti laiką su šeima ir draugais. Organizuojame gimtadienius, krikštynas ar tiesiog jaukų savaitgalio pikniką visai šeimai.',
-    image: '/themes/family.jpg',
+    image: 'https://placehold.co/800x600/e2e8f0/1a472a?text=Šeimos+Piknikai',
     features: [
       'Erdvi ir patogi piknikavimo zona',
       'Žaidimai vaikams ir suaugusiems',
@@ -40,7 +40,7 @@ const themes = [
     id: 'luxury',
     title: 'Prabangūs Piknikai',
     description: 'Išskirtinė patirtis tiems, kurie vertina aukščiausią kokybę. Tobula proga verslo susitikimams, mergvakariams ar bet kokiai ypatingai šventei.',
-    image: '/themes/luxury.jpg',
+    image: 'https://placehold.co/800x600/e2e8f0/1a472a?text=Prabangūs+Piknikai',
     features: [
       'Premium klasės baldai ir įranga',
       'Gurmaniški užkandžiai ir gėrimai',
@@ -117,7 +117,7 @@ export default function ThemesPage() {
                   </ul>
                   <div className="pt-4">
                     <Link
-                      href="/booking"
+                      href={`/booking?theme=${theme.id}`}
                       className="inline-block bg-hunter-green text-white py-3 px-8 rounded-md hover:bg-hunter-green/90 transition-colors"
                     >
                       Rezervuoti

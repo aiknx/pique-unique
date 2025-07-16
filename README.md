@@ -1,75 +1,54 @@
 # Pique Unique
 
-A Next.js booking system application with Firebase backend.
+## Diegimo instrukcijos
 
-## Project Overview
+1. Sukurkite `.env.local` failą pagal `.env.example` šabloną
+2. Produkcinei aplinkai būtina nustatyti:
+   - `NEXT_PUBLIC_USE_FIREBASE_EMULATOR=false`
+   - Įvesti visus Firebase konfigūracijos parametrus
+   - Orų duomenys gaunami iš meteo.lt API (nereikia API rakto)
+3. Admin prisijungimo duomenys:
+   - El. paštas: admin@test.com
+   - Slaptažodis: test123
 
-This project is a booking system built with Next.js and Firebase, designed to provide a seamless booking experience for service-based businesses. It includes features such as user authentication, service management, booking management, and review system.
+## Aplinkos kintamieji
 
-## Project Structure
+```env
+# Firebase Config - būtina užpildyti
+NEXT_PUBLIC_FIREBASE_API_KEY=
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=
+NEXT_PUBLIC_FIREBASE_APP_ID=
 
-The project follows a structured implementation plan divided into phases:
+# Firebase Emulator Config
+NEXT_PUBLIC_USE_FIREBASE_EMULATOR=false # Produkcijai BŪTINAI false
+NEXT_PUBLIC_FIREBASE_AUTH_EMULATOR_URL=http://127.0.0.1:9099
+NEXT_PUBLIC_FIREBASE_FIRESTORE_EMULATOR_URL=http://127.0.0.1:8080
 
-1. **Firebase Foundation**: Setting up Firebase, implementing authentication, and creating base data models.
-2. **Core Booking Functionality**: Implementing calendar integration, booking system, and service management.
-3. **User Experience & Reviews**: Creating user dashboard, review system, and UI refinements.
-4. **Admin & Analytics**: Building admin dashboard, analytics integration, and optimization.
-5. **Testing & Deployment**: Implementing testing, deployment pipeline, and documentation.
+# Admin Config
+ADMIN_EMAIL=admin@test.com
+ADMIN_PASSWORD=test123
 
-## Documentation
+# Weather API
+# Naudojame meteo.lt API (nereikia API rakto)
+# Dokumentacija: https://api.meteo.lt/
+```
 
-- **PROJECT_ARCHITECTURE.md**: Technical architecture, data models, and development standards.
-- **IMPLEMENTATION_PLAN.md**: Detailed implementation plan with phases and tasks.
-- **SONNET_INSTRUCTIONS.md**: Instructions for Sonnet AI for implementation.
-- **TASK_TRACKING.md**: Progress tracking for implementation tasks.
-- **DIAGRAMS.md**: Visual representations of the project structure and data models.
+## Funkcionalumas
 
-## Getting Started
+1. Pagrindinis puslapis
+   - Orų informacija (meteo.lt)
+   - Fotosesijų paketai
+   - Kontaktinė forma
 
-### Prerequisites
+2. Admin panelė (/admin)
+   - Užsakymų valdymas
+   - Paketų valdymas
+   - Galerijos valdymas (bus įkelta vėliau)
 
-- Node.js (v18 or higher)
-- npm or yarn
-- Firebase account
+## Žinomi apribojimai
 
-### Installation
-
-1. Clone the repository:
-   ```bash
-   git clone <repository-url>
-   cd pique-unique
-   ```
-
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
-3. Set up environment variables:
-   Create a `.env.local` file with the following:
-   ```
-   NEXT_PUBLIC_FIREBASE_API_KEY=your-api-key
-   NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-auth-domain
-   NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
-   NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-storage-bucket
-   NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your-messaging-sender-id
-   NEXT_PUBLIC_FIREBASE_APP_ID=your-app-id
-   ```
-
-4. Run the development server:
-   ```bash
-   npm run dev
-   ```
-
-## Working with Sonnet AI
-
-This project is being implemented with the assistance of Sonnet AI. The implementation follows a structured approach:
-
-1. **Understanding Requirements**: Sonnet AI works from the project architecture and implementation plan.
-2. **Methodical Implementation**: Features are implemented in phases, following the defined plan.
-3. **Quality Standards**: All code follows the quality standards defined in the implementation plan.
-4. **Progress Tracking**: Implementation progress is tracked in TASK_TRACKING.md.
-
-## License
-
-[MIT](LICENSE)
+1. Galerijos funkcionalumas bus pridėtas vėliau, kai bus paruoštos profesionalios nuotraukos
+2. Admin panelė šiuo metu turi bazinį funkcionalumą, bus plečiama pagal poreikį

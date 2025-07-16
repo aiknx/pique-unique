@@ -55,12 +55,20 @@ module.exports = {
         },
       },
       fontFamily: {
-        heading: ['var(--font-playfair)', 'serif'],
-        sans: ['var(--font-inter)', 'sans-serif'],
+        inter: ['var(--font-inter)', 'sans-serif'],
+        playfair: ['var(--font-playfair)', 'serif'],
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
         'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
+      },
+      animation: {
+        fadeIn: 'fadeIn 0.5s ease-in forwards',
+        slideUp: 'slideUp 0.5s ease-out forwards',
+        scaleIn: 'scaleIn 0.5s ease-out forwards',
+      },
+      transitionTimingFunction: {
+        'bounce-in': 'cubic-bezier(0.68, -0.55, 0.265, 1.55)',
       },
     },
   },

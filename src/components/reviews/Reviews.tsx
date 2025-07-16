@@ -15,7 +15,7 @@ export default function Reviews() {
         const reviewsData = await getCachedCollection<Review>(COLLECTIONS.REVIEWS);
         setReviews(reviewsData.filter(review => review.isPublic).slice(0, 6));
       } catch (error) {
-        console.error('Error fetching reviews:', error);
+        console.error('Klaida gaunant atsiliepimus:', error);
       } finally {
         setLoading(false);
       }
@@ -66,9 +66,9 @@ export default function Reviews() {
   return (
     <div className="py-12">
       <div className="text-center mb-12">
-        <h2 className="text-3xl font-bold mb-4">What Our Guests Say</h2>
+        <h2 className="text-3xl font-bold mb-4">Ką Sako Mūsų Svečiai</h2>
         <p className="text-gray-600">
-          Read about experiences from our wonderful guests
+          Perskaitykite atsiliepimus iš mūsų nuostabių svečių
         </p>
       </div>
 
@@ -83,7 +83,7 @@ export default function Reviews() {
                 <div className="relative w-20 h-20">
                   <Image
                     src={review.images[0]}
-                    alt="Review"
+                    alt="Atsiliepimo nuotrauka"
                     fill
                     className="object-cover rounded"
                     sizes="80px"
@@ -93,7 +93,7 @@ export default function Reviews() {
               <div>
                 <div className="flex mb-1">{renderStars(review.rating)}</div>
                 <p className="text-sm text-gray-600">
-                  {new Date(review.createdAt).toLocaleDateString()}
+                  {new Date(review.createdAt).toLocaleDateString('lt-LT')}
                 </p>
               </div>
             </div>
@@ -106,7 +106,7 @@ export default function Reviews() {
                   <div key={index} className="relative h-20">
                     <Image
                       src={image}
-                      alt={`Review image ${index + 1}`}
+                      alt={`Atsiliepimo nuotrauka ${index + 1}`}
                       fill
                       className="object-cover rounded"
                       sizes="(max-width: 768px) 33vw, 80px"

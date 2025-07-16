@@ -1,4 +1,7 @@
+/* eslint-disable react/no-unescaped-entities */
 'use client';
+
+import Link from 'next/link';
 
 type Review = {
   id: string
@@ -12,25 +15,25 @@ type Review = {
 const SAMPLE_REVIEWS: Review[] = [
   {
     id: '1',
-    name: 'Sarah M.',
+    name: 'Simona M.',
     rating: 5,
-    comment: 'Absolutely magical experience! The setup was stunning and the attention to detail was incredible. Made our anniversary so special.',
+    comment: 'Absoliučiai magiška patirtis! Apipavidalinimas buvo nuostabus, o dėmesys detalėms - neįtikėtinas. Padarė mūsų metines ypatingas.',
     date: '2024-02-15',
     image: '/images/reviews/sarah.jpg'
   },
   {
     id: '2',
-    name: 'James K.',
+    name: 'Jonas K.',
     rating: 5,
-    comment: 'Perfect proposal setting! The team went above and beyond to make everything perfect. She said yes!',
+    comment: 'Tobula vieta piršlyboms! Komanda padarė viską ir dar daugiau, kad viskas būtų tobula. Ji pasakė taip!',
     date: '2024-02-10',
     image: '/images/reviews/james.jpg'
   },
   {
     id: '3',
-    name: 'Emily R.',
+    name: 'Emilija R.',
     rating: 5,
-    comment: 'Such a unique way to celebrate my birthday. The food was delicious and the setup was Instagram-worthy!',
+    comment: 'Toks unikalus būdas atšvęsti gimtadienį. Maistas buvo skanus, o apipavidalinimas - vertas Instagramo!',
     date: '2024-02-01',
     image: '/images/reviews/emily.jpg'
   }
@@ -61,10 +64,10 @@ export default function Reviews() {
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-heading font-bold text-primary-600 mb-4">
-            What Our Guests Say
+            Ką sako mūsų svečiai
           </h2>
           <p className="text-lg text-neutral-700">
-            Read about the magical moments we've created for our guests
+            Perskaitykite apie magiškas akimirkas, kurias sukūrėme mūsų svečiams
           </p>
         </div>
 
@@ -87,9 +90,12 @@ export default function Reviews() {
         </div>
 
         <div className="text-center mt-12">
-          <a href="/reviews" className="btn-outline">
-            Read More Reviews
-          </a>
+          <Link
+            href="/reviews"
+            className="btn-outline"
+          >
+            Visi atsiliepimai
+          </Link>
         </div>
       </div>
     </section>
