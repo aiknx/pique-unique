@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { adminAuth } from '@/lib/firebase-admin';
+import { adminAuth } from '@/lib/server/firebase-admin';
 
 const SESSION_COOKIE_NAME = 'session';
 const SESSION_EXPIRY = 60 * 60 * 24 * 5 * 1000; // 5 days in milliseconds

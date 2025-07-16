@@ -13,4 +13,8 @@ if (!apps.length) {
 }
 
 export const adminDb = getFirestore();
-export const adminAuth = getAuth(); 
+export const adminAuth = getAuth();
+
+// Export functions for easier access
+export const getAdminDb = () => adminDb;
+export const getAdminAuth = () => adminAuth; 
