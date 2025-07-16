@@ -1,6 +1,6 @@
 import './globals.css'
 import type { Metadata, Viewport } from 'next'
-import { Inter, Playfair_Display } from 'next/font/google'
+import { Inter } from 'next/font/google'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import defaultMetadata from './metadata'
@@ -12,11 +12,11 @@ const inter = Inter({
   display: 'swap',
 })
 
-const playfair = Playfair_Display({ 
-  subsets: ['latin'],
-  variable: '--font-playfair',
-  display: 'swap',
-})
+// const playfair = Playfair_Display({ 
+//   subsets: ['latin'],
+//   variable: '--font-playfair',
+//   display: 'swap',
+// })
 
 export const metadata: Metadata = defaultMetadata
 

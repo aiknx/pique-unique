@@ -36,7 +36,7 @@ export default function ThemeSelection({ onSelect, selectedTheme, guestCount }: 
         
         // If previously selected theme is no longer valid, clear it
         if (selectedTheme && !filteredThemes.find(t => t.id === selectedTheme)) {
-          onSelect(null as any);
+          onSelect(null as unknown as Theme);
         }
       } catch (err) {
         console.error('Error fetching themes:', err);

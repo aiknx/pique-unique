@@ -29,7 +29,7 @@ export default function BookingForm({ selectedDate, selectedLocation, selectedTi
     },
     specialRequests: '',
     agreeToTerms: false,
-    selectedTheme: null as any
+    selectedTheme: null as unknown as { id: string; name: string; price: number }
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -65,10 +65,10 @@ export default function BookingForm({ selectedDate, selectedLocation, selectedTi
     }));
   };
 
-  const handleThemeSelect = (theme: any) => {
+  const handleThemeSelect = (theme: unknown) => {
     setFormData(prev => ({
       ...prev,
-      selectedTheme: theme
+      selectedTheme: theme as { id: string; name: string; price: number }
     }));
   };
 

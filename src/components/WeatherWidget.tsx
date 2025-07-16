@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 
 interface WeatherWidgetProps {
   location: string;
@@ -114,7 +115,7 @@ export default function WeatherWidget({ location, date }: WeatherWidgetProps) {
           <p className="text-gray-600">{weatherDescriptions[weather.conditionCode] || weather.description}</p>
         </div>
         {weather.conditionCode && (
-          <img
+          <Image
             src={`https://api.meteo.lt/weather-conditions/${weather.conditionCode}`}
             alt={weatherDescriptions[weather.conditionCode] || weather.description}
             width={50}

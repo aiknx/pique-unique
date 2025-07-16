@@ -1,8 +1,7 @@
-require('dotenv').config({ path: '.env.local' });
-
-const { initializeApp } = require('firebase/app');
-const { getAuth, connectAuthEmulator, signInWithEmailAndPassword } = require('firebase/auth');
-const { getFirestore, connectFirestoreEmulator, doc, setDoc } = require('firebase/firestore');
+import 'dotenv';
+import { initializeApp } from 'firebase/app';
+import { getAuth, connectAuthEmulator, signInWithEmailAndPassword } from 'firebase/auth';
+import { getFirestore, connectFirestoreEmulator, doc, setDoc } from 'firebase/firestore';
 
 const COLLECTIONS = {
   USERS: 'users'

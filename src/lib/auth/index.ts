@@ -57,9 +57,15 @@ const AuthContext = createContext<AuthContextType>({
 });
 
 // Helper function to get error message
-const getErrorMessage = (error: any): string => {
-  if (error?.code && AUTH_ERRORS[error.code as keyof typeof AUTH_ERRORS]) {
-    return AUTH_ERRORS[error.code as keyof typeof AUTH_ERRORS];
+const getErrorMessage = (error: unknown): string => {
+  if (
+    typeof error === 'object' &&
+    error !== null &&
+    'code' in error &&
+    typeof (error as { code?: string }).code === 'string' &&
+    AUTH_ERRORS[(error as { code: string }).code as keyof typeof AUTH_ERRORS]
+  ) {
+    return AUTH_ERRORS[(error as { code: string }).code as keyof typeof AUTH_ERRORS];
   }
   return AUTH_ERRORS.default;
 };
@@ -131,7 +137,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const authUser = result.user as AuthUser;
       setIsAdmin(await isUserAdmin(authUser));
       setUser(authUser);
-    } catch (error: any) {
+    } catch (error: unknown) {
       setError(getErrorMessage(error));
       throw error;
     }
@@ -148,7 +154,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const authUser = result.user as AuthUser;
       setIsAdmin(await isUserAdmin(authUser));
       setUser(authUser);
-    } catch (error: any) {
+    } catch (error: unknown) {
       setError(getErrorMessage(error));
       throw error;
     }
@@ -161,7 +167,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await fetch('/api/auth/logout', { method: 'POST' });
       setUser(null);
       setIsAdmin(false);
-    } catch (error: any) {
+    } catch (error: unknown) {
       setError(getErrorMessage(error));
       throw error;
     }

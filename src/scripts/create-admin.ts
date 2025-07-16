@@ -1,5 +1,5 @@
-require('dotenv').config({ path: '.env.local' });
-const fetch = require('node-fetch');
+import 'dotenv';
+import 'node-fetch';
 
 async function createAdminUser() {
   const email = 'admin@test.com';

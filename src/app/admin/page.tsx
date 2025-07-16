@@ -62,12 +62,12 @@ export default function AdminDashboard() {
 
         setBookings(bookingsData);
         setUsers(usersData);
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error('Error fetching data:', error);
-        setError(error.message || 'Klaida gaunant duomenis');
+        setError((error as Error).message || 'Klaida gaunant duomenis');
         
         // If we're offline, try to disable network and use cached data
-        if (error.message.includes('offline')) {
+        if ((error as Error).message.includes('offline')) {
           try {
             console.log('Switching to offline mode...');
             await disableNetwork(db);
@@ -102,7 +102,7 @@ export default function AdminDashboard() {
             enableNetwork(db).catch(e => {
               console.warn('Failed to re-enable network:', e);
             });
-          } catch (offlineError) {
+          } catch (offlineError: unknown) {
             console.error('Error fetching offline data:', offlineError);
             setError('Nepavyko gauti duomenų net offline režime');
           }

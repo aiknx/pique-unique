@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 
 export default function AdminTestPage() {
   const { user, loading, isAdmin } = useAuth();
-  const [adminData, setAdminData] = useState<any>(null);
+  const [adminData, setAdminData] = useState<unknown>(null);
   const router = useRouter();
 
   useEffect(() => {

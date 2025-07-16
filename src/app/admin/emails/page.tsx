@@ -100,8 +100,8 @@ export default function EmailsPage() {
       const emails = snapshot.docs.map(doc => doc.data().contactInfo.email);
       const uniqueEmails = [...new Set(emails)];
       setRecipients(uniqueEmails);
-    } catch (err) {
-      console.error('Error fetching recipients:', err);
+    } catch (_err) {
+      console.error('Error fetching recipients:', _err);
       setError('Klaida gaunant gavėjų sąrašą');
     } finally {
       setLoading(false);
@@ -136,8 +136,8 @@ export default function EmailsPage() {
       }
 
       setSuccess('Laiškai sėkmingai išsiųsti!');
-    } catch (err) {
-      console.error('Error sending emails:', err);
+    } catch (_err) {
+      console.error('Error sending emails:', _err);
       setError('Klaida siunčiant laiškus');
     } finally {
       setLoading(false);
@@ -183,7 +183,7 @@ export default function EmailsPage() {
                   name="recipientType"
                   value="all"
                   checked={recipientType === 'all'}
-                  onChange={(e) => setRecipientType('all')}
+                  onChange={() => setRecipientType('all')}
                 />
                 <span className="ml-2">Visi klientai</span>
               </label>
@@ -194,7 +194,7 @@ export default function EmailsPage() {
                   name="recipientType"
                   value="upcoming"
                   checked={recipientType === 'upcoming'}
-                  onChange={(e) => setRecipientType('upcoming')}
+                  onChange={() => setRecipientType('upcoming')}
                 />
                 <span className="ml-2">Artėjantys užsakymai</span>
               </label>
@@ -205,7 +205,7 @@ export default function EmailsPage() {
                   name="recipientType"
                   value="custom"
                   checked={recipientType === 'custom'}
-                  onChange={(e) => setRecipientType('custom')}
+                  onChange={() => setRecipientType('custom')}
                 />
                 <span className="ml-2">Pasirinktiniai gavėjai</span>
               </label>

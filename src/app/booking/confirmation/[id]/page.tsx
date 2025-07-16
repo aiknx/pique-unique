@@ -6,8 +6,19 @@ import { db } from '@/lib/firebase';
 import { COLLECTIONS } from '@/lib/firebase/schema';
 import Link from 'next/link';
 
+interface Booking {
+  id: string;
+  date: { toDate: () => Date };
+  timeSlot: { start: string; end: string };
+  location: string;
+  guests: number;
+  themeName: string;
+  themePrice: number;
+  specialRequests?: string;
+}
+
 export default function BookingConfirmationPage({ params }: { params: { id: string } }) {
-  const [booking, setBooking] = useState<any>(null);
+  const [booking, setBooking] = useState<Booking | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -18,7 +29,7 @@ export default function BookingConfirmationPage({ params }: { params: { id: stri
         const docSnap = await getDoc(docRef);
         
         if (docSnap.exists()) {
-          setBooking({ id: docSnap.id, ...docSnap.data() });
+          setBooking({ id: docSnap.id, ...docSnap.data() } as Booking);
         } else {
           setError('Rezervacija nerasta');
         }

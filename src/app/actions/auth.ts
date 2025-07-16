@@ -5,7 +5,7 @@ import { createSession, removeSession } from '@/lib/dal/auth';
 import { getAdminAuth } from '@/lib/server/firebase-admin';
 import { FirebaseError } from 'firebase/app';
 
-export async function handleSignIn(email: string, password: string) {
+export async function handleSignIn(email: string) {
   try {
     // Use admin SDK to verify credentials
     const adminAuth = await getAdminAuth();

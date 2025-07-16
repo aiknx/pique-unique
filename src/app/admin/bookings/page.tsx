@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+// import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { collection, query, orderBy, getDocs, doc, updateDoc, where } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
@@ -34,7 +34,7 @@ interface Booking {
 }
 
 export default function BookingsPage() {
-  const router = useRouter();
+  // const router = useRouter();
   const [statusFilter, setStatusFilter] = useState<BookingStatus | 'all'>('all');
   const [dateFilter, setDateFilter] = useState<'all' | 'today' | 'tomorrow' | 'thisWeek' | 'nextWeek'>('all');
   const [bookings, setBookings] = useState<Booking[]>([]);

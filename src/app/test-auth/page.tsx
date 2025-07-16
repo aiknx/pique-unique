@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 
 export default function TestAuthPage() {
   const { user, loading, isAdmin, signOut, error } = useAuth();
-  const [sessionData, setSessionData] = useState<any>(null);
+  const [sessionData, setSessionData] = useState<unknown>(null);
   const router = useRouter();
 
   useEffect(() => {

@@ -5,6 +5,7 @@ import { collection, query, orderBy, getDocs, doc, deleteDoc, addDoc } from 'fir
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { db, storage } from '@/lib/firebase';
 import { COLLECTIONS } from '@/lib/firebase/schema';
+import Image from 'next/image';
 
 interface GalleryImage {
   id: string;
@@ -157,9 +158,11 @@ export default function GalleryManagementPage() {
               key={image.id}
               className="bg-white rounded-lg shadow overflow-hidden group relative"
             >
-              <img
+              <Image
                 src={image.url}
                 alt={image.title || 'Gallery image'}
+                width={400}
+                height={267}
                 className="w-full h-64 object-cover"
               />
               <div className="p-4">
