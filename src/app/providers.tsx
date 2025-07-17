@@ -1,6 +1,7 @@
 'use client';
 
 import { AuthProvider } from '@/lib/auth';
+import { AdminAuthProvider } from '@/lib/adminAuth';
 import { ReactNode } from 'react';
 
 interface ProvidersProps {
@@ -10,7 +11,9 @@ interface ProvidersProps {
 export default function Providers({ children }: ProvidersProps) {
   return (
     <AuthProvider>
-      {children}
+      <AdminAuthProvider>
+        {children}
+      </AdminAuthProvider>
     </AuthProvider>
   );
 } 

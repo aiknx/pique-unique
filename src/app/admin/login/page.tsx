@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/lib/auth';
 import { useAdminAuth } from '@/lib/adminAuth';
 
 export default function AdminLoginPage() {
@@ -10,8 +9,7 @@ export default function AdminLoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const router = useRouter();
-  const { signIn, signInWithGoogle } = useAuth();
-  const { isAuthenticated } = useAdminAuth();
+  const { signIn, signInWithGoogle } = useAdminAuth();
 
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,11 +17,7 @@ export default function AdminLoginPage() {
     
     try {
       await signIn(email, password);
-      if (isAuthenticated) {
-        router.push('/admin/dashboard');
-      } else {
-        setError('Tik administratoriai gali prisijungti prie šio puslapio');
-      }
+      router.push('/admin/dashboard');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Nepavyko prisijungti');
     }
@@ -34,11 +28,7 @@ export default function AdminLoginPage() {
     
     try {
       await signInWithGoogle();
-      if (isAuthenticated) {
-        router.push('/admin/dashboard');
-      } else {
-        setError('Tik administratoriai gali prisijungti prie šio puslapio');
-      }
+      router.push('/admin/dashboard');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Nepavyko prisijungti su Google');
     }

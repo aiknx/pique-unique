@@ -12,7 +12,8 @@
     "type-check": "tsc --noEmit",
     "build:stats": "cross-env ANALYZE=true next build",
     "lighthouse": "lighthouse http://localhost:3002 --view",
-    "setup-dev": "NODE_ENV=development ts-node -T src/scripts/setup-dev.ts"
+    "setup-dev": "NODE_ENV=development ts-node -T src/scripts/setup-dev.ts",
+    "create-admin": "ts-node -T src/scripts/create-production-admin.ts"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
