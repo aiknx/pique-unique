@@ -12,6 +12,15 @@ interface WeatherData {
   temperature: number;
   description: string;
   conditionCode: string;
+  additionalInfo?: {
+    windSpeed: number;
+    windDirection: number;
+    humidity: number;
+    pressure: number;
+    precipitation: number;
+    cloudCover: number;
+    feelsLike: number;
+  };
 }
 
 // Meteo.lt condition codes to human readable text mapping
@@ -29,6 +38,26 @@ const weatherDescriptions: Record<string, string> = {
   'heavy-snow': 'Smarkus sniegas',
   'fog': 'Rūkas',
   'na': 'Nėra duomenų'
+};
+
+// Weather icons mapping
+const getWeatherIcon = (conditionCode: string): string => {
+  const icons: Record<string, string> = {
+    'clear': '☀️',
+    'partly-cloudy': '⛅',
+    'cloudy': '☁️',
+    'overcast': '☁️',
+    'light-rain': '🌦️',
+    'rain': '🌧️',
+    'heavy-rain': '⛈️',
+    'sleet': '🌨️',
+    'light-snow': '🌨️',
+    'snow': '❄️',
+    'heavy-snow': '❄️',
+    'fog': '🌫️',
+    'na': '❓'
+  };
+  return icons[conditionCode] || '❓';
 };
 
 export default function WeatherWidget({ location, date }: WeatherWidgetProps) {
@@ -53,7 +82,16 @@ export default function WeatherWidget({ location, date }: WeatherWidgetProps) {
           setWeather({
             temperature: forecast.airTemperature,
             description: forecast.conditionCode,
-            conditionCode: forecast.conditionCode
+            conditionCode: forecast.conditionCode,
+            additionalInfo: data.additionalInfo || {
+              windSpeed: forecast.windSpeed,
+              windDirection: forecast.windDirection,
+              humidity: forecast.relativeHumidity,
+              pressure: forecast.seaLevelPressure,
+              precipitation: forecast.totalPrecipitation,
+              cloudCover: forecast.cloudCover,
+              feelsLike: forecast.feelsLikeTemperature
+            }
           });
         } else {
           throw new Error('Nėra orų duomenų');
@@ -108,21 +146,29 @@ export default function WeatherWidget({ location, date }: WeatherWidgetProps) {
 
   return (
     <div className="bg-gray-50 rounded-lg p-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between mb-3">
         <div>
           <p className="text-lg font-semibold">{weather.temperature}°C</p>
           <p className="text-gray-600">{weatherDescriptions[weather.conditionCode] || weather.description}</p>
+          {weather.additionalInfo && (
+            <p className="text-sm text-gray-500">Jausmas: {weather.additionalInfo.feelsLike}°C</p>
+          )}
         </div>
         {weather.conditionCode && (
-          <Image
-            src={`https://api.meteo.lt/weather-conditions/${weather.conditionCode}`}
-            alt={weatherDescriptions[weather.conditionCode] || weather.description}
-            width={50}
-            height={50}
-            className="w-12 h-12"
-          />
+          <div className="text-3xl">
+            {getWeatherIcon(weather.conditionCode)}
+          </div>
         )}
       </div>
+      
+      {weather.additionalInfo && (
+        <div className="grid grid-cols-2 gap-2 text-xs text-gray-600">
+          <div>💨 Vėjas: {weather.additionalInfo.windSpeed} m/s</div>
+          <div>💧 Drėgmė: {weather.additionalInfo.humidity}%</div>
+          <div>☔ Krituliai: {weather.additionalInfo.precipitation} mm</div>
+          <div>☁️ Debesys: {weather.additionalInfo.cloudCover}%</div>
+        </div>
+      )}
     </div>
   );
 } 

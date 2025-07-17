@@ -17,16 +17,13 @@ interface WeatherData {
   conditionCode: string;
 }
 
-interface BookedDate {
-  date: string;
-  count: number;
-}
+
 
 export default function Calendar({ selectedDate, onChange, minDate, maxDate, location = 'klaipeda' }: CalendarProps) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [weatherData, setWeatherData] = useState<Record<string, WeatherData>>({});
   const [bookedDates, setBookedDates] = useState<Set<string>>(new Set());
-  const [loading, setLoading] = useState(false);
+
 
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(currentMonth);
@@ -44,7 +41,6 @@ export default function Calendar({ selectedDate, onChange, minDate, maxDate, loc
     const fetchMonthData = async () => {
       if (!location) return;
 
-      setLoading(true);
       try {
         // Fetch booked dates
         const startDate = format(monthStart, 'yyyy-MM-dd');
@@ -97,9 +93,7 @@ export default function Calendar({ selectedDate, onChange, minDate, maxDate, loc
         setWeatherData(weatherMap);
       } catch (error) {
         console.error('Error fetching month data:', error);
-      } finally {
-        setLoading(false);
-      }
+
     };
 
     fetchMonthData();

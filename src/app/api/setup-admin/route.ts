@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getAdminAuth, getAdminDb } from '@/lib/server/firebase-admin';
 import { COLLECTIONS } from '@/lib/firebase/schema';
 
-export async function POST(request: NextRequest) {
+export async function POST() {
   try {
     const adminAuth = await getAdminAuth();
     const adminDb = await getAdminDb();
@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
       }
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error creating admin user:', error);
     
     if (error.code === 'auth/email-already-in-use') {

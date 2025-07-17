@@ -46,7 +46,7 @@ async function createProductionAdmin() {
     console.log('🆔 UID:', adminUser.uid);
     console.log('\nYou can now login to admin panel at: https://pique-unique.vercel.app/admin/login');
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     if (error.code === 'auth/email-already-in-use') {
       console.log('⚠️  Admin user already exists. Updating admin privileges...');
       

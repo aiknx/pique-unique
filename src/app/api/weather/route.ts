@@ -51,7 +51,7 @@ export async function GET(request: NextRequest) {
       const targetDate = new Date(dateParam);
       targetDate.setHours(12, 0, 0, 0); // Set to noon for better matching
       
-      const filteredForecasts = data.forecastTimestamps.filter((forecast: any) => {
+      const filteredForecasts = data.forecastTimestamps.filter((forecast: { forecastTimeUtc: string }) => {
         const forecastDate = new Date(forecast.forecastTimeUtc);
         forecastDate.setHours(12, 0, 0, 0);
         return forecastDate.getTime() === targetDate.getTime();
@@ -66,7 +66,7 @@ export async function GET(request: NextRequest) {
         const dayEnd = new Date(targetDate);
         dayEnd.setHours(23, 59, 59, 999);
         
-        const dayForecasts = data.forecastTimestamps.filter((forecast: any) => {
+        const dayForecasts = data.forecastTimestamps.filter((forecast: { forecastTimeUtc: string }) => {
           const forecastDate = new Date(forecast.forecastTimeUtc);
           return forecastDate >= dayStart && forecastDate <= dayEnd;
         });
@@ -84,7 +84,21 @@ export async function GET(request: NextRequest) {
     responseHeaders.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     responseHeaders.set('Access-Control-Max-Age', '86400');
     
-    return NextResponse.json(data, {
+    // Extract additional weather information
+    const enhancedData = {
+      ...data,
+      additionalInfo: data.forecastTimestamps?.[0] ? {
+        windSpeed: data.forecastTimestamps[0].windSpeed,
+        windDirection: data.forecastTimestamps[0].windDirection,
+        humidity: data.forecastTimestamps[0].relativeHumidity,
+        pressure: data.forecastTimestamps[0].seaLevelPressure,
+        precipitation: data.forecastTimestamps[0].totalPrecipitation,
+        cloudCover: data.forecastTimestamps[0].cloudCover,
+        feelsLike: data.forecastTimestamps[0].feelsLikeTemperature
+      } : null
+    };
+    
+    return NextResponse.json(enhancedData, {
       headers: responseHeaders
     });
   } catch (error) {
