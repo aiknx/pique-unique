@@ -16,6 +16,9 @@ export const verifySession = cache(async () => {
 
   try {
     const adminAuth = await getAdminAuth();
+    if (!adminAuth) {
+      throw new Error('Firebase Admin not available');
+    }
     const decodedClaims = await adminAuth.verifySessionCookie(sessionCookie, true);
     return decodedClaims;
   } catch (error) {
@@ -33,6 +36,9 @@ export const getUser = cache(async () => {
 
   try {
     const adminDb = await getAdminDb();
+    if (!adminDb) {
+      throw new Error('Firebase Admin not available');
+    }
     const userDoc = await adminDb.collection(COLLECTIONS.USERS).doc(session.uid).get();
     const userData = userDoc.data();
 
@@ -53,6 +59,9 @@ export const getUser = cache(async () => {
 
 export async function createSession(uid: string) {
   const adminAuth = await getAdminAuth();
+  if (!adminAuth) {
+    throw new Error('Firebase Admin not available');
+  }
   const customToken = await adminAuth.createCustomToken(uid);
   const expiresIn = SESSION_EXPIRY * 1000;
   const sessionCookie = await adminAuth.createSessionCookie(customToken, { expiresIn });

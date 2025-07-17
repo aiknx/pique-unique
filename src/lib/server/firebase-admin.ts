@@ -1,4 +1,4 @@
-import { initializeApp, getApps, cert } from 'firebase-admin/app';
+import { initializeApp, getApps, cert, ServiceAccount } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
 import { firebaseAdminConfig } from '../firebase/config';
@@ -7,14 +7,35 @@ import { firebaseAdminConfig } from '../firebase/config';
 const apps = getApps();
 
 if (!apps.length) {
-  initializeApp({
-    credential: cert(firebaseAdminConfig),
-  });
+  try {
+    // Check if all required environment variables are set
+    if (firebaseAdminConfig.project_id && firebaseAdminConfig.private_key && firebaseAdminConfig.client_email) {
+      initializeApp({
+        credential: cert(firebaseAdminConfig as ServiceAccount),
+      });
+    } else {
+      console.warn('Firebase Admin not initialized: Missing environment variables');
+    }
+  } catch (error) {
+    console.warn('Firebase Admin initialization failed:', error);
+  }
 }
 
-export const adminDb = getFirestore();
-export const adminAuth = getAuth();
-
 // Export functions for easier access
-export const getAdminDb = () => adminDb;
-export const getAdminAuth = () => adminAuth; 
+export const getAdminDb = () => {
+  try {
+    return getFirestore();
+  } catch (error) {
+    console.warn('Firebase Admin not available:', error);
+    return null;
+  }
+};
+
+export const getAdminAuth = () => {
+  try {
+    return getAuth();
+  } catch (error) {
+    console.warn('Firebase Admin not available:', error);
+    return null;
+  }
+}; 

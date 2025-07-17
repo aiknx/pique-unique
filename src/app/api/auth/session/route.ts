@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { adminAuth } from '@/lib/server/firebase-admin';
+import { getAdminAuth } from '@/lib/server/firebase-admin';
 
 const SESSION_COOKIE_NAME = 'session';
 const SESSION_EXPIRY = 60 * 60 * 24 * 5 * 1000; // 5 days in milliseconds
@@ -17,6 +17,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Create session cookie
+    const adminAuth = getAdminAuth();
+    if (!adminAuth) {
+      return NextResponse.json({ error: 'Firebase Admin not available' }, { status: 500 });
+    }
     const sessionCookie = await adminAuth.createSessionCookie(idToken, {
       expiresIn: SESSION_EXPIRY,
     });
@@ -53,6 +57,10 @@ export async function GET() {
       return NextResponse.json({ user: null });
     }
 
+    const adminAuth = getAdminAuth();
+    if (!adminAuth) {
+      return NextResponse.json({ user: null });
+    }
     const decodedClaims = await adminAuth.verifySessionCookie(sessionCookie, true);
     return NextResponse.json({ user: decodedClaims });
   } catch (error) {

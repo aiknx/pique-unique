@@ -17,10 +17,16 @@ export async function GET() {
     }
 
     const adminAuth = await getAdminAuth();
+    if (!adminAuth) {
+      return NextResponse.json({ error: 'Firebase Admin not available' }, { status: 500 });
+    }
     const decodedClaims = await adminAuth.verifySessionCookie(sessionCookie, true);
     
     // Check if user is admin using Firestore
     const adminDb = await getAdminDb();
+    if (!adminDb) {
+      return NextResponse.json({ error: 'Firebase Admin not available' }, { status: 500 });
+    }
     const userDoc = await adminDb.collection(COLLECTIONS.USERS).doc(decodedClaims.uid).get();
     const userData = userDoc.data();
     const isAdmin = userData?.isAdmin || false;

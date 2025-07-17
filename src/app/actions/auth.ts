@@ -9,6 +9,9 @@ export async function handleSignIn(email: string) {
   try {
     // Use admin SDK to verify credentials
     const adminAuth = await getAdminAuth();
+    if (!adminAuth) {
+      throw new Error('Firebase Admin not available');
+    }
     const userRecord = await adminAuth.getUserByEmail(email);
     await createSession(userRecord.uid);
     redirect('/');

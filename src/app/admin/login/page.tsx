@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
-import { useAdminAuth } from '@/lib/auth/adminAuth';
+import { useAdminAuth } from '@/lib/adminAuth';
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState('');

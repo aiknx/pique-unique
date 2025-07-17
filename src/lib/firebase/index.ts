@@ -34,7 +34,6 @@ try {
   // Initialize Firestore with explicit settings
   db = initializeFirestore(app, {
     experimentalForceLongPolling: true,
-    useFetchStreams: false,
     cacheSizeBytes: CACHE_SIZE_UNLIMITED
   });
 

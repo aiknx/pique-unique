@@ -5,7 +5,8 @@ export const COLLECTIONS = {
   THEMES: 'themes',
   REVIEWS: 'reviews',
   GALLERY: 'gallery',
-  SETTINGS: 'settings'
+  SETTINGS: 'settings',
+  ADD_ONS: 'add_ons'
 } as const;
 
 // Schema types
