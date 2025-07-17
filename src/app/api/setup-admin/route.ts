@@ -1,6 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { getAdminAuth, getAdminDb } from '@/lib/server/firebase-admin';
 import { COLLECTIONS } from '@/lib/firebase/schema';
+
+interface FirebaseError {
+  code?: string;
+  message?: string;
+}
 
 export async function POST() {
   try {
@@ -45,19 +50,23 @@ export async function POST() {
 
   } catch (error: unknown) {
     console.error('Error creating admin user:', error);
-    
-    if (error.code === 'auth/email-already-in-use') {
+    // Safe type check for error.code
+    if (
+      typeof error === 'object' &&
+      error !== null &&
+      'code' in error &&
+      (error as FirebaseError).code === 'auth/email-already-in-use'
+    ) {
       return NextResponse.json({
         success: false,
         message: 'Admin user already exists',
         error: 'User with this email already exists'
       }, { status: 409 });
     }
-
     return NextResponse.json({
       success: false,
       message: 'Failed to create admin user',
-      error: error.message
+      error: typeof error === 'object' && error !== null && 'message' in error ? (error as FirebaseError).message : String(error)
     }, { status: 500 });
   }
 } 

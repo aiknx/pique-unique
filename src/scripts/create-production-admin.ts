@@ -17,6 +17,11 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+interface FirebaseError {
+  code?: string;
+  message?: string;
+}
+
 async function createProductionAdmin() {
   console.log('Creating production admin user...');
   
@@ -47,7 +52,12 @@ async function createProductionAdmin() {
     console.log('\nYou can now login to admin panel at: https://pique-unique.vercel.app/admin/login');
 
   } catch (error: unknown) {
-    if (error.code === 'auth/email-already-in-use') {
+    if (
+      typeof error === 'object' &&
+      error !== null &&
+      'code' in error &&
+      (error as FirebaseError).code === 'auth/email-already-in-use'
+    ) {
       console.log('⚠️  Admin user already exists. Updating admin privileges...');
       
       // Try to update existing user's admin status
@@ -59,7 +69,7 @@ async function createProductionAdmin() {
         console.error('❌ Error updating admin privileges:', updateError);
       }
     } else {
-      console.error('❌ Error creating admin user:', error);
+      console.error('Error creating admin user:', typeof error === 'object' && error !== null && 'message' in error ? (error as FirebaseError).message : String(error));
     }
   }
 }

@@ -17,13 +17,10 @@ interface WeatherData {
   conditionCode: string;
 }
 
-
-
 export default function Calendar({ selectedDate, onChange, minDate, maxDate, location = 'klaipeda' }: CalendarProps) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [weatherData, setWeatherData] = useState<Record<string, WeatherData>>({});
   const [bookedDates, setBookedDates] = useState<Set<string>>(new Set());
-
 
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(currentMonth);
@@ -52,36 +49,38 @@ export default function Calendar({ selectedDate, onChange, minDate, maxDate, loc
           setBookedDates(new Set(bookedData.bookedDates || []));
         }
 
-        // Fetch weather for each day (only for next 7 days)
-        const currentDays = eachDayOfInterval({ start: monthStart, end: monthEnd });
-        const weatherPromises = currentDays
-          .filter(day => {
-            const today = new Date();
-            const sevenDaysFromNow = addDays(today, 7);
-            return isAfter(day, today) && isBefore(day, sevenDaysFromNow);
-          })
-          .map(async (day) => {
-            try {
-              const dateStr = format(day, 'yyyy-MM-dd');
-              const response = await fetch(`/api/weather?location=${location}&date=${dateStr}`);
-              if (response.ok) {
-                const data = await response.json();
-                if (data.forecastTimestamps && data.forecastTimestamps.length > 0) {
-                  const forecast = data.forecastTimestamps[0];
-                  return {
-                    date: dateStr,
-                    weather: {
-                      temperature: forecast.airTemperature || 0,
-                      conditionCode: forecast.conditionCode || 'clear'
-                    }
-                  };
-                }
-              }
-            } catch (error) {
-              console.error('Error fetching weather for date:', day, error);
-            }
-            return null;
-          });
+        // Fetch weather for the entire month in one request
+        const today = new Date();
+        
+        // Only fetch weather for next 7 days to avoid rate limiting
+        const weatherPromises = [];
+        for (let i = 1; i <= 7; i++) {
+          const futureDate = addDays(today, i);
+          if (futureDate >= monthStart && futureDate <= monthEnd) {
+            const dateStr = format(futureDate, 'yyyy-MM-dd');
+            weatherPromises.push(
+              fetch(`/api/weather?location=${location}&date=${dateStr}`)
+                .then(response => response.ok ? response.json() : null)
+                .then(data => {
+                  if (data?.forecastTimestamps?.[0]) {
+                    const forecast = data.forecastTimestamps[0];
+                    return {
+                      date: dateStr,
+                      weather: {
+                        temperature: forecast.airTemperature || 0,
+                        conditionCode: forecast.conditionCode || 'clear'
+                      }
+                    };
+                  }
+                  return null;
+                })
+                .catch(error => {
+                  console.error('Error fetching weather for date:', futureDate, error);
+                  return null;
+                })
+            );
+          }
+        }
 
         const weatherResults = await Promise.all(weatherPromises);
         const weatherMap: Record<string, WeatherData> = {};
@@ -93,11 +92,11 @@ export default function Calendar({ selectedDate, onChange, minDate, maxDate, loc
         setWeatherData(weatherMap);
       } catch (error) {
         console.error('Error fetching month data:', error);
-
+      }
     };
 
     fetchMonthData();
-  }, [currentMonth, location]);
+  }, [currentMonth, location, monthStart, monthEnd]);
 
   const getWeatherIcon = (conditionCode: string) => {
     const icons: Record<string, string> = {
@@ -119,38 +118,36 @@ export default function Calendar({ selectedDate, onChange, minDate, maxDate, loc
   };
 
   return (
-    <div className="w-full">
-      {/* Calendar Header */}
-      <div className="flex justify-between items-center mb-4">
+    <div className="bg-white rounded-lg p-6">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
         <button
           onClick={handlePrevMonth}
-          disabled={isBefore(startOfMonth(currentMonth), startOfMonth(minDate))}
-          className="p-2 hover:bg-gray-100 rounded-full disabled:opacity-50"
+          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
         >
           ←
         </button>
-        <h2 className="text-lg font-semibold">
-          {format(currentMonth, 'LLLL yyyy', { locale: lt })}
+        <h2 className="text-xl font-semibold">
+          {format(currentMonth, 'MMMM yyyy', { locale: lt })}
         </h2>
         <button
           onClick={handleNextMonth}
-          disabled={isAfter(startOfMonth(currentMonth), startOfMonth(maxDate))}
-          className="p-2 hover:bg-gray-100 rounded-full disabled:opacity-50"
+          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
         >
           →
         </button>
       </div>
 
-      {/* Weekday Headers */}
+      {/* Day names */}
       <div className="grid grid-cols-7 gap-1 mb-2">
-        {['P', 'A', 'T', 'K', 'Pn', 'Š', 'S'].map((day) => (
-          <div key={day} className="text-center text-sm font-medium text-gray-500">
+        {['Pr', 'An', 'Tr', 'Kt', 'Pn', 'Št', 'Sk'].map((day) => (
+          <div key={day} className="text-center text-sm font-medium text-gray-500 p-2">
             {day}
           </div>
         ))}
       </div>
 
-      {/* Calendar Grid */}
+      {/* Calendar grid */}
       <div className="grid grid-cols-7 gap-1">
         {Array.from({ length: monthStart.getDay() === 0 ? 6 : monthStart.getDay() - 1 }).map((_, i) => (
           <div key={`empty-${i}`} className="aspect-square" />

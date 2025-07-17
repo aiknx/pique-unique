@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
-import { getFirestore } from 'firebase-admin/firestore';
+import { getFirestore, Firestore } from 'firebase-admin/firestore';
 
 // Initialize Firebase Admin if not already initialized
-if (!getApps().length) {
+let db: Firestore | null = null;
+
+if (!getApps().length && process.env.FIREBASE_ADMIN_PRIVATE_KEY) {
   try {
     initializeApp({
       credential: cert({
@@ -12,15 +14,26 @@ if (!getApps().length) {
         privateKey: process.env.FIREBASE_ADMIN_PRIVATE_KEY?.replace(/\\n/g, '\n'),
       }),
     });
+    db = getFirestore();
   } catch (error) {
     console.error('Firebase Admin initialization error:', error);
   }
+} else if (getApps().length > 0) {
+  db = getFirestore();
 }
-
-const db = getFirestore();
 
 export async function GET(request: NextRequest) {
   try {
+    // Return empty data during build or if Firebase Admin is not available
+    if (!db || !process.env.FIREBASE_ADMIN_PRIVATE_KEY) {
+      return NextResponse.json({
+        bookedDates: [],
+        location: 'klaipeda',
+        startDate: '',
+        endDate: ''
+      });
+    }
+
     const location = request.nextUrl.searchParams.get('location') || 'klaipeda';
     const startDate = request.nextUrl.searchParams.get('startDate');
     const endDate = request.nextUrl.searchParams.get('endDate');
