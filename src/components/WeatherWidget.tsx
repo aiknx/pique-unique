@@ -39,11 +39,6 @@ export default function WeatherWidget({ location, date }: WeatherWidgetProps) {
   useEffect(() => {
     if (!date) return;
 
-    // In development, just show placeholder
-    if (process.env.NODE_ENV === 'development') {
-      return;
-    }
-
     const fetchWeather = async () => {
       setLoading(true);
       setError(null);
@@ -51,7 +46,18 @@ export default function WeatherWidget({ location, date }: WeatherWidgetProps) {
         const response = await fetch(`/api/weather?location=${location}&date=${date.toISOString().split('T')[0]}`);
         if (!response.ok) throw new Error('Nepavyko gauti orų prognozės');
         const data = await response.json();
-        setWeather(data);
+        
+        // Extract weather data from the response
+        if (data.forecastTimestamps && data.forecastTimestamps.length > 0) {
+          const forecast = data.forecastTimestamps[0];
+          setWeather({
+            temperature: forecast.airTemperature,
+            description: forecast.conditionCode,
+            conditionCode: forecast.conditionCode
+          });
+        } else {
+          throw new Error('Nėra orų duomenų');
+        }
       } catch (err) {
         setError('Nepavyko gauti orų prognozės');
         console.error('Weather fetch error:', err);
@@ -71,14 +77,7 @@ export default function WeatherWidget({ location, date }: WeatherWidgetProps) {
     );
   }
 
-  // Show development placeholder
-  if (process.env.NODE_ENV === 'development') {
-    return (
-      <div className="bg-gray-50 rounded-lg p-4">
-        <p className="text-gray-500">Orų prognozė prieinama tik produkcijos aplinkoje</p>
-      </div>
-    );
-  }
+
 
   if (loading) {
     return (

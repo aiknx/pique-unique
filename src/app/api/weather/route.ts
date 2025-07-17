@@ -11,8 +11,7 @@ const LOCATIONS = {
 export async function GET(request: NextRequest) {
   try {
     // Get location from query parameters, default to klaipeda
-    const { searchParams } = new URL(request.url);
-    const location = searchParams.get('location')?.toLowerCase() || 'klaipeda';
+    const location = request.nextUrl.searchParams.get('location')?.toLowerCase() || 'klaipeda';
 
     // Validate location
     if (!LOCATIONS[location as keyof typeof LOCATIONS]) {
@@ -45,6 +44,38 @@ export async function GET(request: NextRequest) {
     }
 
     const data = await response.json();
+    
+    // Filter forecast for the requested date if provided
+    const dateParam = request.nextUrl.searchParams.get('date');
+    if (dateParam && data.forecastTimestamps) {
+      const targetDate = new Date(dateParam);
+      targetDate.setHours(12, 0, 0, 0); // Set to noon for better matching
+      
+      const filteredForecasts = data.forecastTimestamps.filter((forecast: any) => {
+        const forecastDate = new Date(forecast.forecastTimeUtc);
+        forecastDate.setHours(12, 0, 0, 0);
+        return forecastDate.getTime() === targetDate.getTime();
+      });
+      
+      if (filteredForecasts.length > 0) {
+        data.forecastTimestamps = filteredForecasts;
+      } else {
+        // If no exact match, get the first forecast for that day
+        const dayStart = new Date(targetDate);
+        dayStart.setHours(0, 0, 0, 0);
+        const dayEnd = new Date(targetDate);
+        dayEnd.setHours(23, 59, 59, 999);
+        
+        const dayForecasts = data.forecastTimestamps.filter((forecast: any) => {
+          const forecastDate = new Date(forecast.forecastTimeUtc);
+          return forecastDate >= dayStart && forecastDate <= dayEnd;
+        });
+        
+        if (dayForecasts.length > 0) {
+          data.forecastTimestamps = [dayForecasts[0]];
+        }
+      }
+    }
     
     // Set CORS headers
     const responseHeaders = new Headers();

@@ -119,6 +119,7 @@ export default function BookingPage() {
                   onChange={handleDateChange}
                   minDate={new Date()}
                   maxDate={new Date(Date.now() + 90 * 24 * 60 * 60 * 1000)}
+                  location={selectedLocation}
                 />
               </div>
             </div>

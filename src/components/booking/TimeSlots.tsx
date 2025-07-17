@@ -1,10 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { collection, query, where, getDocs } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
-import { COLLECTIONS } from '@/lib/firebase/schema';
-import type { Booking } from '@/lib/firebase/schema';
 
 interface TimeSlotsProps {
   selectedDate: Date;
@@ -34,27 +30,16 @@ export default function TimeSlots({ selectedDate, selectedLocation, onSelect }: 
       setError(null);
       
       try {
-        const startOfDay = new Date(selectedDate);
-        startOfDay.setHours(0, 0, 0, 0);
+        const dateStr = selectedDate.toISOString().split('T')[0];
+        const response = await fetch(`/api/booked-slots?location=${selectedLocation}&date=${dateStr}`);
         
-        const endOfDay = new Date(selectedDate);
-        endOfDay.setHours(23, 59, 59, 999);
-
-        const bookingsQuery = query(
-          collection(db, COLLECTIONS.BOOKINGS),
-          where('date', '>=', startOfDay),
-          where('date', '<=', endOfDay),
-          where('location', '==', selectedLocation),
-          where('status', 'in', ['pending', 'confirmed'])
-        );
-
-        const snapshot = await getDocs(bookingsQuery);
+        if (!response.ok) {
+          throw new Error('Nepavyko gauti užimtų laikų');
+        }
+        
+        const data = await response.json();
         if (isMounted) {
-          const booked = snapshot.docs.map(doc => {
-            const booking = doc.data() as Booking;
-            return booking.timeSlot.start;
-          });
-          setBookedSlots(booked);
+          setBookedSlots(data.bookedSlots || []);
         }
       } catch (err) {
         console.error('Error fetching booked slots:', err);
