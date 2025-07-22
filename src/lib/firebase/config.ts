@@ -16,7 +16,8 @@ export const firebaseAdminConfig = {
   private_key: process.env.FIREBASE_ADMIN_PRIVATE_KEY ? 
     process.env.FIREBASE_ADMIN_PRIVATE_KEY
       .replace(/\\n/g, '\n')
-      .replace(/"/g, '') : undefined,
+      .replace(/"/g, '')
+      .replace(/\\/g, '') : undefined,
   client_email: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
   client_id: process.env.FIREBASE_ADMIN_CLIENT_ID,
   auth_uri: "https://accounts.google.com/o/oauth2/auth",
