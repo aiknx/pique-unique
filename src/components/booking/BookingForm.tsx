@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { addDoc, collection } from 'firebase/firestore';
@@ -173,9 +175,8 @@ export default function BookingForm({ selectedDate, selectedLocation, selectedTi
       {/* Theme Selection */}
       <div className="border-t pt-8">
         <ThemeSelection
-          onSelect={handleThemeSelect}
-          selectedTheme={formData.selectedTheme?.id || selectedTheme}
-          guestCount={formData.guests}
+          onThemeSelect={handleThemeSelect}
+          selectedTheme={formData.selectedTheme?.id || selectedTheme || ''}
         />
       </div>
 

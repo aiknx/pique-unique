@@ -64,7 +64,7 @@ export default function BookingPage() {
                     </button>
                   ))}
                 </div>
-                <WeatherWidget location={selectedLocation} date={selectedDate} />
+                <WeatherWidget location={selectedLocation} date={selectedDate?.toISOString().split('T')[0]} />
               </div>
             </div>
 

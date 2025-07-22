@@ -1,7 +1,9 @@
+'use client';
+
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { getCachedCollection } from '@/lib/firebase/cache';
-import { COLLECTIONS } from '@/lib/firebase/schema';
+// import { getCachedCollection } from '@/lib/firebase/cache';
+// import { COLLECTIONS } from '@/lib/firebase/schema';
 import type { Review } from '@/lib/firebase/schema';
 import { StarIcon } from 'lucide-react';
 
@@ -12,8 +14,13 @@ export default function Reviews() {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const reviewsData = await getCachedCollection<Review>(COLLECTIONS.REVIEWS);
-        setReviews(reviewsData.filter(review => review.isPublic).slice(0, 6));
+        const response = await fetch('/api/reviews');
+        if (response.ok) {
+          const data = await response.json();
+          setReviews(data.reviews.slice(0, 6));
+        } else {
+          console.error('Klaida gaunant atsiliepimus:', response.status);
+        }
       } catch (error) {
         console.error('Klaida gaunant atsiliepimus:', error);
       } finally {

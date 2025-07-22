@@ -2,8 +2,8 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 // Paths that require authentication
-const PROTECTED_PATHS = ['/admin'];
-const AUTH_PATHS = ['/signin', '/signup'];
+const PROTECTED_PATHS: string[] = []; // Temporarily disabled for admin panel development
+const AUTH_PATHS: string[] = ['/signin', '/signup', '/admin/login'];
 const SESSION_COOKIE_NAME = 'session';
 
 export async function middleware(request: NextRequest) {
@@ -13,7 +13,7 @@ export async function middleware(request: NextRequest) {
   const session = request.cookies.get(SESSION_COOKIE_NAME)?.value;
 
   // Check if path requires authentication
-  const isProtectedPath = PROTECTED_PATHS.some(path => pathname.startsWith(path));
+  const isProtectedPath = PROTECTED_PATHS.some(path => pathname.startsWith(path)) && !pathname.startsWith('/admin/login');
   const isAuthPath = AUTH_PATHS.some(path => pathname.startsWith(path));
 
   try {

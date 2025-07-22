@@ -16,7 +16,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create session cookie
+    // Check if we're in emulator environment
+    const isEmulator = process.env.FIRESTORE_EMULATOR_HOST || 
+                      process.env.FIREBASE_AUTH_EMULATOR_HOST || 
+                      process.env.NODE_ENV === 'development';
+    
+    if (isEmulator) {
+      // In emulator, just return success without creating session cookie
+      console.log('Emulator environment - skipping session cookie creation');
+      return NextResponse.json({ status: 'success' });
+    }
+
+    // Create session cookie only in production
     const adminAuth = getAdminAuth();
     if (!adminAuth) {
       return NextResponse.json({ error: 'Firebase Admin not available' }, { status: 500 });
@@ -51,6 +62,17 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
   try {
+    // Check if we're in emulator environment
+    const isEmulator = process.env.FIRESTORE_EMULATOR_HOST || 
+                      process.env.FIREBASE_AUTH_EMULATOR_HOST || 
+                      process.env.NODE_ENV === 'development';
+    
+    if (isEmulator) {
+      // In emulator, return null user (client-side auth will handle it)
+      console.log('Emulator environment - returning null user for session check');
+      return NextResponse.json({ user: null });
+    }
+
     const sessionCookie = cookies().get(SESSION_COOKIE_NAME)?.value;
 
     if (!sessionCookie) {

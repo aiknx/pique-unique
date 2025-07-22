@@ -9,7 +9,7 @@ import {
   onAuthStateChanged,
   type User
 } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, collection, where, query, getDocs } from 'firebase/firestore';
 import { auth, db } from './firebase';
 import { COLLECTIONS } from './firebase/schema';
 
@@ -70,12 +70,39 @@ const getErrorMessage = (error: unknown): string => {
 
 const isUserAdmin = async (user: AuthUser | null): Promise<boolean> => {
   if (!user) return false;
+  
   try {
+    // In development, allow admin access for specific email
+    if (process.env.NODE_ENV === 'development' && user.email === 'admin@test.com') {
+      console.log('Development mode: Admin access granted for admin@test.com');
+      return true;
+    }
+    
+    // Try to get user document by UID first
     const userDoc = await getDoc(doc(db, COLLECTIONS.USERS, user.uid));
-    const userData = userDoc.data();
+    let userData = userDoc.data();
+    
+    // If not found by UID, try to find by email (for emulator compatibility)
+    if (!userData && user.email) {
+      console.log('User document not found by UID, searching by email...');
+      const usersRef = collection(db, COLLECTIONS.USERS);
+      const q = query(usersRef, where('email', '==', user.email));
+      const querySnapshot = await getDocs(q);
+      
+      if (!querySnapshot.empty) {
+        userData = querySnapshot.docs[0].data();
+        console.log('Found user document by email:', userData);
+      }
+    }
+    
     return userData?.isAdmin || false;
   } catch (error) {
     console.error('Error checking admin status:', error);
+    // In development, fallback to email check
+    if (process.env.NODE_ENV === 'development' && user.email === 'admin@test.com') {
+      console.log('Development mode: Fallback admin access for admin@test.com');
+      return true;
+    }
     return false;
   }
 };
@@ -111,9 +138,18 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
       if (user) {
         const authUser = user as AuthUser;
         const admin = await isUserAdmin(authUser);
-        setIsAdmin(admin);
-        setUser(authUser);
-        setIsAuthenticated(true);
+        
+        // In development, allow admin@test.com to proceed even if Firestore check fails
+        if (!admin && process.env.NODE_ENV === 'development' && authUser.email === 'admin@test.com') {
+          console.log('Development mode: Allowing admin@test.com to proceed (useEffect)');
+          setIsAdmin(true);
+          setUser(authUser);
+          setIsAuthenticated(true);
+        } else {
+          setIsAdmin(admin);
+          setUser(authUser);
+          setIsAuthenticated(true);
+        }
       } else {
         setUser(null);
         setIsAdmin(false);
@@ -134,6 +170,16 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
       
       const authUser = result.user as AuthUser;
       const admin = await isUserAdmin(authUser);
+      
+      // In development, allow admin@test.com to proceed even if Firestore check fails
+      if (!admin && process.env.NODE_ENV === 'development' && email === 'admin@test.com') {
+        console.log('Development mode: Allowing admin@test.com to proceed');
+        setIsAdmin(true);
+        setUser(authUser);
+        setIsAuthenticated(true);
+        return;
+      }
+      
       if (!admin) {
         throw new Error('Access denied. Admin privileges required.');
       }
@@ -156,6 +202,16 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
       
       const authUser = result.user as AuthUser;
       const admin = await isUserAdmin(authUser);
+      
+      // In development, allow admin@test.com to proceed even if Firestore check fails
+      if (!admin && process.env.NODE_ENV === 'development' && authUser.email === 'admin@test.com') {
+        console.log('Development mode: Allowing admin@test.com to proceed (Google)');
+        setIsAdmin(true);
+        setUser(authUser);
+        setIsAuthenticated(true);
+        return;
+      }
+      
       if (!admin) {
         throw new Error('Access denied. Admin privileges required.');
       }

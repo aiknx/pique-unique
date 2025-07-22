@@ -28,11 +28,11 @@ export async function POST(request: Request) {
         <h2>Rezervacijos detalės:</h2>
         <ul>
           <li>Data: ${new Date(bookingDetails.date).toLocaleDateString('lt-LT')}</li>
-          <li>Laikas: ${bookingDetails.timeSlot.start} - ${bookingDetails.timeSlot.end}</li>
+          <li>Laikas: ${bookingDetails.timeSlot ? `${bookingDetails.timeSlot.start} - ${bookingDetails.timeSlot.end}` : bookingDetails.time}</li>
           <li>Vieta: ${bookingDetails.location}</li>
-          <li>Svečių skaičius: ${bookingDetails.guests}</li>
-          <li>Tema: ${bookingDetails.themeName}</li>
-          <li>Kaina: ${bookingDetails.themePrice} €</li>
+          <li>Svečių skaičius: ${bookingDetails.guests || bookingDetails.guestCount}</li>
+          <li>Tema: ${bookingDetails.themeName || bookingDetails.theme}</li>
+          <li>Kaina: ${bookingDetails.themePrice || bookingDetails.totalPrice} €</li>
         </ul>
         <p>Netrukus su Jumis susisieks mūsų komandos narys dėl detalių aptarimo.</p>
         <p>Jei turite klausimų, drąsiai kreipkitės į mus.</p>
@@ -55,11 +55,11 @@ export async function POST(request: Request) {
         <h2>Rezervacijos detalės:</h2>
         <ul>
           <li>Data: ${new Date(bookingDetails.date).toLocaleDateString('lt-LT')}</li>
-          <li>Laikas: ${bookingDetails.timeSlot.start} - ${bookingDetails.timeSlot.end}</li>
+          <li>Laikas: ${bookingDetails.timeSlot ? `${bookingDetails.timeSlot.start} - ${bookingDetails.timeSlot.end}` : bookingDetails.time}</li>
           <li>Vieta: ${bookingDetails.location}</li>
-          <li>Svečių skaičius: ${bookingDetails.guests}</li>
-          <li>Tema: ${bookingDetails.themeName}</li>
-          <li>Kaina: ${bookingDetails.themePrice} €</li>
+          <li>Svečių skaičius: ${bookingDetails.guests || bookingDetails.guestCount}</li>
+          <li>Tema: ${bookingDetails.themeName || bookingDetails.theme}</li>
+          <li>Kaina: ${bookingDetails.themePrice || bookingDetails.totalPrice} €</li>
         </ul>
         ${bookingDetails.specialRequests ? `
           <h2>Papildomi pageidavimai:</h2>

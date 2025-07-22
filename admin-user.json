@@ -1,0 +1,26 @@
+{
+  "kind": "identitytoolkit#DownloadAccountResponse",
+  "users": [
+    {
+      "localId": "admin123",
+      "email": "admin@test.com",
+      "emailVerified": true,
+      "displayName": "Test Admin",
+      "providerUserInfo": [
+        {
+          "providerId": "password",
+          "displayName": "Test Admin",
+          "federatedId": "admin@test.com",
+          "email": "admin@test.com"
+        }
+      ],
+      "passwordHash": "UEBzc3dvcmQ=",
+      "passwordUpdatedAt": 1640995200000,
+      "validSince": "1640995200",
+      "disabled": false,
+      "lastLoginAt": "1640995200000",
+      "createdAt": "1640995200000",
+      "customAttributes": "{\"isAdmin\":\"true\"}"
+    }
+  ]
+} 

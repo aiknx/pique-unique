@@ -1,124 +1,147 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 interface TimeSlotsProps {
-  selectedDate: Date;
-  selectedLocation: string;
-  onSelect: (timeSlot: { start: string; end: string }) => void;
+  selectedTime: string;
+  onTimeSelect: (time: string) => void;
+  date: string;
+  location: string;
 }
 
 const DEFAULT_TIME_SLOTS = [
   { start: '10:00', end: '13:00', label: 'Rytas' },
-  { start: '14:00', end: '17:00', label: 'Diena' },
+  { start: '14:00', end: '17:00', label: 'Popietė' },
   { start: '18:00', end: '21:00', label: 'Vakaras' }
 ];
 
-export default function TimeSlots({ selectedDate, selectedLocation, onSelect }: TimeSlotsProps) {
+export default function TimeSlots({ selectedTime, onTimeSelect, date, location }: TimeSlotsProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [bookedSlots, setBookedSlots] = useState<string[]>([]);
-  const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
-    let isMounted = true;
+    if (!date || !location) {
+      setBookedSlots([]);
+      setError(null);
+      return;
+    }
+
+    // Clear previous timeout and abort previous request
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
     
     const fetchBookedSlots = async () => {
-      if (!selectedDate || !selectedLocation) return;
-
       setLoading(true);
       setError(null);
       
+      // Create new abort controller for this request
+      abortControllerRef.current = new AbortController();
+      
       try {
-        const dateStr = selectedDate.toISOString().split('T')[0];
-        const response = await fetch(`/api/booked-slots?location=${selectedLocation}&date=${dateStr}`);
+        const response = await fetch(
+          `/api/booked-slots?location=${location}&date=${date}`,
+          { signal: abortControllerRef.current.signal }
+        );
         
         if (!response.ok) {
           throw new Error('Nepavyko gauti užimtų laikų');
         }
         
         const data = await response.json();
-        if (isMounted) {
-          setBookedSlots(data.bookedSlots || []);
-        }
+        setBookedSlots(data.bookedSlots || []);
       } catch (err) {
+        if (err instanceof Error && err.name === 'AbortError') {
+          // Request was aborted, don't set error
+          return;
+        }
         console.error('Error fetching booked slots:', err);
-        if (isMounted) {
-          setError('Nepavyko gauti užimtų laikų');
-        }
+        setError('Nepavyko gauti užimtų laikų');
       } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
+        setLoading(false);
       }
     };
 
-    fetchBookedSlots();
-    return () => { isMounted = false; };
-  }, [selectedDate, selectedLocation]);
+    // Increased debouncing to 1000ms to prevent excessive API calls
+    timeoutRef.current = setTimeout(fetchBookedSlots, 1000);
 
-  const handleSelect = (slot: { start: string; end: string }) => {
-    setSelectedSlot(slot.start);
-    onSelect(slot);
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, [date, location]);
+
+  const handleSlotSelect = (timeSlot: string) => {
+    onTimeSelect(timeSlot);
   };
 
-  if (loading) {
+  if (!date) {
     return (
-      <div className="animate-pulse space-y-4">
-        <div className="h-8 bg-gray-200 rounded w-48"></div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {[1, 2, 3].map(i => (
-            <div key={i} className="h-24 bg-gray-200 rounded-lg"></div>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="text-red-600 p-4 bg-red-50 rounded-lg">
-        {error}
+      <div className="text-center text-gray-500 py-8">
+        Pasirinkite datą, kad pamatytumėte laikus
       </div>
     );
   }
 
   return (
     <div className="space-y-4">
-      <h3 className="text-xl font-semibold">Pasirinkite laiką</h3>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {DEFAULT_TIME_SLOTS.map((slot) => {
-          const isBooked = bookedSlots.includes(slot.start);
-          return (
-            <button
-              key={slot.start}
-              onClick={() => !isBooked && handleSelect(slot)}
-              disabled={isBooked}
-              className={`
-                p-6 rounded-lg border transition-all text-center
-                ${isBooked
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                  : selectedSlot === slot.start
-                    ? 'bg-green-700 text-white border-green-800'
-                    : 'bg-white hover:bg-gray-50 border-gray-200'
-                }
-              `}
-            >
-              <div className="space-y-2">
-                <span className="block font-medium">{slot.label}</span>
-                <span className="block text-sm">
-                  {slot.start} - {slot.end}
-                </span>
-                {isBooked && (
-                  <span className="block text-sm text-red-500">
-                    Užimta
-                  </span>
-                )}
-              </div>
-            </button>
-          );
-        })}
-      </div>
+      {loading && (
+        <div className="animate-pulse space-y-3">
+          {DEFAULT_TIME_SLOTS.map((_, index) => (
+            <div key={index} className="h-16 bg-gray-200 rounded-lg"></div>
+          ))}
+        </div>
+      )}
+      
+      {error && (
+        <div className="text-red-500 text-center">{error}</div>
+      )}
+      
+      {!loading && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {DEFAULT_TIME_SLOTS.map((slot) => {
+            const isBooked = bookedSlots.includes(slot.start);
+            const isSelected = selectedTime === slot.start;
+            
+            return (
+              <button
+                key={slot.start}
+                onClick={() => !isBooked && handleSlotSelect(slot.start)}
+                disabled={isBooked}
+                className={`
+                  p-4 rounded-lg border-2 transition-all duration-200
+                  ${isBooked
+                    ? 'bg-gray-100 border-gray-300 text-gray-500 cursor-not-allowed'
+                    : isSelected
+                      ? 'bg-blue-600 border-blue-700 text-white'
+                      : 'bg-white border-gray-200 text-gray-900 hover:bg-blue-50 hover:border-blue-300'
+                  }
+                `}
+              >
+                <div className="text-center">
+                  <div className="font-semibold">{slot.label}</div>
+                  <div className="text-sm opacity-75">
+                    {slot.start} - {slot.end}
+                  </div>
+                  {isBooked && (
+                    <div className="text-xs mt-1 font-medium text-red-600">Užimta</div>
+                  )}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 } 

@@ -1,231 +1,273 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { collection, query, orderBy, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
-import { COLLECTIONS } from '@/lib/firebase/schema';
+import { useAuth } from '@/lib/auth';
+import { useRouter } from 'next/navigation';
+import { format } from 'date-fns';
+import { lt } from 'date-fns/locale';
 
 interface Review {
   id: string;
-  name: string;
-  email: string;
+  authorName: string;
+  authorEmail: string;
   rating: number;
-  comment: string;
+  title: string;
+  content: string;
   status: 'pending' | 'approved' | 'rejected';
-  createdAt: Date;
+  createdAt: string;
+  updatedAt: string;
 }
 
-export default function ReviewsManagementPage() {
+export default function AdminReviewsPage() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
   const [reviews, setReviews] = useState<Review[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all');
+  const [loadingReviews, setLoadingReviews] = useState(true);
+  const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all');
 
   useEffect(() => {
-    fetchReviews();
-  }, []);
+    if (!loading && !user) {
+      router.push('/admin/login');
+    }
+  }, [user, loading, router]);
+
+  useEffect(() => {
+    if (user) {
+      fetchReviews();
+    }
+  }, [user, filter]);
 
   const fetchReviews = async () => {
     try {
-      setLoading(true);
-      const reviewsQuery = query(
-        collection(db, COLLECTIONS.REVIEWS),
-        orderBy('createdAt', 'desc')
-      );
-      const snapshot = await getDocs(reviewsQuery);
-      const reviewsData = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        createdAt: doc.data().createdAt.toDate()
-      })) as Review[];
-      setReviews(reviewsData);
-    } catch (err) {
-      console.error('Error fetching reviews:', err);
-      setError('Klaida gaunant atsiliepimų sąrašą');
+      setLoadingReviews(true);
+      const response = await fetch('/api/admin/reviews');
+      if (response.ok) {
+        const data = await response.json();
+        setReviews(data.reviews || []);
+      }
+    } catch (error) {
+      console.error('Error fetching reviews:', error);
     } finally {
-      setLoading(false);
+      setLoadingReviews(false);
     }
   };
 
-  const handleStatusChange = async (reviewId: string, newStatus: Review['status']) => {
+  const updateReviewStatus = async (reviewId: string, status: string) => {
     try {
-      const reviewRef = doc(db, COLLECTIONS.REVIEWS, reviewId);
-      await updateDoc(reviewRef, {
-        status: newStatus,
-        updatedAt: new Date()
+      const response = await fetch(`/api/admin/reviews/${reviewId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status }),
       });
 
-      // Update local state
-      setReviews(prev =>
-        prev.map(review =>
-          review.id === reviewId
-            ? { ...review, status: newStatus }
-            : review
-        )
-      );
-    } catch (err) {
-      console.error('Error updating review status:', err);
-      setError('Klaida atnaujinant atsiliepimo statusą');
+      if (response.ok) {
+        fetchReviews();
+      }
+    } catch (error) {
+      console.error('Error updating review status:', error);
     }
   };
 
-  const handleDelete = async (reviewId: string) => {
+  const deleteReview = async (reviewId: string) => {
     if (!confirm('Ar tikrai norite ištrinti šį atsiliepimą?')) return;
 
     try {
-      await deleteDoc(doc(db, COLLECTIONS.REVIEWS, reviewId));
-      setReviews(prev => prev.filter(review => review.id !== reviewId));
-    } catch (err) {
-      console.error('Error deleting review:', err);
-      setError('Klaida trinant atsiliepimą');
+      const response = await fetch(`/api/admin/reviews/${reviewId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        fetchReviews();
+      }
+    } catch (error) {
+      console.error('Error deleting review:', error);
     }
   };
 
-  const getStatusColor = (status: Review['status']) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending': return 'bg-yellow-100 text-yellow-800';
-      case 'approved': return 'bg-green-100 text-green-800';
-      case 'rejected': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'pending':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'approved':
+        return 'bg-green-100 text-green-800';
+      case 'rejected':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
-  const getStatusText = (status: Review['status']) => {
+  const getStatusText = (status: string) => {
     switch (status) {
-      case 'pending': return 'Laukiama';
-      case 'approved': return 'Patvirtinta';
-      case 'rejected': return 'Atmesta';
-      default: return status;
+      case 'pending':
+        return 'Laukia patvirtinimo';
+      case 'approved':
+        return 'Patvirtintas';
+      case 'rejected':
+        return 'Atmestas';
+      default:
+        return status;
     }
   };
 
-  if (loading) {
+  const renderStars = (rating: number) => {
+    return Array.from({ length: 5 }, (_, i) => (
+      <span key={i} className={i < rating ? 'text-yellow-400' : 'text-gray-300'}>
+        ★
+      </span>
+    ));
+  };
+
+  const filteredReviews = reviews.filter(review => {
+    if (filter === 'all') return true;
+    return review.status === filter;
+  });
+
+  if (loading || !user) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-hunter"></div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-hunter mx-auto"></div>
+          <p className="mt-4 text-gray-600">Kraunama...</p>
+        </div>
       </div>
     );
   }
 
-  const filteredReviews = reviews.filter(
-    review => statusFilter === 'all' || review.status === statusFilter
-  );
-
   return (
-    <div className="space-y-8">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-900">Atsiliepimų Valdymas</h1>
-        <select
-          className="rounded-md border-gray-300 shadow-sm focus:border-hunter focus:ring-hunter"
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value as typeof statusFilter)}
-        >
-          <option value="all">Visi atsiliepimai</option>
-          <option value="pending">Laukiantys</option>
-          <option value="approved">Patvirtinti</option>
-          <option value="rejected">Atmesti</option>
-        </select>
-      </div>
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-white rounded-lg shadow">
+          <div className="px-6 py-4 border-b border-gray-200">
+            <h1 className="text-2xl font-bold text-gray-900">Atsiliepimų valdymas</h1>
+            <p className="mt-1 text-sm text-gray-500">
+              Peržiūrėkite ir valdykite klientų atsiliepimus
+            </p>
+          </div>
 
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-          {error}
-        </div>
-      )}
+          {/* Filters */}
+          <div className="px-6 py-4 border-b border-gray-200">
+            <div className="flex space-x-4">
+              <button
+                onClick={() => setFilter('all')}
+                className={`px-4 py-2 rounded-md text-sm font-medium ${
+                  filter === 'all'
+                    ? 'bg-hunter text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                Visi ({reviews.length})
+              </button>
+              <button
+                onClick={() => setFilter('pending')}
+                className={`px-4 py-2 rounded-md text-sm font-medium ${
+                  filter === 'pending'
+                    ? 'bg-hunter text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                Laukia ({reviews.filter(r => r.status === 'pending').length})
+              </button>
+              <button
+                onClick={() => setFilter('approved')}
+                className={`px-4 py-2 rounded-md text-sm font-medium ${
+                  filter === 'approved'
+                    ? 'bg-hunter text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                Patvirtinti ({reviews.filter(r => r.status === 'approved').length})
+              </button>
+              <button
+                onClick={() => setFilter('rejected')}
+                className={`px-4 py-2 rounded-md text-sm font-medium ${
+                  filter === 'rejected'
+                    ? 'bg-hunter text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                Atmesti ({reviews.filter(r => r.status === 'rejected').length})
+              </button>
+            </div>
+          </div>
 
-      <div className="bg-white shadow overflow-hidden rounded-lg">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Klientas
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Įvertinimas
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Atsiliepimas
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Statusas
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Data
-              </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Veiksmai
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {filteredReviews.map((review) => (
-              <tr key={review.id}>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-medium text-gray-900">{review.name}</div>
-                  <div className="text-sm text-gray-500">{review.email}</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center">
-                    {[...Array(5)].map((_, i) => (
-                      <svg
-                        key={i}
-                        className={`w-5 h-5 ${i < review.rating ? 'text-yellow-400' : 'text-gray-300'}`}
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                    ))}
-                  </div>
-                </td>
-                <td className="px-6 py-4">
-                  <div className="text-sm text-gray-900">{review.comment}</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(review.status)}`}>
-                    {getStatusText(review.status)}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {review.createdAt.toLocaleDateString('lt-LT')}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <div className="flex justify-end space-x-2">
-                    {review.status === 'pending' && (
-                      <>
+          {/* Reviews List */}
+          <div className="p-6">
+            {loadingReviews ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-hunter mx-auto"></div>
+                <p className="mt-2 text-gray-600">Kraunami atsiliepimai...</p>
+              </div>
+            ) : filteredReviews.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-gray-500">Nėra atsiliepimų</p>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {filteredReviews.map((review) => (
+                  <div key={review.id} className="border border-gray-200 rounded-lg p-6">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-4 mb-2">
+                          <h3 className="text-lg font-semibold text-gray-900">{review.title}</h3>
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(review.status)}`}>
+                            {getStatusText(review.status)}
+                          </span>
+                        </div>
+                        
+                        <div className="flex items-center space-x-4 mb-3">
+                          <div className="flex items-center space-x-1">
+                            {renderStars(review.rating)}
+                            <span className="ml-2 text-sm text-gray-600">({review.rating}/5)</span>
+                          </div>
+                          <span className="text-sm text-gray-500">
+                            {format(new Date(review.createdAt), 'yyyy-MM-dd HH:mm', { locale: lt })}
+                          </span>
+                        </div>
+
+                        <div className="mb-4">
+                          <p className="text-gray-700">{review.content}</p>
+                        </div>
+
+                        <div className="text-sm text-gray-600">
+                          <p><strong>Autorius:</strong> {review.authorName}</p>
+                          <p><strong>El. paštas:</strong> {review.authorEmail}</p>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col space-y-2 ml-4">
+                        {review.status === 'pending' && (
+                          <>
+                            <button
+                              onClick={() => updateReviewStatus(review.id, 'approved')}
+                              className="px-3 py-1 text-sm bg-green-600 text-white rounded hover:bg-green-700"
+                            >
+                              Patvirtinti
+                            </button>
+                            <button
+                              onClick={() => updateReviewStatus(review.id, 'rejected')}
+                              className="px-3 py-1 text-sm bg-red-600 text-white rounded hover:bg-red-700"
+                            >
+                              Atmesti
+                            </button>
+                          </>
+                        )}
                         <button
-                          onClick={() => handleStatusChange(review.id, 'approved')}
-                          className="text-green-600 hover:text-green-900"
+                          onClick={() => deleteReview(review.id)}
+                          className="px-3 py-1 text-sm bg-gray-600 text-white rounded hover:bg-gray-700"
                         >
-                          Patvirtinti
+                          Ištrinti
                         </button>
-                        <button
-                          onClick={() => handleStatusChange(review.id, 'rejected')}
-                          className="text-red-600 hover:text-red-900"
-                        >
-                          Atmesti
-                        </button>
-                      </>
-                    )}
-                    <button
-                      onClick={() => handleDelete(review.id)}
-                      className="text-red-600 hover:text-red-900"
-                    >
-                      Ištrinti
-                    </button>
+                      </div>
+                    </div>
                   </div>
-                </td>
-              </tr>
-            ))}
-            {filteredReviews.length === 0 && (
-              <tr>
-                <td colSpan={6} className="px-6 py-4 text-center text-gray-500">
-                  Nerasta atsiliepimų pagal pasirinktus filtrus
-                </td>
-              </tr>
+                ))}
+              </div>
             )}
-          </tbody>
-        </table>
+          </div>
+        </div>
       </div>
     </div>
   );

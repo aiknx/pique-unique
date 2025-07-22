@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 interface WeatherWidgetProps {
   location: string;
-  date: Date | null;
+  date?: string;
 }
 
 interface WeatherData {
@@ -22,25 +22,23 @@ interface WeatherData {
   };
 }
 
-// Meteo.lt condition codes to human readable text mapping
 const weatherDescriptions: Record<string, string> = {
   'clear': 'Giedra',
-  'partly-cloudy': 'Mažai debesuota',
+  'partly-cloudy': 'Drumstai',
   'cloudy': 'Debesuota',
-  'overcast': 'Apsiniaukę',
-  'light-rain': 'Nedidelis lietus',
+  'overcast': 'Debesuota',
+  'light-rain': 'Šviesus lietus',
   'rain': 'Lietus',
-  'heavy-rain': 'Smarkus lietus',
+  'heavy-rain': 'Stiprus lietus',
   'sleet': 'Šlapdriba',
-  'light-snow': 'Nedidelis sniegas',
+  'light-snow': 'Šviesus sniegas',
   'snow': 'Sniegas',
-  'heavy-snow': 'Smarkus sniegas',
+  'heavy-snow': 'Stiprus sniegas',
   'fog': 'Rūkas',
   'na': 'Nėra duomenų'
 };
 
-// Weather icons mapping
-const getWeatherIcon = (conditionCode: string): string => {
+const getWeatherIcon = (conditionCode: string) => {
   const icons: Record<string, string> = {
     'clear': '☀️',
     'partly-cloudy': '⛅',
@@ -59,30 +57,74 @@ const getWeatherIcon = (conditionCode: string): string => {
   return icons[conditionCode] || '❓';
 };
 
+// Client-side cache to prevent unnecessary API calls
+const clientWeatherCache = new Map<string, { data: WeatherData; timestamp: number }>();
+const CLIENT_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
 export default function WeatherWidget({ location, date }: WeatherWidgetProps) {
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const lastRequestRef = useRef<string>('');
 
   useEffect(() => {
-    if (!date) return;
+    if (!location) {
+      setWeather(null);
+      setError(null);
+      return;
+    }
+
+    // Use provided date or today's date
+    const dateStr = date || new Date().toISOString().split('T')[0];
+    const cacheKey = `${location}-${dateStr}`;
+    
+    // Check if we already have recent data in client cache
+    const cached = clientWeatherCache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < CLIENT_CACHE_DURATION) {
+      setWeather(cached.data);
+      return;
+    }
+
+    // Check if this is the same request as the last one
+    if (lastRequestRef.current === cacheKey) {
+      return;
+    }
+
+    // Clear previous timeout and abort previous request
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
 
     const fetchWeather = async () => {
       setLoading(true);
       setError(null);
+      lastRequestRef.current = cacheKey;
+      
+      // Create new abort controller for this request
+      abortControllerRef.current = new AbortController();
+      
       try {
-        const response = await fetch(`/api/weather?location=${location}&date=${date.toISOString().split('T')[0]}`);
+        const response = await fetch(
+          `/api/weather?location=${location}&date=${dateStr}`,
+          { signal: abortControllerRef.current.signal }
+        );
+        
         if (!response.ok) throw new Error('Nepavyko gauti orų prognozės');
         const data = await response.json();
         
         // Extract weather data from the response
         if (data.forecastTimestamps && data.forecastTimestamps.length > 0) {
           const forecast = data.forecastTimestamps[0];
-          setWeather({
+          const weatherData = {
             temperature: forecast.airTemperature,
-            description: forecast.conditionCode,
+            description: weatherDescriptions[forecast.conditionCode] || forecast.conditionCode,
             conditionCode: forecast.conditionCode,
-            additionalInfo: data.additionalInfo || {
+            additionalInfo: {
               windSpeed: forecast.windSpeed,
               windDirection: forecast.windDirection,
               humidity: forecast.relativeHumidity,
@@ -91,11 +133,23 @@ export default function WeatherWidget({ location, date }: WeatherWidgetProps) {
               cloudCover: forecast.cloudCover,
               feelsLike: forecast.feelsLikeTemperature
             }
+          };
+          
+          // Cache the data client-side
+          clientWeatherCache.set(cacheKey, {
+            data: weatherData,
+            timestamp: Date.now()
           });
+          
+          setWeather(weatherData);
         } else {
           throw new Error('Nėra orų duomenų');
         }
       } catch (err) {
+        if (err instanceof Error && err.name === 'AbortError') {
+          // Request was aborted, don't set error
+          return;
+        }
         setError('Nepavyko gauti orų prognozės');
         console.error('Weather fetch error:', err);
       } finally {
@@ -103,18 +157,18 @@ export default function WeatherWidget({ location, date }: WeatherWidgetProps) {
       }
     };
 
-    fetchWeather();
+    // Reduced debouncing to 500ms for faster response
+    timeoutRef.current = setTimeout(fetchWeather, 500);
+
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
   }, [location, date]);
-
-  if (!date) {
-    return (
-      <div className="bg-gray-50 rounded-lg p-4">
-        <p className="text-gray-500">Pasirinkite datą, kad matytumėte orų prognozę</p>
-      </div>
-    );
-  }
-
-
 
   if (loading) {
     return (
@@ -140,32 +194,51 @@ export default function WeatherWidget({ location, date }: WeatherWidgetProps) {
   }
 
   if (!weather) {
-    return null;
+    return (
+      <div className="bg-gray-50 rounded-lg p-4">
+        <p className="text-gray-500">Kraunama orų prognozė...</p>
+      </div>
+    );
   }
 
   return (
-    <div className="bg-gray-50 rounded-lg p-4">
+    <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-4 border border-blue-200">
       <div className="flex items-center justify-between mb-3">
-        <div>
-          <p className="text-lg font-semibold">{weather.temperature}°C</p>
-          <p className="text-gray-600">{weatherDescriptions[weather.conditionCode] || weather.description}</p>
-          {weather.additionalInfo && (
-            <p className="text-sm text-gray-500">Jausmas: {weather.additionalInfo.feelsLike}°C</p>
-          )}
+        <div className="text-2xl">{getWeatherIcon(weather.conditionCode)}</div>
+        <div className="text-right">
+          <div className="text-2xl font-bold text-gray-900">{Math.round(weather.temperature)}°C</div>
+          <div className="text-sm text-gray-600">{weatherDescriptions[weather.conditionCode] || weather.conditionCode}</div>
         </div>
-        {weather.conditionCode && (
-          <div className="text-3xl">
-            {getWeatherIcon(weather.conditionCode)}
-          </div>
-        )}
       </div>
-      
+
       {weather.additionalInfo && (
-        <div className="grid grid-cols-2 gap-2 text-xs text-gray-600">
-          <div>💨 Vėjas: {weather.additionalInfo.windSpeed} m/s</div>
-          <div>💧 Drėgmė: {weather.additionalInfo.humidity}%</div>
-          <div>☔ Krituliai: {weather.additionalInfo.precipitation} mm</div>
-          <div>☁️ Debesys: {weather.additionalInfo.cloudCover}%</div>
+        <div className="space-y-2 text-sm">
+          <div className="flex justify-between">
+            <span className="text-gray-600">Jausmas:</span>
+            <span className="font-medium">{Math.round(weather.additionalInfo.feelsLike)}°C</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-600">Vėjas:</span>
+            <span className="font-medium">{weather.additionalInfo.windSpeed} m/s</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-600">Drėgmė:</span>
+            <span className="font-medium">{weather.additionalInfo.humidity}%</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-gray-600">Slėgis:</span>
+            <span className="font-medium">{weather.additionalInfo.pressure} hPa</span>
+          </div>
+          {weather.additionalInfo.precipitation > 0 && (
+            <div className="flex justify-between">
+              <span className="text-gray-600">Krituliai:</span>
+              <span className="font-medium">{weather.additionalInfo.precipitation} mm</span>
+            </div>
+          )}
+          <div className="flex justify-between">
+            <span className="text-gray-600">Debesuotumas:</span>
+            <span className="font-medium">{weather.additionalInfo.cloudCover}%</span>
+          </div>
         </div>
       )}
     </div>

@@ -83,6 +83,15 @@ const isUserAdmin = async (user: AuthUser | null): Promise<boolean> => {
 
 const createServerSession = async (idToken: string): Promise<boolean> => {
   try {
+    // Check if we're in emulator environment
+    const isEmulator = process.env.NODE_ENV === 'development';
+    
+    if (isEmulator) {
+      // In emulator, skip session creation
+      console.log('Emulator environment - skipping session creation');
+      return true;
+    }
+
     const response = await fetch('/api/auth/session', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

@@ -23,6 +23,13 @@ const nextConfig = {
         perf_hooks: false,
       };
     }
+    
+    // Fix webpack cache warnings
+    config.snapshot = {
+      ...config.snapshot,
+      managedPaths: [/^(.+?[\\/]node_modules[\\/])/],
+    };
+    
     return config;
   },
   images: {

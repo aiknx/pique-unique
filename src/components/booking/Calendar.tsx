@@ -1,138 +1,101 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isAfter, isBefore, addDays } from 'date-fns';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { format, addMonths, subMonths, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isBefore, parseISO } from 'date-fns';
 import { lt } from 'date-fns/locale';
 
 interface CalendarProps {
-  selectedDate: Date | null;
-  onChange: (date: Date | null) => void;
-  minDate: Date;
-  maxDate: Date;
+  selectedDate: string;
+  onDateSelect: (date: string) => void;
   location?: string;
+  className?: string;
 }
 
-interface WeatherData {
-  temperature: number;
-  conditionCode: string;
-}
-
-export default function Calendar({ selectedDate, onChange, minDate, maxDate, location = 'klaipeda' }: CalendarProps) {
+export default function Calendar({ selectedDate, onDateSelect, location = 'klaipeda', className = '' }: CalendarProps) {
   const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [weatherData, setWeatherData] = useState<Record<string, WeatherData>>({});
   const [bookedDates, setBookedDates] = useState<Set<string>>(new Set());
+  const [isLoading, setIsLoading] = useState(false);
+  const timeoutRef = useRef<NodeJS.Timeout>();
 
-  const monthStart = startOfMonth(currentMonth);
-  const monthEnd = endOfMonth(currentMonth);
-  const days = eachDayOfInterval({ start: monthStart, end: monthEnd });
+  // Use useMemo to prevent unnecessary recalculations
+  const monthStart = useMemo(() => startOfMonth(currentMonth), [currentMonth]);
+  const monthEnd = useMemo(() => endOfMonth(currentMonth), [currentMonth]);
+  const days = useMemo(() => eachDayOfInterval({ start: monthStart, end: monthEnd }), [monthStart, monthEnd]);
 
-  const handlePrevMonth = () => setCurrentMonth(subMonths(currentMonth, 1));
-  const handleNextMonth = () => setCurrentMonth(addMonths(currentMonth, 1));
+  const handlePrevMonth = useCallback(() => setCurrentMonth(subMonths(currentMonth, 1)), [currentMonth]);
+  const handleNextMonth = useCallback(() => setCurrentMonth(addMonths(currentMonth, 1)), [currentMonth]);
 
-  const isDateSelectable = (date: Date) => {
-    return !isBefore(date, minDate) && !isAfter(date, maxDate);
-  };
+  const isDateSelectable = useCallback((date: Date) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return !isBefore(date, today);
+  }, []);
 
-  // Fetch weather and booked dates for current month
+  // Fetch only booked dates with proper debouncing
   useEffect(() => {
-    const fetchMonthData = async () => {
+    let isMounted = true;
+
+    const fetchBookedDates = async () => {
       if (!location) return;
 
+      setIsLoading(true);
       try {
-        // Fetch booked dates
         const startDate = format(monthStart, 'yyyy-MM-dd');
         const endDate = format(monthEnd, 'yyyy-MM-dd');
         
         const bookedResponse = await fetch(`/api/booked-dates?location=${location}&startDate=${startDate}&endDate=${endDate}`);
-        if (bookedResponse.ok) {
+        if (bookedResponse.ok && isMounted) {
           const bookedData = await bookedResponse.json();
           setBookedDates(new Set(bookedData.bookedDates || []));
         }
-
-        // Fetch weather for the entire month in one request
-        const today = new Date();
-        
-        // Only fetch weather for next 7 days to avoid rate limiting
-        const weatherPromises = [];
-        for (let i = 1; i <= 7; i++) {
-          const futureDate = addDays(today, i);
-          if (futureDate >= monthStart && futureDate <= monthEnd) {
-            const dateStr = format(futureDate, 'yyyy-MM-dd');
-            weatherPromises.push(
-              fetch(`/api/weather?location=${location}&date=${dateStr}`)
-                .then(response => response.ok ? response.json() : null)
-                .then(data => {
-                  if (data?.forecastTimestamps?.[0]) {
-                    const forecast = data.forecastTimestamps[0];
-                    return {
-                      date: dateStr,
-                      weather: {
-                        temperature: forecast.airTemperature || 0,
-                        conditionCode: forecast.conditionCode || 'clear'
-                      }
-                    };
-                  }
-                  return null;
-                })
-                .catch(error => {
-                  console.error('Error fetching weather for date:', futureDate, error);
-                  return null;
-                })
-            );
-          }
-        }
-
-        const weatherResults = await Promise.all(weatherPromises);
-        const weatherMap: Record<string, WeatherData> = {};
-        weatherResults.forEach(result => {
-          if (result) {
-            weatherMap[result.date] = result.weather;
-          }
-        });
-        setWeatherData(weatherMap);
       } catch (error) {
-        console.error('Error fetching month data:', error);
+        console.error('Error fetching booked dates:', error);
+      } finally {
+        if (isMounted) {
+          setIsLoading(false);
+        }
       }
     };
 
-    fetchMonthData();
-  }, [currentMonth, location, monthStart, monthEnd]);
+    // Clear previous timeout
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
 
-  const getWeatherIcon = (conditionCode: string) => {
-    const icons: Record<string, string> = {
-      'clear': '☀️',
-      'partly-cloudy': '⛅',
-      'cloudy': '☁️',
-      'overcast': '☁️',
-      'light-rain': '🌦️',
-      'rain': '🌧️',
-      'heavy-rain': '⛈️',
-      'sleet': '🌨️',
-      'light-snow': '🌨️',
-      'snow': '❄️',
-      'heavy-snow': '❄️',
-      'fog': '🌫️',
-      'na': '❓'
+    // Proper debouncing with 500ms delay
+    timeoutRef.current = setTimeout(fetchBookedDates, 500);
+
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      isMounted = false;
     };
-    return icons[conditionCode] || '❓';
-  };
+  }, [location, monthStart, monthEnd]);
+
+  const handleDateClick = useCallback((date: Date) => {
+    const dateStr = format(date, 'yyyy-MM-dd');
+    onDateSelect(dateStr);
+  }, [onDateSelect]);
 
   return (
-    <div className="bg-white rounded-lg p-6">
+    <div className={`bg-white rounded-lg p-4 ${className}`}>
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-4">
         <button
           onClick={handlePrevMonth}
-          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          className="p-1 hover:bg-gray-100 rounded transition-colors text-gray-600"
+          disabled={isLoading}
         >
           ←
         </button>
-        <h2 className="text-xl font-semibold">
+        <h2 className="text-lg font-semibold">
           {format(currentMonth, 'MMMM yyyy', { locale: lt })}
         </h2>
         <button
           onClick={handleNextMonth}
-          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          className="p-1 hover:bg-gray-100 rounded transition-colors text-gray-600"
+          disabled={isLoading}
         >
           →
         </button>
@@ -141,7 +104,7 @@ export default function Calendar({ selectedDate, onChange, minDate, maxDate, loc
       {/* Day names */}
       <div className="grid grid-cols-7 gap-1 mb-2">
         {['Pr', 'An', 'Tr', 'Kt', 'Pn', 'Št', 'Sk'].map((day) => (
-          <div key={day} className="text-center text-sm font-medium text-gray-500 p-2">
+          <div key={day} className="text-center text-xs font-medium text-gray-500 p-1">
             {day}
           </div>
         ))}
@@ -154,27 +117,27 @@ export default function Calendar({ selectedDate, onChange, minDate, maxDate, loc
         ))}
         {days.map((day) => {
           const isSelectable = isDateSelectable(day);
-          const isSelected = selectedDate && isSameDay(day, selectedDate);
+          const isSelected = selectedDate && isSameDay(day, parseISO(selectedDate));
           const dateStr = format(day, 'yyyy-MM-dd');
-          const weather = weatherData[dateStr];
           const isBooked = bookedDates.has(dateStr);
           const isToday = isSameDay(day, new Date());
           
           return (
             <button
               key={day.toISOString()}
-              onClick={() => isSelectable && !isBooked && onChange(day)}
-              disabled={!isSelectable || isBooked}
+              onClick={() => isSelectable && !isBooked && handleDateClick(day)}
+              disabled={!isSelectable || isBooked || isLoading}
               className={`
-                aspect-square p-2 text-sm rounded-lg transition-colors relative
+                aspect-square p-1 text-xs rounded transition-colors relative
+                ${isLoading ? 'opacity-50' : ''}
                 ${isBooked
                   ? 'bg-red-100 text-red-600 cursor-not-allowed border border-red-300'
                   : isSelectable 
                     ? isSelected
-                      ? 'bg-green-700 text-white'
+                      ? 'bg-blue-600 text-white'
                       : isToday
-                        ? 'bg-blue-100 text-blue-900 hover:bg-green-700 hover:text-white border border-blue-300'
-                        : 'bg-white text-gray-900 hover:bg-green-700 hover:text-white border border-gray-200'
+                        ? 'bg-blue-100 text-blue-900 hover:bg-blue-600 hover:text-white border border-blue-300'
+                        : 'bg-white text-gray-900 hover:bg-blue-600 hover:text-white border border-gray-200'
                     : 'cursor-not-allowed opacity-50'
                 }
               `}
@@ -182,23 +145,14 @@ export default function Calendar({ selectedDate, onChange, minDate, maxDate, loc
               <div className="flex flex-col items-center justify-center h-full">
                 <span className="font-medium">{format(day, 'd')}</span>
                 
-                {/* Weather icon */}
-                {weather && (
-                  <div className="text-sm mt-1">
-                    <span title={`${weather.temperature}°C`}>
-                      {getWeatherIcon(weather.conditionCode)}
-                    </span>
-                  </div>
-                )}
-                
                 {/* Booked indicator */}
                 {isBooked && (
-                  <div className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></div>
+                  <div className="absolute top-0 right-0 w-1.5 h-1.5 bg-red-500 rounded-full"></div>
                 )}
                 
                 {/* Today indicator */}
                 {isToday && !isBooked && !isSelected && (
-                  <div className="absolute top-0 right-0 w-2 h-2 bg-blue-500 rounded-full"></div>
+                  <div className="absolute top-0 right-0 w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
                 )}
               </div>
             </button>
@@ -207,8 +161,8 @@ export default function Calendar({ selectedDate, onChange, minDate, maxDate, loc
       </div>
 
       {/* Legend */}
-      <div className="mt-2 text-xs text-gray-600">
-        <div className="flex flex-wrap items-center gap-1">
+      <div className="mt-3 text-xs text-gray-600">
+        <div className="flex flex-wrap items-center gap-2">
           <div className="flex items-center gap-1">
             <div className="w-2 h-2 bg-blue-100 border border-blue-300 rounded"></div>
             <span>Šiandien</span>
@@ -218,7 +172,7 @@ export default function Calendar({ selectedDate, onChange, minDate, maxDate, loc
             <span>Užimta</span>
           </div>
           <div className="flex items-center gap-1">
-            <div className="w-2 h-2 bg-green-700 rounded"></div>
+            <div className="w-2 h-2 bg-blue-600 rounded"></div>
             <span>Pasirinkta</span>
           </div>
         </div>

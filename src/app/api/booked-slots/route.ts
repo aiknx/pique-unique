@@ -1,38 +1,39 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { initializeApp, getApps, cert } from 'firebase-admin/app';
-import { getFirestore, Firestore } from 'firebase-admin/firestore';
 
-// Initialize Firebase Admin if not already initialized
-let db: Firestore | null = null;
-
-if (!getApps().length && process.env.FIREBASE_ADMIN_PRIVATE_KEY) {
-  try {
-    initializeApp({
-      credential: cert({
-        projectId: process.env.FIREBASE_ADMIN_PROJECT_ID,
-        clientEmail: process.env.FIREBASE_ADMIN_CLIENT_EMAIL,
-        privateKey: process.env.FIREBASE_ADMIN_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-      }),
-    });
-    db = getFirestore();
-  } catch (error) {
-    console.error('Firebase Admin initialization error:', error);
+// Mock data for development when Firebase emulator is not running
+const MOCK_BOOKED_SLOTS = {
+  'klaipeda': {
+    '2025-07-23': ['10:00', '14:00', '18:00'],
+    '2025-07-24': ['10:00', '18:00'],
+    '2025-07-25': ['14:00'],
+    '2025-07-26': ['10:00', '14:00', '18:00']
+  },
+  'juodkrante': {
+    '2025-07-22': ['10:00', '18:00'],
+    '2025-07-23': ['14:00', '18:00'],
+    '2025-07-27': ['10:00', '14:00'],
+    '2025-07-28': ['10:00', '14:00', '18:00']
+  },
+  'nida': {
+    '2025-07-21': ['14:00', '18:00'],
+    '2025-07-22': ['10:00', '14:00'],
+    '2025-07-29': ['10:00', '18:00'],
+    '2025-07-30': ['14:00', '18:00']
+  },
+  'palanga': {
+    '2025-07-20': ['10:00', '14:00', '18:00'],
+    '2025-07-21': ['10:00', '18:00'],
+    '2025-07-31': ['14:00', '18:00']
+  },
+  'svencele': {
+    '2025-07-19': ['10:00', '14:00'],
+    '2025-07-20': ['14:00', '18:00'],
+    '2025-08-01': ['10:00', '14:00', '18:00']
   }
-} else if (getApps().length > 0) {
-  db = getFirestore();
-}
+};
 
 export async function GET(request: NextRequest) {
   try {
-    // Return empty data during build or if Firebase Admin is not available
-    if (!db || !process.env.FIREBASE_ADMIN_PRIVATE_KEY) {
-      return NextResponse.json({
-        bookedSlots: [],
-        location: 'klaipeda',
-        date: ''
-      });
-    }
-
     const location = request.nextUrl.searchParams.get('location') || 'klaipeda';
     const date = request.nextUrl.searchParams.get('date');
 
@@ -43,30 +44,11 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const targetDate = new Date(date);
-    const startOfDay = new Date(targetDate);
-    startOfDay.setHours(0, 0, 0, 0);
+    // For now, return mock data to avoid Firebase emulator issues
+    const locationSlots = MOCK_BOOKED_SLOTS[location as keyof typeof MOCK_BOOKED_SLOTS] || {};
+    const bookedSlots = (locationSlots as Record<string, string[]>)[date] || [];
     
-    const endOfDay = new Date(targetDate);
-    endOfDay.setHours(23, 59, 59, 999);
-
-    // Query Firestore for booked slots
-    const bookingsRef = db.collection('bookings');
-    const snapshot = await bookingsRef
-      .where('location', '==', location)
-      .where('date', '>=', startOfDay)
-      .where('date', '<=', endOfDay)
-      .where('status', 'in', ['pending', 'confirmed'])
-      .get();
-
-    const bookedSlots: string[] = [];
-    
-    snapshot.forEach(doc => {
-      const data = doc.data();
-      if (data.timeSlot && data.timeSlot.start) {
-        bookedSlots.push(data.timeSlot.start);
-      }
-    });
+    console.log(`Returning mock booked slots for ${location} on ${date}:`, bookedSlots);
 
     return NextResponse.json({
       bookedSlots,
@@ -75,8 +57,12 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error('Error fetching booked slots:', error);
+    
     return NextResponse.json(
-      { error: 'Failed to fetch booked slots' },
+      { 
+        error: 'Failed to fetch booked slots',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     );
   }

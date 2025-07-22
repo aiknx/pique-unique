@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="lt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sukurti Admin Vartotoją</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            white-space: pre-wrap;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Sukurti Admin Vartotoją</h1>
+        <p>Šis puslapis sukurs admin vartotoją Firebase emuliatoriuje.</p>
+        
+        <button onclick="createAdminUser()">Sukurti Admin Vartotoją</button>
+        <button onclick="checkExistingUser()">Patikrinti Ar Egzistuoja</button>
+        
+        <div id="result"></div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, connectAuthEmulator } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore, doc, setDoc, getDoc, connectFirestoreEmulator } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        // Firebase config
+        const firebaseConfig = {
+            apiKey: "AIzaSyC69-VVdw7zQ-cTU0rBk5krH7qd7RqLw3g",
+            authDomain: "pique-unique.firebaseapp.com",
+            projectId: "pique-unique",
+            storageBucket: "pique-unique.firebasestorage.app",
+            messagingSenderId: "884457148412",
+            appId: "1:884457148412:web:92dc5b411d239ac37d6c79"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Connect to emulators
+        connectAuthEmulator(auth, 'http://localhost:9099');
+        connectFirestoreEmulator(db, 'localhost', 8080);
+
+        function showResult(message, type = 'info') {
+            const resultDiv = document.getElementById('result');
+            resultDiv.className = `result ${type}`;
+            resultDiv.textContent = message;
+        }
+
+        window.createAdminUser = async function() {
+            try {
+                showResult('Kuriamas admin vartotojas...', 'info');
+                
+                const email = 'admin@test.com';
+                const password = 'test123';
+                
+                // Create user
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+                
+                // Create admin document in Firestore
+                await setDoc(doc(db, 'users', user.uid), {
+                    email: email,
+                    isAdmin: true,
+                    createdAt: new Date(),
+                    displayName: 'Test Admin',
+                    role: 'admin'
+                });
+                
+                showResult(`✅ Admin vartotojas sukurtas sėkmingai!
+📧 Email: ${email}
+🔑 Slaptažodis: ${password}
+🆔 UID: ${user.uid}
+
+Dabar galite prisijungti prie admin panelės!`, 'success');
+                
+            } catch (error) {
+                if (error.code === 'auth/email-already-in-use') {
+                    showResult(`⚠️  Vartotojas jau egzistuoja!
+📧 Email: admin@test.com
+🔑 Slaptažodis: test123
+
+Bandome atnaujinti admin privilegijas...`, 'info');
+                    
+                    try {
+                        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                        const user = userCredential.user;
+                        
+                        // Update admin document
+                        await setDoc(doc(db, 'users', user.uid), {
+                            email: email,
+                            isAdmin: true,
+                            createdAt: new Date(),
+                            displayName: 'Test Admin',
+                            role: 'admin'
+                        }, { merge: true });
+                        
+                        showResult(`✅ Admin privilegijos atnaujintos!
+📧 Email: admin@test.com
+🔑 Slaptažodis: test123
+🆔 UID: ${user.uid}
+
+Dabar galite prisijungti prie admin panelės!`, 'success');
+                        
+                    } catch (signInError) {
+                        showResult(`❌ Klaida prisijungiant: ${signInError.message}`, 'error');
+                    }
+                } else {
+                    showResult(`❌ Klaida kuriant vartotoją: ${error.message}`, 'error');
+                }
+            }
+        };
+
+        window.checkExistingUser = async function() {
+            try {
+                showResult('Tikrinama ar egzistuoja vartotojas...', 'info');
+                
+                const email = 'admin@test.com';
+                const password = 'test123';
+                
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+                
+                // Check Firestore document
+                const userDoc = await getDoc(doc(db, 'users', user.uid));
+                const userData = userDoc.data();
+                
+                if (userData && userData.isAdmin) {
+                    showResult(`✅ Admin vartotojas egzistuoja!
+📧 Email: ${email}
+🔑 Slaptažodis: ${password}
+🆔 UID: ${user.uid}
+👑 Admin: ${userData.isAdmin ? 'Taip' : 'Ne'}
+📝 Vardas: ${userData.displayName || 'Nenurodyta'}`, 'success');
+                } else {
+                    showResult(`⚠️  Vartotojas egzistuoja, bet nėra admin privilegijų!
+📧 Email: ${email}
+🔑 Slaptažodis: ${password}
+🆔 UID: ${user.uid}
+
+Spauskite "Sukurti Admin Vartotoją" kad pridėtumėte admin privilegijas.`, 'info');
+                }
+                
+            } catch (error) {
+                if (error.code === 'auth/user-not-found') {
+                    showResult('❌ Vartotojas nerastas. Spauskite "Sukurti Admin Vartotoją" kad sukurtumėte naują.', 'error');
+                } else if (error.code === 'auth/wrong-password') {
+                    showResult('❌ Neteisingas slaptažodis. Vartotojas egzistuoja, bet slaptažodis neteisingas.', 'error');
+                } else {
+                    showResult(`❌ Klaida: ${error.message}`, 'error');
+                }
+            }
+        };
+    </script>
+</body>
+</html> 

@@ -1,318 +1,226 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-// import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { collection, query, orderBy, getDocs, doc, updateDoc, where } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
-import { COLLECTIONS } from '@/lib/firebase/schema';
-import { format } from 'date-fns';
-import { lt } from 'date-fns/locale';
-
-type BookingStatus = 'pending' | 'confirmed' | 'cancelled' | 'completed';
+import { useState, useEffect, useCallback } from 'react';
+import { useAuth } from '@/lib/auth';
+import { useRouter } from 'next/navigation';
 
 interface Booking {
   id: string;
-  date: Date;
-  timeSlot: {
-    start: string;
-    end: string;
-  };
   location: string;
-  guests: number;
-  status: BookingStatus;
+  date: string;
+  theme: string;
+  time: string;
+  guestCount: number;
+  totalPrice: number;
+  status: 'pending' | 'confirmed' | 'cancelled';
   contactInfo: {
     name: string;
     email: string;
     phone: string;
   };
-  themeName: string;
-  themePrice: number;
-  specialRequests?: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
 }
 
-export default function BookingsPage() {
-  // const router = useRouter();
-  const [statusFilter, setStatusFilter] = useState<BookingStatus | 'all'>('all');
-  const [dateFilter, setDateFilter] = useState<'all' | 'today' | 'tomorrow' | 'thisWeek' | 'nextWeek'>('all');
+export default function AdminBookingsPage() {
+  const { user, isAdmin, loading } = useAuth();
+  const router = useRouter();
   const [bookings, setBookings] = useState<Booking[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [loadingBookings, setLoadingBookings] = useState(true);
 
   useEffect(() => {
-    const fetchBookings = async () => {
-      try {
-        setLoading(true);
-        setError(null);
+    if (!loading && !user) {
+      router.push('/signin');
+      return;
+    }
 
-        // Create base query
-        let baseQuery = query(
-          collection(db, COLLECTIONS.BOOKINGS),
-          orderBy('date', 'asc')
-        );
+    if (!loading && !isAdmin) {
+      router.push('/');
+      return;
+    }
 
-        // Add status filter if not 'all'
-        if (statusFilter !== 'all') {
-          baseQuery = query(baseQuery, where('status', '==', statusFilter));
-        }
+    if (isAdmin && user) {
+      fetchBookings();
+    }
+  }, [user, isAdmin, loading, router]);
 
-        const querySnapshot = await getDocs(baseQuery);
-        
-        let fetchedBookings = querySnapshot.docs.map(doc => {
-          const data = doc.data();
-          return {
-            id: doc.id,
-            ...data,
-            date: data.date.toDate(),
-            createdAt: data.createdAt.toDate(),
-            updatedAt: data.updatedAt.toDate()
-          } as Booking;
-        });
-
-        // Apply date filter in memory (since Firestore doesn't support complex date queries well)
-        if (dateFilter !== 'all') {
-          const today = new Date();
-          today.setHours(0, 0, 0, 0);
-          
-          const tomorrow = new Date(today);
-          tomorrow.setDate(tomorrow.getDate() + 1);
-          
-          const nextWeek = new Date(today);
-          nextWeek.setDate(nextWeek.getDate() + 7);
-
-          fetchedBookings = fetchedBookings.filter(booking => {
-            const bookingDate = new Date(booking.date);
-            bookingDate.setHours(0, 0, 0, 0);
-
-            switch (dateFilter) {
-              case 'today':
-                return bookingDate.getTime() === today.getTime();
-              case 'tomorrow':
-                return bookingDate.getTime() === tomorrow.getTime();
-              case 'thisWeek':
-                return bookingDate >= today && bookingDate < nextWeek;
-              case 'nextWeek':
-                const weekAfter = new Date(nextWeek);
-                weekAfter.setDate(weekAfter.getDate() + 7);
-                return bookingDate >= nextWeek && bookingDate < weekAfter;
-              default:
-                return true;
-            }
-          });
-        }
-
-        setBookings(fetchedBookings);
-      } catch (err) {
-        console.error('Error fetching bookings:', err);
-        setError('Įvyko klaida gaunant užsakymų sąrašą');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchBookings();
-  }, [statusFilter, dateFilter]);
-
-  const handleStatusChange = async (bookingId: string, newStatus: BookingStatus) => {
+  const fetchBookings = useCallback(async () => {
     try {
-      const bookingRef = doc(db, COLLECTIONS.BOOKINGS, bookingId);
-      await updateDoc(bookingRef, {
-        status: newStatus,
-        updatedAt: new Date()
+      // Get Firebase ID token
+      const idToken = await user?.getIdToken();
+      
+      if (!idToken) {
+        console.error('No ID token available');
+        return;
+      }
+
+      const response = await fetch('/api/admin/bookings', {
+        headers: {
+          'Authorization': `Bearer ${idToken}`
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.bookings) {
+          setBookings(data.bookings);
+        }
+      } else {
+        console.error('Failed to fetch bookings:', response.status);
+      }
+    } catch (error) {
+      console.error('Error fetching bookings:', error);
+    } finally {
+      setLoadingBookings(false);
+    }
+  }, [user]);
+
+  const updateBookingStatus = async (bookingId: string, status: string) => {
+    try {
+      const idToken = await user?.getIdToken();
+      
+      if (!idToken) {
+        console.error('No ID token available');
+        return;
+      }
+
+      const response = await fetch(`/api/admin/bookings/${bookingId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`
+        },
+        body: JSON.stringify({ status }),
       });
 
-      // Update local state
-      setBookings(prevBookings =>
-        prevBookings.map(booking =>
-      booking.id === bookingId 
-            ? { ...booking, status: newStatus, updatedAt: new Date() }
-        : booking
-        )
-      );
-    } catch (err) {
-      console.error('Error updating booking status:', err);
-      alert('Nepavyko atnaujinti užsakymo statuso');
+      if (response.ok) {
+        fetchBookings(); // Refresh the list
+      }
+    } catch (error) {
+      console.error('Error updating booking:', error);
     }
   };
 
-  const getStatusColor = (status: BookingStatus) => {
-    switch (status) {
-      case 'pending': return 'bg-yellow-100 text-yellow-800';
-      case 'confirmed': return 'bg-green-100 text-green-800';
-      case 'cancelled': return 'bg-red-100 text-red-800';
-      case 'completed': return 'bg-blue-100 text-blue-800';
-      default: return 'bg-gray-100 text-gray-800';
+  const deleteBooking = async (bookingId: string) => {
+    if (!confirm('Ar tikrai norite ištrinti šią rezervaciją?')) {
+      return;
+    }
+
+    try {
+      const idToken = await user?.getIdToken();
+      
+      if (!idToken) {
+        console.error('No ID token available');
+        return;
+      }
+
+      const response = await fetch(`/api/admin/bookings/${bookingId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${idToken}`
+        }
+      });
+
+      if (response.ok) {
+        fetchBookings(); // Refresh the list
+      }
+    } catch (error) {
+      console.error('Error deleting booking:', error);
     }
   };
 
-  const getStatusText = (status: BookingStatus) => {
-    switch (status) {
-      case 'pending': return 'Laukiama';
-      case 'confirmed': return 'Patvirtinta';
-      case 'cancelled': return 'Atšaukta';
-      case 'completed': return 'Įvykdyta';
-      default: return status;
-    }
-  };
-
-  if (loading) {
+  if (loading || loadingBookings) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-hunter"></div>
+      <div className="min-h-screen bg-white-smoke flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blush mx-auto"></div>
+          <p className="mt-4 text-hunter-green">Kraunama...</p>
+        </div>
       </div>
     );
   }
 
-  if (error) {
-    return (
-      <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative" role="alert">
-        <p className="font-bold">Klaida!</p>
-        <p>{error}</p>
-      </div>
-    );
+  if (!isAdmin) {
+    return null;
   }
 
   return (
-    <div className="bg-white shadow rounded-lg p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900">
-          Užsakymų Valdymas
-        </h1>
-        <div className="flex gap-4">
-          <select
-            className="rounded-md border-gray-300 shadow-sm focus:border-hunter focus:ring-hunter"
-            value={dateFilter}
-            onChange={(e) => setDateFilter(e.target.value as typeof dateFilter)}
-          >
-            <option value="all">Visos datos</option>
-            <option value="today">Šiandien</option>
-            <option value="tomorrow">Rytoj</option>
-            <option value="thisWeek">Šią savaitę</option>
-            <option value="nextWeek">Kitą savaitę</option>
-          </select>
-          <select
-            className="rounded-md border-gray-300 shadow-sm focus:border-hunter focus:ring-hunter"
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as BookingStatus | 'all')}
-          >
-            <option value="all">Visi statusai</option>
-            <option value="pending">Laukiantys</option>
-            <option value="confirmed">Patvirtinti</option>
-            <option value="cancelled">Atšaukti</option>
-            <option value="completed">Įvykdyti</option>
-          </select>
+    <div className="min-h-screen bg-white-smoke">
+      <div className="container-custom py-8">
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h1 className="text-3xl font-bold text-hunter-green mb-6">Rezervacijų Valdymas</h1>
+          
+          {bookings.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-gray-500">Nėra rezervacijų</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="bg-cambridge-blue text-white">
+                    <th className="p-3 text-left">Data</th>
+                    <th className="p-3 text-left">Laikas</th>
+                    <th className="p-3 text-left">Vieta</th>
+                    <th className="p-3 text-left">Tema</th>
+                    <th className="p-3 text-left">Svečiai</th>
+                    <th className="p-3 text-left">Kaina</th>
+                    <th className="p-3 text-left">Statusas</th>
+                    <th className="p-3 text-left">Klientas</th>
+                    <th className="p-3 text-left">Veiksmai</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {bookings.map((booking) => (
+                    <tr key={booking.id} className="border-b hover:bg-gray-50">
+                      <td className="p-3">
+                        {new Date(booking.date).toLocaleDateString('lt-LT')}
+                      </td>
+                      <td className="p-3">{booking.time}</td>
+                      <td className="p-3">{booking.location}</td>
+                      <td className="p-3">{booking.theme}</td>
+                      <td className="p-3">{booking.guestCount}</td>
+                      <td className="p-3">{booking.totalPrice} €</td>
+                      <td className="p-3">
+                        <select
+                          value={booking.status}
+                          onChange={(e) => updateBookingStatus(booking.id, e.target.value)}
+                          className="border rounded px-2 py-1 text-sm"
+                        >
+                          <option value="pending">Laukia</option>
+                          <option value="confirmed">Patvirtinta</option>
+                          <option value="cancelled">Atšaukta</option>
+                        </select>
+                      </td>
+                      <td className="p-3">
+                        <div>
+                          <div className="font-medium">{booking.contactInfo.name}</div>
+                          <div className="text-sm text-gray-500">{booking.contactInfo.email}</div>
+                          <div className="text-sm text-gray-500">{booking.contactInfo.phone}</div>
+                        </div>
+                      </td>
+                      <td className="p-3">
+                        <div className="flex space-x-2">
+                          <button
+                            onClick={() => router.push(`/admin/bookings/${booking.id}`)}
+                            className="bg-cambridge-blue text-white px-3 py-1 rounded text-sm hover:bg-opacity-90"
+                          >
+                            Peržiūrėti
+                          </button>
+                          <button
+                            onClick={() => deleteBooking(booking.id)}
+                            className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-opacity-90"
+                          >
+                            Ištrinti
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
-      </div>
-
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Klientas
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Data ir Laikas
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Tema
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Svečiai
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Statusas
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Veiksmai
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {bookings.map((booking) => (
-              <tr key={booking.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-medium text-gray-900">
-                    {booking.contactInfo.name}
-                  </div>
-                  <div className="text-sm text-gray-500">
-                    {booking.contactInfo.phone}
-                  </div>
-                  <div className="text-sm text-gray-500">
-                    {booking.contactInfo.email}
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">
-                    {format(booking.date, 'PPP', { locale: lt })}
-                  </div>
-                  <div className="text-sm text-gray-500">
-                    {booking.timeSlot.start} - {booking.timeSlot.end}
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">
-                    {booking.themeName}
-                  </div>
-                  <div className="text-sm text-gray-500">
-                    {booking.themePrice} €
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {booking.guests} asm.
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(booking.status)}`}>
-                    {getStatusText(booking.status)}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                  <div className="flex flex-col space-y-2">
-                    <Link
-                      href={`/admin/bookings/${booking.id}`}
-                      className="text-hunter hover:text-hunter-dark"
-                    >
-                      Peržiūrėti
-                    </Link>
-                    {booking.status === 'pending' && (
-                      <>
-                        <button
-                          onClick={() => handleStatusChange(booking.id, 'confirmed')}
-                          className="text-green-600 hover:text-green-900"
-                        >
-                          Patvirtinti
-                        </button>
-                        <button
-                          onClick={() => handleStatusChange(booking.id, 'cancelled')}
-                          className="text-red-600 hover:text-red-900"
-                        >
-                          Atšaukti
-                        </button>
-                      </>
-                    )}
-                    {booking.status === 'confirmed' && (
-                      <button
-                        onClick={() => handleStatusChange(booking.id, 'completed')}
-                        className="text-blue-600 hover:text-blue-900"
-                      >
-                        Pažymėti kaip įvykdytą
-                      </button>
-                    )}
-                  </div>
-                </td>
-              </tr>
-            ))}
-            {bookings.length === 0 && (
-              <tr>
-                <td colSpan={6} className="px-6 py-4 text-center text-gray-500">
-                  Nerasta užsakymų pagal pasirinktus filtrus
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
       </div>
     </div>
   );

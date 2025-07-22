@@ -9,6 +9,6 @@
   "include": ["src/scripts/**/*"],
   "ts-node": {
     "files": true,
-    "esm": true
+    "esm": false
   }
 } 

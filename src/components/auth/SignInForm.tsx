@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth';
 
@@ -10,8 +10,8 @@ export default function SignInForm() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const from = searchParams.get('from') || '/';
+  // const searchParams = useSearchParams();
+  // const from = searchParams.get('from') || '/';
   const { signIn, signInWithGoogle, error, clearError } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -21,7 +21,8 @@ export default function SignInForm() {
 
     try {
       await signIn(email, password);
-      router.push(from);
+      // Nukreipimas į pagrindinį puslapį
+      router.push('/');
     } catch (error) {
       console.error('Sign in error:', error);
     } finally {
@@ -35,7 +36,8 @@ export default function SignInForm() {
 
     try {
       await signInWithGoogle();
-      router.push(from);
+      // Nukreipimas į pagrindinį puslapį
+      router.push('/');
     } catch (error) {
       console.error('Google sign in error:', error);
     } finally {
@@ -98,25 +100,33 @@ export default function SignInForm() {
           </Link>
         </div>
 
-        <div className="space-y-2">
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded shadow-sm text-sm font-medium text-white bg-hunter-green hover:bg-hunter-green/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-hunter-green disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? 'Jungiamasi...' : 'Prisijungti'}
-          </button>
-
-          <button
-            type="button"
-            onClick={handleGoogleSignIn}
-            disabled={loading}
-            className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-hunter-green disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? 'Jungiamasi...' : 'Prisijungti su Google'}
-          </button>
-        </div>
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full flex justify-center py-2 px-4 border border-transparent rounded shadow-sm text-sm font-medium text-white bg-hunter-green hover:bg-hunter-green/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-hunter-green disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {loading ? 'Jungiamasi...' : 'Prisijungti'}
+        </button>
       </form>
+
+      {/* Atskira Google prisijungimo sekcija */}
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-gray-300" />
+        </div>
+        <div className="relative flex justify-center text-sm">
+          <span className="px-2 bg-white text-gray-500">Arba</span>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        onClick={handleGoogleSignIn}
+        disabled={loading}
+        className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-hunter-green disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        {loading ? 'Jungiamasi...' : 'Prisijungti su Google'}
+      </button>
     </div>
   );
 } 

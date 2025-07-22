@@ -23,11 +23,11 @@ const AddOns = dynamic(() => import('@/components/booking/AddOns'), {
 })
 
 export default function BookPage() {
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null)
+  const [selectedDate, setSelectedDate] = useState<string>('')
   const selectedTimeSlot = { start: '14:00', end: '17:00' }
   const location = 'klaipeda' // Fiksuota lokacija
 
-  const handleDateSelect = (date: Date | null) => {
+  const handleDateSelect = (date: string) => {
     setSelectedDate(date)
   }
 
@@ -39,15 +39,14 @@ export default function BookPage() {
         <div className="space-y-8">
           <Calendar 
             selectedDate={selectedDate}
-            onChange={handleDateSelect}
-            minDate={new Date()}
-            maxDate={new Date(Date.now() + 90 * 24 * 60 * 60 * 1000)} // 90 days ahead
+            onDateSelect={handleDateSelect}
+            location={location}
           />
           
           {selectedDate && (
             <>
               <BookingForm 
-                selectedDate={selectedDate}
+                selectedDate={new Date(selectedDate)}
                 selectedLocation={location}
                 selectedTimeSlot={selectedTimeSlot}
               />

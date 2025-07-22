@@ -1,66 +1,48 @@
 import { Metadata } from 'next';
-import Image from 'next/image';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export const metadata: Metadata = {
   title: 'Temos | Pique Unique',
-  description: 'Išsirinkite savo pikniko temą - romantiška, šeimai ar prabangų pikniką. Kiekviena tema sukuria unikalią atmosferą jūsų ypatingai progai.',
+  description: 'Išsirinkite savo pikniko temą - Undinių, Fejų, Laumių ar Disco pikniką. Kiekviena tema sukuria unikalią atmosferą jūsų ypatingai progai.',
 };
 
 const themes = [
   {
-    id: 'romantic',
-    title: 'Romantiški Piknikai',
-    description: 'Tobula aplinka romantiškiems pasimatymams, piršlyboms ar vestuvių metinėms. Sukuriame jaukią ir intymią atmosferą su žvakėmis, gėlėmis ir specialiai jums pritaikyta aplinka.',
-    image: 'https://placehold.co/800x600/e2e8f0/1a472a?text=Romantiški+Piknikai',
-    features: [
-      'Jaukus apšvietimas su žvakėmis ir girliandomis',
-      'Romantiška muzika',
-      'Gėlių puokštės ir dekoracijos',
-      'Šampanas ir užkandžiai dviems',
-      'Patogūs sėdmaišiai ir pagalvėlės',
-      'Asmeninės detalės pagal jūsų pageidavimus'
-    ]
+    id: 'undiniu',
+    title: 'Undinių Piknikai',
+    description: 'Spalvos žaižaruoja tarsi bangos saulėje. Undinių tema – tai svajinga, jūros įkvėpta iškylos patirtis. Dominuoja švelnios mėlynos, žalsvos ir perlinės spalvos, dekoracijos primena kriaukles, perlus ir vėtrunges. Tinka gimtadieniams, mergvakariams ar dienai, kai norisi pabėgti į pasaką.',
+    icon: '/icons/undine.png'
   },
   {
-    id: 'family',
-    title: 'Šeimos Piknikai',
-    description: 'Puiki proga praleisti laiką su šeima ir draugais. Organizuojame gimtadienius, krikštynas ar tiesiog jaukų savaitgalio pikniką visai šeimai.',
-    image: 'https://placehold.co/800x600/e2e8f0/1a472a?text=Šeimos+Piknikai',
-    features: [
-      'Erdvi ir patogi piknikavimo zona',
-      'Žaidimai vaikams ir suaugusiems',
-      'Šventinės dekoracijos',
-      'Įvairūs užkandžiai ir gėrimai',
-      'Saugios ir patogios sėdėjimo vietos',
-      'Papildoma įranga pagal poreikį (muzika, apšvietimas)'
-    ]
+    id: 'feju',
+    title: 'Fejų Piknikai',
+    description: 'Ši tema – tarsi pasivaikščiojimas stebuklingame miške. Fėjų piknikas kupinas pastelinių spalvų, lengvų audinių ir gėlių žiedų. Jauki, romantiška, švelni atmosfera – idealiai tinka fotosesijoms, seserystės šventėms ar laikui su mylimomis draugėmis.',
+    icon: '/icons/feja.png'
   },
   {
-    id: 'luxury',
-    title: 'Prabangūs Piknikai',
-    description: 'Išskirtinė patirtis tiems, kurie vertina aukščiausią kokybę. Tobula proga verslo susitikimams, mergvakariams ar bet kokiai ypatingai šventei.',
-    image: 'https://placehold.co/800x600/e2e8f0/1a472a?text=Prabangūs+Piknikai',
-    features: [
-      'Premium klasės baldai ir įranga',
-      'Gurmaniški užkandžiai ir gėrimai',
-      'Profesionalus aptarnavimas',
-      'Išskirtinės dekoracijos',
-      'Asmeninis koordinatorius',
-      'Papildomos pramogos pagal pageidavimą'
-    ]
+    id: 'laumiu',
+    title: 'Laumių Piknikai',
+    description: 'Pajuskite miško dvasią su Laumių pikniku. Laumių tema kviečia į paslaptingą laukinę gamtą: džiovinti augalai, mediniai elementai, žemės tonai ir pagoniškos detalės. Ši iškyla puikiai tiks gamtos mylėtojams, norintiems autentiškos, harmoningos atmosferos.',
+    icon: '/icons/laume.png'
+  },
+  {
+    id: 'disco',
+    title: 'Disco Piknikai',
+    description: 'Šokiai po žvaigždėtų dangumi su Disco tema! Disco tema – tai ryški, žaisminga, energinga iškyla su ryškiomis spalvomis, išskirtinėmis detalėmis ir gera nuotaika. Tinka vakarėliams, gimtadieniams ar bet kokiai progai, kai norisi šiek tiek daugiau.',
+    icon: '/icons/disco.png'
   }
 ];
 
 export default function ThemesPage() {
   return (
-    <main className="bg-sand">
+    <main className="bg-linen">
       {/* Hero Section */}
       <section className="py-16">
-        <div className="container-custom">
-          <h1 className="text-4xl md:text-5xl font-bold text-hunter-green text-center mb-8">
+        <div className="max-w-6xl mx-auto px-4">
+          <h1 className="text-4xl md:text-5xl font-bold text-hunter text-center mb-8">
             Pikniko Temos
-      </h1>
+          </h1>
           <p className="text-xl text-gray-700 text-center max-w-3xl mx-auto">
             Pasirinkite temą, kuri geriausiai atspindi jūsų įsivaizduojamą šventę.
             Kiekviena tema yra kruopščiai apgalvota ir pritaikyta skirtingoms progoms.
@@ -70,79 +52,58 @@ export default function ThemesPage() {
 
       {/* Themes Grid */}
       <section className="pb-16">
-        <div className="container-custom">
-          <div className="space-y-16">
-            {themes.map((theme, index) => (
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="grid md:grid-cols-2 gap-8">
+            {themes.map((theme) => (
               <div
-            key={theme.id}
-                className={`grid md:grid-cols-2 gap-8 items-center ${
-                  index % 2 === 1 ? 'md:flex-row-reverse' : ''
-                }`}
+                key={theme.id}
+                className="bg-white rounded-lg shadow-md p-8 hover:shadow-lg transition-shadow"
               >
-                <div className="relative aspect-[4/3] rounded-lg overflow-hidden">
-                  <Image
-                    src={theme.image}
-                    alt={theme.title}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-                <div className="space-y-6">
+                <div className="text-center mb-6">
+                  <div className="flex justify-center mb-4">
+                    <Image
+                      src={theme.icon}
+                      alt={theme.title}
+                      width={120}
+                      height={120}
+                      className="object-contain"
+                    />
+                  </div>
                   <h2 className="text-3xl font-bold text-hunter-green">
                     {theme.title}
                   </h2>
-                  <p className="text-gray-700">
-                    {theme.description}
-                  </p>
-                  <ul className="space-y-3">
-                    {theme.features.map((feature, i) => (
-                      <li key={i} className="flex items-start space-x-3">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-6 w-6 text-hunter-green flex-shrink-0"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-          >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M5 13l4 4L19 7"
-                          />
-                        </svg>
-                        <span className="text-gray-700">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <div className="pt-4">
-                    <Link
-                      href={`/booking?theme=${theme.id}`}
-                      className="inline-block bg-hunter-green text-white py-3 px-8 rounded-md hover:bg-hunter-green/90 transition-colors"
-                    >
-                      Rezervuoti
-                    </Link>
-                  </div>
+                </div>
+                                <p className="text-gray-700 mb-8">
+                  {theme.description}
+                </p>
+                <div className="text-center">
+                  <Link
+                    href={`/booking?theme=${theme.id}`}
+                    className="inline-block bg-hunter-green text-white py-3 px-8 rounded-lg hover:bg-primary-dark transition-colors"
+                  >
+                    Rezervuoti
+                  </Link>
                 </div>
               </div>
-        ))}
-      </div>
-    </div>
+            ))}
+          </div>
+        </div>
       </section>
 
       {/* CTA Section */}
       <section className="py-16 bg-hunter-green text-white">
-        <div className="container-custom text-center">
-          <h2 className="text-3xl font-bold mb-6">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <div className="text-6xl mb-6">💬</div>
+          <h2 className="text-3xl font-bold mb-6 text-white">
             Negalite Apsispręsti?
           </h2>
-          <p className="text-lg mb-8 max-w-2xl mx-auto">
+          <p className="text-lg mb-8 max-w-3xl mx-auto text-white">
             Susisiekite su mumis ir mes padėsime išsirinkti bei sukurti
             tobulą pikniką pagal jūsų poreikius ir norus.
           </p>
           <Link
             href="/contact"
-            className="inline-block bg-white text-hunter-green py-3 px-8 rounded-md font-medium hover:bg-sand transition-colors"
+            className="inline-block bg-white text-hunter-green py-3 px-8 rounded-lg font-medium hover:bg-gray-100 transition-colors"
           >
             Pasitarkime
           </Link>

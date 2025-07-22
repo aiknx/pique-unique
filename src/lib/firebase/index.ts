@@ -50,8 +50,8 @@ try {
   
   storage = getStorage(app);
 
-  // Connect to emulators in development
-  if (process.env.NODE_ENV === 'development' || process.env.NEXT_PUBLIC_USE_FIREBASE_EMULATOR === 'true') {
+  // Connect to emulators in development ONLY if explicitly enabled
+  if (process.env.NEXT_PUBLIC_USE_FIREBASE_EMULATOR === 'true') {
     try {
       connectAuthEmulator(auth, 'http://127.0.0.1:9099');
       connectFirestoreEmulator(db, '127.0.0.1', 8080);
