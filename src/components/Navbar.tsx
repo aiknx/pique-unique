@@ -29,7 +29,7 @@ export default function Navbar() {
   return (
     <nav className="bg-white shadow-md relative z-50">
       <div className="container-custom">
-        <div className="flex items-center justify-between py-4">
+        <div className="flex items-center justify-between py-2">
           <Logo />
           
           {/* Desktop Navigation */}

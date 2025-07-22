@@ -36,6 +36,15 @@ function initializeFirebaseAdmin() {
       });
     } else {
       // In production, use service account
+      console.log('Production environment detected');
+      console.log('Checking Firebase Admin config...');
+      console.log('project_id:', firebaseAdminConfig.project_id ? 'SET' : 'MISSING');
+      console.log('private_key:', firebaseAdminConfig.private_key ? 'SET' : 'MISSING');
+      console.log('client_email:', firebaseAdminConfig.client_email ? 'SET' : 'MISSING');
+      console.log('private_key_id:', firebaseAdminConfig.private_key_id ? 'SET' : 'MISSING');
+      console.log('client_id:', firebaseAdminConfig.client_id ? 'SET' : 'MISSING');
+      console.log('client_x509_cert_url:', firebaseAdminConfig.client_x509_cert_url ? 'SET' : 'MISSING');
+      
       if (firebaseAdminConfig.project_id && firebaseAdminConfig.private_key && firebaseAdminConfig.client_email) {
         console.log('Initializing Firebase Admin with service account');
         initializeApp({
@@ -43,6 +52,14 @@ function initializeFirebaseAdmin() {
         });
       } else {
         console.warn('Firebase Admin not initialized: Missing environment variables');
+        console.warn('Missing variables:', {
+          project_id: !firebaseAdminConfig.project_id,
+          private_key: !firebaseAdminConfig.private_key,
+          client_email: !firebaseAdminConfig.client_email,
+          private_key_id: !firebaseAdminConfig.private_key_id,
+          client_id: !firebaseAdminConfig.client_id,
+          client_x509_cert_url: !firebaseAdminConfig.client_x509_cert_url
+        });
         return;
       }
     }
