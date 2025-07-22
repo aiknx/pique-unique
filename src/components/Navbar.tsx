@@ -27,10 +27,45 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="bg-white shadow-md relative z-50">
+    <nav className="bg-white shadow-sm relative z-50">
       <div className="container-custom">
         <div className="flex items-center justify-between py-2">
-          <Logo />
+          {/* Mobile Menu Button - moved to left */}
+          <div className="md:hidden order-first">
+            <button
+              onClick={toggleMobileMenu}
+              className="text-hunter-green hover:text-cambridge-blue transition-colors p-2"
+              aria-label="Toggle mobile menu"
+            >
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                {isMobileMenuOpen ? (
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                ) : (
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
+                )}
+              </svg>
+            </button>
+          </div>
+
+          {/* Logo - centered on mobile */}
+          <div className="flex-1 flex justify-center md:justify-start">
+            <Logo />
+          </div>
           
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-6">
@@ -112,38 +147,6 @@ export default function Navbar() {
                 </Link>
               </div>
             )}
-          </div>
-
-          {/* Mobile Menu Button */}
-          <div className="md:hidden">
-            <button
-              onClick={toggleMobileMenu}
-              className="text-hunter-green hover:text-cambridge-blue transition-colors p-2"
-              aria-label="Toggle mobile menu"
-            >
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                {isMobileMenuOpen ? (
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                ) : (
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4 6h16M4 12h16M4 18h16"
-                  />
-                )}
-              </svg>
-            </button>
           </div>
         </div>
 

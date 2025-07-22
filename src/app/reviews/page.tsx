@@ -13,13 +13,13 @@ interface Review {
   images?: string[];
   createdAt: string;
   userEmail?: string;
+  name?: string;
 }
 
 export default function ReviewsPage() {
   const { user } = useAuth();
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
 
   useEffect(() => {
     fetchReviews();
@@ -65,29 +65,30 @@ export default function ReviewsPage() {
           </p>
         </div>
 
-        {/* Review Form Toggle */}
-        {user && (
-          <div className="text-center mb-8">
-            <button
-              onClick={() => setShowForm(!showForm)}
-              className="bg-hunter text-white px-6 py-3 rounded-lg hover:bg-hunter-dark transition-colors"
-            >
-              {showForm ? 'Uždaryti formą' : 'Palikti atsiliepimą'}
-            </button>
-          </div>
-        )}
-
-        {/* Review Form */}
-        {showForm && user && (
+        {/* Review Form - Automatically show for registered users */}
+        {user ? (
           <div className="mb-12">
             <ReviewForm
               bookingId="temp" // This should be passed from user's booking
               onSuccess={() => {
-                setShowForm(false);
                 fetchReviews();
               }}
-              onCancel={() => setShowForm(false)}
             />
+          </div>
+        ) : (
+          <div className="mb-12 bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
+            <h3 className="text-lg font-semibold text-yellow-800 mb-2">
+              Norite palikti atsiliepimą?
+            </h3>
+            <p className="text-yellow-700 mb-4">
+              Prisijunkite, kad galėtumėte pasidalinti savo patirtimi su kitais svečiais.
+            </p>
+            <a
+              href="/auth/signin"
+              className="inline-block bg-hunter text-white px-6 py-3 rounded-lg hover:bg-hunter-dark transition-colors font-medium"
+            >
+              Prisijungti
+            </a>
           </div>
         )}
 
@@ -128,7 +129,11 @@ export default function ReviewsPage() {
                     <p className="text-sm text-gray-600">
                       {new Date(review.createdAt).toLocaleDateString('lt-LT')}
                     </p>
-                    {review.userEmail && (
+                    {review.name ? (
+                      <p className="text-sm text-gray-500 mt-1">
+                        {review.name}
+                      </p>
+                    ) : review.userEmail && (
                       <p className="text-sm text-gray-500 mt-1">
                         {review.userEmail.split('@')[0]}***
                       </p>

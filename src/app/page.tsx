@@ -41,10 +41,10 @@ export default function HomePage() {
                 Užsakyti Pikniką
               </Link>
               <Link 
-                href="/admin/bookings" 
+                href="/themes" 
                 className="w-full sm:w-auto text-center btn-secondary text-xl px-12 py-4 min-w-[250px]"
               >
-                Administravimas
+                Peržiūrėti Temas
               </Link>
             </div>
           </div>

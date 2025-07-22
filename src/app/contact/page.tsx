@@ -83,7 +83,7 @@ export default function ContactPage() {
                   </svg>
                 </a>
                 <a
-                  href="https://instagram.com/piqueunique"
+                  href="https://instagram.com/piqueunique.lt"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-hunter-green hover:text-hunter-green/80 transition-colors"

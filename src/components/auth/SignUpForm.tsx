@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useAuth } from '@/lib/auth'
 
@@ -11,6 +11,8 @@ export default function SignUpForm() {
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const from = searchParams.get('from') || '/'
   const { signUp, signInWithGoogle } = useAuth()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -20,8 +22,12 @@ export default function SignUpForm() {
 
     try {
       await signUp(email, password)
-      // Nukreipimas į patvirtinimo puslapį vietoj tiesioginio prisijungimo
-      router.push('/auth/verify-email?email=' + encodeURIComponent(email))
+      // Nukreipimas į originalų puslapį arba patvirtinimo puslapį
+      if (from.includes('/booking/confirmation')) {
+        router.push(from)
+      } else {
+        router.push('/auth/verify-email?email=' + encodeURIComponent(email))
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Klaida registruojantis')
     } finally {
@@ -35,8 +41,8 @@ export default function SignUpForm() {
 
     try {
       await signInWithGoogle()
-      // Nukreipimas į patvirtinimo puslapį arba pagrindinį
-      router.push('/auth/verify-email?email=google-user')
+      // Nukreipimas į originalų puslapį arba pagrindinį
+      router.push(from)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Klaida registruojantis su Google')
     } finally {
