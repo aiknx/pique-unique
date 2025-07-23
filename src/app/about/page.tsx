@@ -21,7 +21,7 @@ export default function AboutPage() {
           src="/images/about-story.webp"
           alt="Pique Unique istorija - nuostabūs momentai paplūdimyje"
           fill
-          className="object-cover object-bottom"
+          className="object-cover object-bottom md:object-center"
           priority
           sizes="100vw"
           quality={85}

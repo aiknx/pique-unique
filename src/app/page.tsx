@@ -27,7 +27,7 @@ export default function HomePage() {
             src="/images/hero-picnic.webp"
             alt="Prabangus piknikas paplūdimyje su draugėmis saulėlydyje - Pique Unique"
             fill
-            className="object-cover"
+            className="object-cover object-left md:object-center"
             priority
             sizes="100vw"
             quality={85}
