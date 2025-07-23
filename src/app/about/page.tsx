@@ -2,26 +2,39 @@ import { Metadata } from 'next';
 import Image from 'next/image';
 
 export const metadata: Metadata = {
-  title: 'Apie Mus | Pique Unique',
-  description: 'Sužinokite daugiau apie Pique Unique - jūsų prabangių paplūdimio piknikų organizatorius Klaipėdoje. Mes kuriame nepamirštamus momentus prie jūros.',
+  title: 'Apie Mus - Pique Unique Istorija | Prabangūs Piknikai Klaipėdoje',
+  description: 'Sužinokite Pique Unique istoriją - kaip gimė mūsų idėja kurti prabangius paplūdimio piknikus Klaipėdoje ir Neringoje. Mes kuriame nepamirštamus momentus prie jūros.',
+  keywords: 'Pique Unique istorija, apie mus, paplūdimio piknikai Klaipėda, prabangūs piknikai, mūsų komanda, pikniko organizatoriai',
+  openGraph: {
+    title: 'Apie Mus - Pique Unique Istorija',
+    description: 'Sužinokite Pique Unique istoriją ir kaip mes kuriame nepamirštamus momentus prie jūros',
+    images: ['/images/about-story.webp'],
+  },
 };
 
 export default function AboutPage() {
   return (
     <main className="bg-sand">
       {/* Hero Section */}
-      <section className="relative h-[50vh] overflow-hidden">
+      <section className="relative h-[80vh] overflow-hidden">
         <Image
-          src="/images/about-hero.jpg"
-          alt="Pique Unique komanda paplūdimyje"
+          src="/images/about-story.webp"
+          alt="Pique Unique istorija - nuostabūs momentai paplūdimyje"
           fill
-          className="object-cover"
+          className="object-cover object-bottom"
           priority
+          sizes="100vw"
+          quality={85}
         />
         <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-          <h1 className="text-4xl md:text-5xl font-bold text-white text-center px-4">
-            Mūsų Istorija
-          </h1>
+          <div className="text-center">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white text-center px-4 mb-4">
+              Mūsų Istorija
+            </h1>
+            <p className="text-lg md:text-xl text-white/90 max-w-2xl mx-auto px-4">
+              Kaip gimė Pique Unique ir kodėl mes kuriame nepamirštamus momentus
+            </p>
+          </div>
         </div>
       </section>
 
@@ -100,51 +113,93 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Team Section */}
+      {/* FAQ Section */}
       <section className="py-16">
         <div className="container-custom">
           <h2 className="text-3xl font-bold text-hunter-green text-center mb-12">
-            Susipažinkite su Komanda
+            D.U.K. - Dažnai Užduodami Klausimai
           </h2>
 
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="relative w-48 h-48 mx-auto mb-4 rounded-full overflow-hidden">
-                <Image
-                  src="/images/team/founder.jpg"
-                  alt="Įkūrėja"
-                  fill
-                  className="object-cover"
-                />
-              </div>
-              <h3 className="text-xl font-semibold text-hunter-green">Vardenis Pavardenis</h3>
-              <p className="text-gray-600">Įkūrėja</p>
+          <div className="max-w-4xl mx-auto space-y-6">
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <h3 className="text-xl font-semibold text-hunter-green mb-3">1. Kas yra Pique Unique?</h3>
+              <p className="text-gray-700">
+                Pique Unique – tai išskirtinių piknikų patirtis po atviru dangumi, skirta švęsti ypatingas gyvenimo akimirkas: gimtadienius, mergvakarius, pasipiršimus ar tiesiog gražią dieną su brangiais žmonėmis. Mes pasirūpiname viskuo – nuo gėlių puokštės iki kruopščiai parinktų dekoracijų.
+              </p>
             </div>
 
-            <div className="text-center">
-              <div className="relative w-48 h-48 mx-auto mb-4 rounded-full overflow-hidden">
-                <Image
-                  src="/images/team/designer.jpg"
-                  alt="Dizainerė"
-                  fill
-                  className="object-cover"
-                />
-              </div>
-              <h3 className="text-xl font-semibold text-hunter-green">Vardenis Pavardenis</h3>
-              <p className="text-gray-600">Dizainerė</p>
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <h3 className="text-xl font-semibold text-hunter-green mb-3">2. Kas įskaičiuota į pikniką?</h3>
+              <p className="text-gray-700 mb-3">Kiekviename piknike rasite:</p>
+              <ul className="text-gray-700 list-disc list-inside space-y-1 ml-4">
+                <li>Stilingą stalą ir sėdėjimo vietas</li>
+                <li>Dekoracijas ir indus</li>
+                <li>Pledus, papildomas pagalvėles ir jaukumą</li>
+                <li>Teminius žaidimus</li>
+                <li>Gėlių dekorą</li>
+                <li>Pakvietimus</li>
+                <li>Muziką, BOSE kolonėlę, Spotify grojaraštį</li>
+                <li>&ldquo;Atsiminimų telefoną&rdquo; skirta įrašyti palinkėjimus jubiliatei ar būsimai nuotakai</li>
+              </ul>
+              <p className="text-gray-700 mt-3">
+                Maisto netiekiame, tačiau galime pasirūpinti sezoniniais, teminiais užkandžiais ir gražiomis serviravimo lėkštėmis už papildomą 30€/5asm.
+              </p>
             </div>
 
-            <div className="text-center">
-              <div className="relative w-48 h-48 mx-auto mb-4 rounded-full overflow-hidden">
-                <Image
-                  src="/images/team/coordinator.jpg"
-                  alt="Koordinatorė"
-                  fill
-                  className="object-cover"
-                />
-              </div>
-              <h3 className="text-xl font-semibold text-hunter-green">Vardenis Pavardenis</h3>
-              <p className="text-gray-600">Koordinatorė</p>
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <h3 className="text-xl font-semibold text-hunter-green mb-3">3. Kaip rezervuoti pikniką?</h3>
+              <p className="text-gray-700">
+                Užsakymus priimame per svetainę arba rašant mums per Instagram ar Facebook. Rekomenduojame rezervuoti bent prieš 5 dienas, ypač savaitgaliais.
+              </p>
+            </div>
+
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <h3 className="text-xl font-semibold text-hunter-green mb-3">4. Kiek kainuoja piknikas?</h3>
+              <p className="text-gray-700">
+                Kaina priklauso nuo žmonių skaičiaus ir pasirinktų papildomų paslaugų. Turime skirtingus pasiūlymus nuo €200 dviem asmenims. (Tikslias kainas rasite skyriuje &ldquo;Paketai&rdquo;.)
+              </p>
+            </div>
+
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <h3 className="text-xl font-semibold text-hunter-green mb-3">5. Ką daryti, jei prognozuojamas lietus?</h3>
+              <p className="text-gray-700">
+                Jei artėja lietus – susisieksime ir pasiūlysime perkelti datą arba grąžinsime pinigus. Galime padėti rasti dengtas vietas.
+              </p>
+            </div>
+
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <h3 className="text-xl font-semibold text-hunter-green mb-3">6. Ar galiu atsinešti savo maistą ir gėrimus?</h3>
+              <p className="text-gray-700">
+                Taip! Atsineškite savo mėgstamų užkandžių, tortą ar gėrimų – mes pasirūpinsime jaukia aplinka. (Svarbu: neteikiame maisto ar alkoholio.)
+              </p>
+            </div>
+
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <h3 className="text-xl font-semibold text-hunter-green mb-3">7. Kiek laiko trunka piknikas?</h3>
+              <p className="text-gray-700">
+                Standartinis piknikas trunka 2 valandas, tačiau galima užsisakyti ilgesnį laiką už papildomą mokestį (€50).
+              </p>
+            </div>
+
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <h3 className="text-xl font-semibold text-hunter-green mb-3">8. Ar galima pasirinkti teminį pikniką?</h3>
+              <p className="text-gray-700">
+                Žinoma! Jei turite ypatingą idėją ar temą – pasidalinkite, ir mes padarysime viską, kad ją įgyvendintume.
+              </p>
+            </div>
+
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <h3 className="text-xl font-semibold text-hunter-green mb-3">9. Ar piknikai tinkami vaikams?</h3>
+              <p className="text-gray-700">
+                Taip! Galime pritaikyti aplinką šeimai ar vaikams – tereikia iš anksto informuoti.
+              </p>
+            </div>
+
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <h3 className="text-xl font-semibold text-hunter-green mb-3">10. Ar važiuojate į kitus miestus?</h3>
+              <p className="text-gray-700">
+                Esame įsikūrę Klaipėdos/Neringos regionuose. Dėl kitų vietovių – parašykite, įvertinsime galimybę!
+              </p>
             </div>
           </div>
         </div>

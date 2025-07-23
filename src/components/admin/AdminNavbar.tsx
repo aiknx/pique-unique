@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 const navigation = [
   { name: 'Skydelis', href: '/admin' },
   { name: 'Užsakymai', href: '/admin/bookings' },
-  { name: 'Galerija', href: '/admin/gallery' },
+  { name: 'Papildomos paslaugos', href: '/admin/gallery' },
   { name: 'Atsiliepimai', href: '/admin/reviews' },
   { name: 'Temos', href: '/admin/themes' },
   { name: 'Laiškai', href: '/admin/emails' },

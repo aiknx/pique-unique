@@ -32,7 +32,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link href="/gallery" className="text-gray-300 hover:text-white transition-colors">
-                  Galerija
+                  Papildomos paslaugos
                 </Link>
               </li>
               <li>

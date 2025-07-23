@@ -41,8 +41,8 @@ export default function AdminDashboardPage() {
         </div>
         
         <div className="bg-green-50 p-6 rounded-lg">
-          <h2 className="text-lg font-medium text-green-900 mb-2">Galerija</h2>
-          <p className="text-green-700">0 nuotraukų</p>
+          <h2 className="text-lg font-medium text-green-900 mb-2">Papildomos paslaugos</h2>
+          <p className="text-green-700">0 paslaugų</p>
         </div>
         
         <div className="bg-purple-50 p-6 rounded-lg">

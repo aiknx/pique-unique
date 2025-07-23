@@ -4,48 +4,52 @@ import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
-// Galerijos nuotraukų duomenys
-const galleryImages = [
+// Tikrosios papildomos paslaugos iš rezervacijos formos
+const additionalServices = [
   {
-    src: '/images/gallery/romantic-1.jpg',
-    alt: 'Romantiškas piknikas saulėlydyje',
-    category: 'romantic'
+    id: 'acala',
+    title: 'ACALA Skonių kelionė',
+    description: 'Rafinuotas, vyniško stiliaus putojantis arbatos gėrimas',
+    price: '25€',
+    pricePer: '5 asmenys',
+    image: '/images/services/acala.webp',
+    details: 'Leiskite šventei įgyti dar daugiau prasmės su tikrais, natūraliais ir keičiančiais jūsų požiūrį į nealkoholinius gėrimus, skoniais. Puikios akimirkos nusipelno puikių gėrimų, todėl atsisakydami nusistovėjusių normų, suteikiame galimybę laisvai mėgautis rafinuotu, vyniško stiliaus putojančiu arbatos gėrimu, kuris yra vertas tosto.',
+    icon: '🍵'
   },
   {
-    src: '/images/gallery/romantic-2.jpg',
-    alt: 'Vakarienė paplūdimyje dviems',
-    category: 'romantic'
+    id: 'maar',
+    title: 'MAAR kvapų degustacija',
+    description: 'Prabangių kvapų pasaulio atradimas',
+    price: '45€',
+    pricePer: 'vienkartinė',
+    image: '/images/services/maar.webp',
+    details: 'Suteikite savo šventei subtilios prabangos su MAAR kvapų degustaciją, kur kiekvienas dalyvis galės pasinerti į prabangių kvapų pasaulį ir atrasti sau tinkamiausią aromatą. Turtingi ir ypatingi kvepalai yra tie, kurie spinduliuoja kompleksiškumu, ilgam įsirašo atmintyje ir yra sukurti, naudojant kokybiškus ingredientus. Degustacija idealiai tinka mergvakariams, ieškant vestuvių kvapo!',
+    icon: '🌸'
   },
   {
-    src: '/images/gallery/family-1.jpg',
-    alt: 'Šeimos piknikas paplūdimyje',
-    category: 'family'
+    id: 'painting',
+    title: 'Tapymo užsiėmimas',
+    description: 'Kūryba po atviru dangumi',
+    price: '10€',
+    pricePer: 'asm',
+    image: '/images/services/painting.webp',
+    details: 'Mėgaukitės kūryba po atviru dangumi! Siūlome intuityvios tapybos užsiėmimą, kurio metu kiekvienas dalyvis gali atsipalaiduoti, išreikšti emocijas ir sukurti savo unikalų paveikslą. Visi tapymo reikmenys įskaičiuoti. Ši veikla puikiai tinka gimtadieniams bei mergvakariams, padeda sustiprinti ryšį tarp dalyvių ir su savimi.',
+    icon: '🎨'
   },
   {
-    src: '/images/gallery/family-2.jpg',
-    alt: 'Vaikų gimtadienis paplūdimyje',
-    category: 'family'
-  },
-  {
-    src: '/images/gallery/luxury-1.jpg',
-    alt: 'Prabangus piknikas su šampanu',
-    category: 'luxury'
-  },
-  {
-    src: '/images/gallery/luxury-2.jpg',
-    alt: 'VIP piknikas saulėlydyje',
-    category: 'luxury'
-  },
-  // Galite pridėti daugiau nuotraukų pagal poreikį
+    id: 'plates',
+    title: 'Užkandžių lėkštės',
+    description: 'Estetiškas serviravimas ir sezoniniai užkandžiai',
+    price: '30€',
+    pricePer: '5 asmenys',
+    image: '/images/services/plates.webp',
+    details: 'Maisto neteikiame, bet galime pasiūlyti estetiškas serviravimo lėkštes su jūsų atsineštiems užkandžiams arba pasirūpinti sezoninėmis, teminėmis vaišėmis (vaisias, uogomis, riešutais, sūriu, alyvuogėmis).',
+    icon: '🍽️'
+  }
 ];
 
 export default function GalleryContent() {
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
-
-  const filteredImages = selectedCategory === 'all'
-    ? galleryImages
-    : galleryImages.filter(img => img.category === selectedCategory);
+  const [selectedService, setSelectedService] = useState<typeof additionalServices[0] | null>(null);
 
   return (
     <main className="bg-sand min-h-screen">
@@ -53,81 +57,49 @@ export default function GalleryContent() {
       <section className="py-16">
         <div className="container-custom">
           <h1 className="text-4xl md:text-5xl font-bold text-hunter-green text-center mb-8">
-            Mūsų Piknikų Galerija
+            Papildomos Paslaugos
           </h1>
           <p className="text-xl text-gray-700 text-center max-w-3xl mx-auto mb-12">
-            Apžiūrėkite mūsų suorganizuotus piknikus ir įkvėpkite save savo ypatingai progai.
-            Kiekvienas piknikas yra unikalus ir pritaikytas pagal klientų norus.
+            Pasirūpinkime, kad jūsų piknikas būtų dar ypatingesnis. 
+            Pasiūlome įvairias papildomas paslaugas, kurios padarys jūsų dieną nepamirštamą.
           </p>
         </div>
       </section>
 
-      {/* Filter Buttons */}
-      <section className="pb-8">
-        <div className="container-custom">
-          <div className="flex flex-wrap justify-center gap-4">
-            <button
-              onClick={() => setSelectedCategory('all')}
-              className={`px-6 py-2 rounded-full font-medium transition-colors ${
-                selectedCategory === 'all'
-                  ? 'bg-hunter-green text-white'
-                  : 'bg-white text-hunter-green hover:bg-hunter-green hover:text-white'
-              }`}
-            >
-              Visi
-            </button>
-            <button
-              onClick={() => setSelectedCategory('romantic')}
-              className={`px-6 py-2 rounded-full font-medium transition-colors ${
-                selectedCategory === 'romantic'
-                  ? 'bg-hunter-green text-white'
-                  : 'bg-white text-hunter-green hover:bg-hunter-green hover:text-white'
-              }`}
-            >
-              Romantiški
-            </button>
-            <button
-              onClick={() => setSelectedCategory('family')}
-              className={`px-6 py-2 rounded-full font-medium transition-colors ${
-                selectedCategory === 'family'
-                  ? 'bg-hunter-green text-white'
-                  : 'bg-white text-hunter-green hover:bg-hunter-green hover:text-white'
-              }`}
-            >
-              Šeimai
-            </button>
-            <button
-              onClick={() => setSelectedCategory('luxury')}
-              className={`px-6 py-2 rounded-full font-medium transition-colors ${
-                selectedCategory === 'luxury'
-                  ? 'bg-hunter-green text-white'
-                  : 'bg-white text-hunter-green hover:bg-hunter-green hover:text-white'
-              }`}
-            >
-              Prabangūs
-            </button>
-          </div>
-        </div>
-      </section>
 
-      {/* Gallery Grid */}
+
+      {/* Services Grid */}
       <section className="pb-16">
         <div className="container-custom">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredImages.map((image, index) => (
+            {additionalServices.map((service, index) => (
               <div
                 key={index}
-                className="relative aspect-square overflow-hidden rounded-lg cursor-pointer group"
-                onClick={() => setSelectedImage(image.src)}
+                className="bg-white rounded-lg shadow-lg overflow-hidden cursor-pointer group hover:shadow-xl transition-shadow"
+                onClick={() => setSelectedService(service)}
               >
-                <Image
-                  src={image.src}
-                  alt={image.alt}
-                  fill
-                  className="object-cover transition-transform duration-300 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                  <p className="text-white text-center px-4">{image.alt}</p>
+                <div className="relative aspect-square overflow-hidden">
+                  <Image
+                    src={service.image}
+                    alt={service.title}
+                    fill
+                    className="object-cover transition-transform duration-300 group-hover:scale-110"
+                  />
+                  <div className="absolute top-4 right-4 bg-hunter-green text-white px-3 py-1 rounded-full text-sm font-medium">
+                    {service.price}
+                    <div className="text-xs opacity-90">{service.pricePer}</div>
+                  </div>
+                </div>
+                <div className="p-6">
+                  <h3 className="text-xl font-bold text-hunter-green mb-2">
+                    {service.title}
+                  </h3>
+                  <p className="text-gray-600 mb-4">
+                    {service.description}
+                  </p>
+                  <button className="text-cambridge-blue hover:text-hunter-green font-medium transition-colors">
+                    Sužinoti daugiau →
+                  </button>
                 </div>
               </div>
             ))}
@@ -135,27 +107,63 @@ export default function GalleryContent() {
         </div>
       </section>
 
-      {/* Lightbox */}
-      {selectedImage && (
+      {/* Service Details Modal */}
+      {selectedService && (
         <div
           className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
-          onClick={() => setSelectedImage(null)}
+          onClick={() => setSelectedService(null)}
         >
-          <button
-            className="absolute top-4 right-4 text-white hover:text-gray-300"
-            onClick={() => setSelectedImage(null)}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-          <div className="relative w-full max-w-4xl aspect-[3/2]">
-            <Image
-              src={selectedImage}
-              alt="Enlarged gallery image"
-              fill
-              className="object-contain"
-            />
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="relative aspect-video overflow-hidden rounded-t-lg">
+              <Image
+                src={selectedService.image}
+                alt={selectedService.title}
+                fill
+                className="object-cover"
+              />
+              <button
+                className="absolute top-4 right-4 text-white hover:text-gray-300 bg-black/50 rounded-full p-2"
+                onClick={() => setSelectedService(null)}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="p-6">
+              <div className="flex justify-between items-start mb-4">
+                <div className="flex items-center gap-3">
+                  <span className="text-3xl">{selectedService.icon}</span>
+                  <h2 className="text-2xl font-bold text-hunter-green">
+                    {selectedService.title}
+                  </h2>
+                </div>
+                <div className="text-right">
+                  <span className="bg-hunter-green text-white px-4 py-2 rounded-full text-lg font-medium">
+                    {selectedService.price}
+                  </span>
+                  <div className="text-sm text-gray-600 mt-1">{selectedService.pricePer}</div>
+                </div>
+              </div>
+              <p className="text-gray-600 text-lg mb-6">
+                {selectedService.details}
+              </p>
+              <div className="flex gap-4">
+                <button
+                  onClick={() => setSelectedService(null)}
+                  className="flex-1 bg-gray-200 text-gray-800 py-3 rounded-lg hover:bg-gray-300 transition-colors"
+                >
+                  Uždaryti
+                </button>
+                <Link
+                  href="/booking"
+                  onClick={() => setSelectedService(null)}
+                  className="flex-1 bg-hunter-green text-white py-3 rounded-lg hover:bg-hunter-dark transition-colors text-center"
+                >
+                  Užsakyti
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       )}

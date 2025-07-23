@@ -70,13 +70,13 @@ export default function Navbar() {
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-6">
             <Link href="/" className="text-hunter-green hover:text-cambridge-blue transition-colors">
-              Pradžia
+              Pagrindinis
             </Link>
             <Link href="/themes" className="text-hunter-green hover:text-cambridge-blue transition-colors">
               Temos
             </Link>
             <Link href="/gallery" className="text-hunter-green hover:text-cambridge-blue transition-colors">
-              Galerija
+              Papildomos paslaugos
             </Link>
             <Link href="/reviews" className="text-hunter-green hover:text-cambridge-blue transition-colors">
               Atsiliepimai
@@ -160,7 +160,7 @@ export default function Navbar() {
                 onClick={closeMobileMenu}
                 className="block text-hunter-green hover:text-cambridge-blue transition-colors py-2"
               >
-                Pradžia
+                Pagrindinis
               </Link>
               <Link
                 href="/themes"
@@ -174,7 +174,7 @@ export default function Navbar() {
                 onClick={closeMobileMenu}
                 className="block text-hunter-green hover:text-cambridge-blue transition-colors py-2"
               >
-                Galerija
+                Papildomos paslaugos
               </Link>
               <Link
                 href="/reviews"

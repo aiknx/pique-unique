@@ -2,8 +2,13 @@ import { Metadata } from 'next';
 import GalleryContent from '@/components/GalleryContent';
 
 export const metadata: Metadata = {
-  title: 'Galerija | Pique Unique',
-  description: 'Apžiūrėkite mūsų suorganizuotus prabangius piknikus paplūdimyje. Įkvėpkite save savo ypatingai progai.',
+  title: 'Papildomos Paslaugos - ACALA, MAAR, Tapymas | Pique Unique',
+  description: 'Papildomos paslaugos jūsų ypatingam piknikui: ACALA skonių kelionė, MAAR kvapų degustacija, tapymo užsiėmimas ir estetiškas serviravimas.',
+  keywords: 'papildomos paslaugos, ACALA, MAAR kvapai, tapymo užsiėmimas, užkandžių lėkštės, pikniko paslaugos, Klaipėda',
+  openGraph: {
+    title: 'Papildomos Paslaugos - Pique Unique',
+    description: 'Papildomos paslaugos jūsų ypatingam piknikui: ACALA, MAAR, tapymas ir serviravimas',
+  },
 };
 
 export default function GalleryPage() {
