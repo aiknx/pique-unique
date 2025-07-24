@@ -1,22 +1,23 @@
 import './globals.css'
 import type { Metadata, Viewport } from 'next'
-import { Inter } from 'next/font/google'
+import { Quicksand } from 'next/font/google'
+import { Playfair_Display } from 'next/font/google'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import defaultMetadata from './metadata'
 import Providers from './providers'
 
-const inter = Inter({ 
+const quicksand = Quicksand({ 
   subsets: ['latin'],
-  variable: '--font-inter',
+  variable: '--font-quicksand',
   display: 'swap',
 })
 
-// const playfair = Playfair_Display({ 
-//   subsets: ['latin'],
-//   variable: '--font-playfair',
-//   display: 'swap',
-// })
+const playfair = Playfair_Display({ 
+  subsets: ['latin'],
+  variable: '--font-playfair',
+  display: 'swap',
+})
 
 export const metadata: Metadata = defaultMetadata
 
@@ -35,7 +36,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="lt">
-      <body className={`${inter.className}`}>
+      <body className={`${quicksand.variable} ${playfair.variable}`}>
         <Providers>
           <div className="flex flex-col min-h-screen">
             <Navbar />

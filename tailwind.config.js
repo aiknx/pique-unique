@@ -55,7 +55,7 @@ module.exports = {
         },
       },
       fontFamily: {
-        inter: ['var(--font-inter)', 'sans-serif'],
+        quicksand: ['var(--font-quicksand)', 'sans-serif'],
         playfair: ['var(--font-playfair)', 'serif'],
       },
       backgroundImage: {
