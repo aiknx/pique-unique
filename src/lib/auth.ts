@@ -10,14 +10,14 @@ import {
   onAuthStateChanged,
   type User
 } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, db } from './firebase';
 import { COLLECTIONS } from './firebase/schema';
 
 export type UserRole = 'admin' | 'user';
 
-export interface AuthUser extends User {
-  role?: UserRole;
+interface AuthUser extends User {
+  isAdmin?: boolean;
 }
 
 interface AuthContextType {
@@ -32,41 +32,37 @@ interface AuthContextType {
   clearError: () => void;
 }
 
-const AUTH_ERRORS = {
-  'auth/invalid-email': 'Neteisingas el. pašto formatas',
-  'auth/user-disabled': 'Šis vartotojas yra užblokuotas',
-  'auth/user-not-found': 'Vartotojas su šiuo el. paštu nerastas',
-  'auth/wrong-password': 'Neteisingas slaptažodis',
-  'auth/too-many-requests': 'Per daug bandymų prisijungti. Pabandykite vėliau',
-  'auth/popup-closed-by-user': 'Prisijungimo langas buvo uždarytas',
-  'auth/cancelled-popup-request': 'Prisijungimo langas buvo uždarytas',
-  'auth/popup-blocked': 'Prisijungimo langas buvo užblokuotas. Prašome leisti iššokančius langus',
-  'default': 'Įvyko klaida. Bandykite dar kartą',
-} as const;
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const AuthContext = createContext<AuthContextType>({
-  user: null,
-  loading: true,
-  isAdmin: false,
-  error: null,
-  signIn: async () => { throw new Error('AuthContext not initialized'); },
-  signUp: async () => { throw new Error('AuthContext not initialized'); },
-  signInWithGoogle: async () => { throw new Error('AuthContext not initialized'); },
-  signOut: async () => { throw new Error('AuthContext not initialized'); },
-  clearError: () => { throw new Error('AuthContext not initialized'); },
-});
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
 
 const getErrorMessage = (error: unknown): string => {
-  if (
-    typeof error === 'object' &&
-    error !== null &&
-    'code' in error &&
-    typeof (error as { code?: string }).code === 'string' &&
-    AUTH_ERRORS[(error as { code: string }).code as keyof typeof AUTH_ERRORS]
-  ) {
-    return AUTH_ERRORS[(error as { code: string }).code as keyof typeof AUTH_ERRORS];
+  if (typeof error === 'object' && error !== null && 'code' in error) {
+    const firebaseError = error as { code: string; message: string };
+    switch (firebaseError.code) {
+      case 'auth/user-not-found':
+        return 'Vartotojas nerastas';
+      case 'auth/wrong-password':
+        return 'Neteisingas slaptažodis';
+      case 'auth/email-already-in-use':
+        return 'Šis el. paštas jau naudojamas';
+      case 'auth/weak-password':
+        return 'Slaptažodis per silpnas';
+      case 'auth/invalid-email':
+        return 'Neteisingas el. pašto formatas';
+      case 'auth/too-many-requests':
+        return 'Per daug bandymų. Bandykite vėliau';
+      default:
+        return firebaseError.message || 'Įvyko klaida';
+    }
   }
-  return AUTH_ERRORS.default;
+  return 'Įvyko klaida';
 };
 
 const isUserAdmin = async (user: AuthUser | null): Promise<boolean> => {
@@ -78,6 +74,26 @@ const isUserAdmin = async (user: AuthUser | null): Promise<boolean> => {
   } catch (error) {
     console.error('Error checking admin status:', error);
     return false;
+  }
+};
+
+// Function to save user data to Firestore
+const saveUserToFirestore = async (user: AuthUser) => {
+  try {
+    const userData = {
+      email: user.email,
+      displayName: user.displayName || null,
+      photoURL: user.photoURL || null,
+      isAdmin: false, // Default to regular user
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      lastLoginAt: new Date(),
+    };
+
+    await setDoc(doc(db, COLLECTIONS.USERS, user.uid), userData, { merge: true });
+    console.log('User data saved to Firestore:', user.uid);
+  } catch (error) {
+    console.error('Error saving user to Firestore:', error);
   }
 };
 
@@ -119,6 +135,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         const authUser = user as AuthUser;
+        
+        // Save user data to Firestore if it's a new user
+        await saveUserToFirestore(authUser);
+        
         const admin = await isUserAdmin(authUser);
         setIsAdmin(admin);
         setUser(authUser);
@@ -156,6 +176,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await createServerSession(idToken);
       
       const authUser = result.user as AuthUser;
+      
+      // Save new user data to Firestore
+      await saveUserToFirestore(authUser);
+      
       setIsAdmin(await isUserAdmin(authUser));
       setUser(authUser);
     } catch (error: unknown) {
@@ -173,6 +197,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await createServerSession(idToken);
       
       const authUser = result.user as AuthUser;
+      
+      // Save user data to Firestore (Google users might be new)
+      await saveUserToFirestore(authUser);
+      
       setIsAdmin(await isUserAdmin(authUser));
       setUser(authUser);
     } catch (error: unknown) {
@@ -209,12 +237,4 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return React.createElement(AuthContext.Provider, { value: contextValue }, children);
-}
-
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
 } 

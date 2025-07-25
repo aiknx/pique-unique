@@ -67,17 +67,6 @@ export default function MyBookingsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!authLoading && !user) {
-      router.push('/auth/signin?from=/my-bookings');
-      return;
-    }
-
-    if (user) {
-      fetchBookings();
-    }
-  }, [user, authLoading, router]);
-
   const fetchBookings = useCallback(async () => {
     try {
       setLoading(true);
@@ -103,6 +92,17 @@ export default function MyBookingsPage() {
       setLoading(false);
     }
   }, [user]);
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push('/auth/signin?from=/my-bookings');
+      return;
+    }
+
+    if (user) {
+      fetchBookings();
+    }
+  }, [user, authLoading, router, fetchBookings]);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('lt-LT', {

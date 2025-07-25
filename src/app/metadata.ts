@@ -2,20 +2,43 @@ import { Metadata } from 'next';
 
 const defaultMetadata: Metadata = {
   title: {
-    default: 'Pique Unique | Prabangūs Pikninkai Paplūdimyje',
+    default: 'Pique Unique | Prabangūs Pikninkai Paplūdimyje Klaipėdoje ir Neringoje',
     template: '%s | Pique Unique'
   },
-  description: 'Pique Unique - prabangūs pikninkai paplūdimyje Klaipėdoje. Kuriame nepamirštamus momentus su išskirtiniais piknikais, pritaikytais jūsų ypatingoms progoms.',
+  description: 'Pique Unique - prabangūs pikninkai paplūdimyje Klaipėdoje ir Neringoje. Kuriame nepamirštamus momentus su išskirtiniais piknikais, pritaikytais jūsų ypatingoms progoms. Romantiški, šeimos ir ypatingi renginiai prie jūros.',
   keywords: [
     'piknikas paplūdimyje',
     'prabangus piknikas',
     'romantiškas piknikas',
     'piknikas Klaipėdoje',
+    'piknikas Neringoje',
     'šventė paplūdimyje',
     'gimtadienis paplūdimyje',
-    'piršlybos paplūdimyje'
+    'piršlybos paplūdimyje',
+    'romantiškas vakaras',
+    'šeimos piknikas',
+    'ypatingi renginiai',
+    'jūros piknikas',
+    'paplūdimio piknikas',
+    'pikniko organizavimas',
+    'pikniko paslaugos',
+    'pikniko dekoracijos',
+    'pikniko meniu',
+    'pikniko vietos',
+    'pikniko rezervacija',
+    'pikniko kainos',
+    'pikniko temos',
+    'undinių piknikas',
+    'fejų piknikas',
+    'laumių piknikas',
+    'disco piknikas',
+    'ACALA skonių kelionė',
+    'MAAR kvapai',
+    'tapymo užsiėmimas',
+    'užkandžių lėkštės',
+    'pikniko serviravimas'
   ],
-  authors: [{ name: 'Pique Unique' }],
+  authors: [{ name: 'Pique Unique', url: 'https://piqueunique.lt' }],
   creator: 'Pique Unique',
   publisher: 'Pique Unique',
   formatDetection: {
@@ -24,13 +47,30 @@ const defaultMetadata: Metadata = {
     telephone: false,
   },
   metadataBase: new URL('https://piqueunique.lt'),
+  alternates: {
+    canonical: '/',
+  },
   openGraph: {
-    title: 'Pique Unique | Prabangūs Pikninkai Paplūdimyje',
-    description: 'Kuriame nepamirštamus momentus paplūdimyje su prabangiais piknikais, pritaikytais jūsų ypatingoms progoms.',
+    title: 'Pique Unique | Prabangūs Pikninkai Paplūdimyje Klaipėdoje ir Neringoje',
+    description: 'Kuriame nepamirštamus momentus paplūdimyje su prabangiais piknikais, pritaikytais jūsų ypatingoms progoms. Romantiški, šeimos ir ypatingi renginiai prie jūros.',
     url: 'https://piqueunique.lt',
     siteName: 'Pique Unique',
     locale: 'lt_LT',
     type: 'website',
+    images: [
+      {
+        url: '/images/hero-picnic.webp',
+        width: 1200,
+        height: 630,
+        alt: 'Prabangus piknikas paplūdimyje - Pique Unique',
+      }
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Pique Unique | Prabangūs Pikninkai Paplūdimyje',
+    description: 'Kuriame nepamirštamus momentus paplūdimyje su prabangiais piknikais',
+    images: ['/images/hero-picnic.webp'],
   },
   robots: {
     index: true,
@@ -43,6 +83,12 @@ const defaultMetadata: Metadata = {
       'max-snippet': -1,
     },
   },
+  verification: {
+    google: 'your-google-verification-code',
+    yandex: 'your-yandex-verification-code',
+  },
+  category: 'travel',
+  classification: 'picnic services',
   icons: {
     icon: [
       { url: '/favicon.ico' },
@@ -58,6 +104,25 @@ const defaultMetadata: Metadata = {
     ]
   },
   manifest: '/site.webmanifest',
+  other: {
+    'geo.region': 'LT',
+    'geo.placename': 'Klaipėda',
+    'geo.position': '55.7033;21.1443',
+    'ICBM': '55.7033, 21.1443',
+    'DC.title': 'Pique Unique - Prabangūs Pikninkai Paplūdimyje',
+    'DC.creator': 'Pique Unique',
+    'DC.subject': 'Pikniko paslaugos, Romantiški renginiai, Šeimos piknikai',
+    'DC.description': 'Prabangūs pikninkai paplūdimyje Klaipėdoje ir Neringoje',
+    'DC.publisher': 'Pique Unique',
+    'DC.contributor': 'Pique Unique',
+    'DC.date': '2024',
+    'DC.type': 'Service',
+    'DC.format': 'text/html',
+    'DC.identifier': 'https://piqueunique.lt',
+    'DC.language': 'lt',
+    'DC.coverage': 'Klaipėda, Neringa, Lietuva',
+    'DC.rights': 'Copyright 2024 Pique Unique',
+  },
 };
 
 export default defaultMetadata; 

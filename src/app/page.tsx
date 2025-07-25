@@ -7,13 +7,37 @@ import Features from '@/components/Features';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Pique Unique - Prabangūs Piknikai Paplūdimyje Klaipėdoje | Romantiški & Šeimos Piknikai',
-  description: 'Atraskite unikalius prabangius piknikus paplūdimyje Klaipėdoje ir Neringoje. Romantiški, šeimai ir ypatingiems renginiams. Kruopščiai kurtos patirtys prie jūros.',
-  keywords: 'piknikai paplūdimyje, prabangūs piknikai, romantiški piknikai, šeimos piknikai, Klaipėda, Neringa, jūros piknikai, ypatingi renginiai, Pique Unique, paplūdimio piknikai',
+  title: 'Pique Unique - Prabangūs Piknikai Paplūdimyje Klaipėdoje ir Neringoje | Romantiški & Šeimos Piknikai',
+  description: 'Atraskite unikalius prabangius piknikus paplūdimyje Klaipėdoje ir Neringoje. Romantiški, šeimai ir ypatingiems renginiams. Kruopščiai kurtos patirtys prie jūros su profesionaliais dekoracijomis ir meniu.',
+  keywords: 'piknikai paplūdimyje, prabangūs piknikai, romantiški piknikai, šeimos piknikai, Klaipėda, Neringa, jūros piknikai, ypatingi renginiai, Pique Unique, paplūdimio piknikai, pikniko organizavimas, pikniko dekoracijos, pikniko meniu, undinių piknikas, fejų piknikas, laumių piknikas, disco piknikas',
   openGraph: {
+    title: 'Pique Unique - Prabangūs Piknikai Paplūdimyje Klaipėdoje ir Neringoje',
+    description: 'Atraskite unikalius prabangius piknikus paplūdimyje Klaipėdoje ir Neringoje. Romantiški, šeimai ir ypatingiems renginiams.',
+    images: [
+      {
+        url: '/images/hero-picnic.webp',
+        width: 1200,
+        height: 630,
+        alt: 'Prabangus piknikas paplūdimyje su draugėmis saulėlydyje - Pique Unique',
+      }
+    ],
+    locale: 'lt_LT',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
     title: 'Pique Unique - Prabangūs Piknikai Paplūdimyje',
     description: 'Atraskite unikalius prabangius piknikus paplūdimyje Klaipėdoje ir Neringoje',
     images: ['/images/hero-picnic.webp'],
+  },
+  alternates: {
+    canonical: '/',
+  },
+  other: {
+    'geo.region': 'LT',
+    'geo.placename': 'Klaipėda, Neringa',
+    'geo.position': '55.7033;21.1443',
+    'ICBM': '55.7033, 21.1443',
   },
 };
 
@@ -53,48 +77,89 @@ export default function HomePage() {
             </p>
             
             {/* Large Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 md:gap-6 justify-center items-center">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Link 
                 href="/booking" 
-                className="w-full sm:w-auto text-center bg-hunter-green hover:bg-hunter-dark text-white font-semibold text-lg px-8 py-4 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl min-w-[200px]"
+                className="btn-primary text-lg px-8 py-4 rounded-lg font-semibold hover:scale-105 transition-transform duration-200"
               >
-                Rezervuoti Pikniką
+                Rezervuoti Dabar
               </Link>
               <Link 
                 href="/themes" 
-                className="w-full sm:w-auto text-center bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white font-semibold text-lg px-8 py-4 rounded-lg transition-all duration-300 border-2 border-white/30 hover:border-white/50 min-w-[200px]"
+                className="btn-secondary text-lg px-8 py-4 rounded-lg font-semibold hover:scale-105 transition-transform duration-200"
               >
                 Peržiūrėti Temas
               </Link>
             </div>
-            
-            {/* Trust indicators */}
-            <div className="mt-12 flex flex-wrap justify-center gap-6 text-sm text-white/80">
-              <div className="flex items-center gap-2">
-                <svg className="w-5 h-5 text-cherry-blossom" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-                <span>100% saugu</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <svg className="w-5 h-5 text-cherry-blossom" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-                <span>Greitas rezervavimas</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <svg className="w-5 h-5 text-cherry-blossom" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                </svg>
-                <span>Klaipėda & Neringa</span>
-              </div>
-            </div>
           </div>
         </div>
       </section>
-      <WhyChooseUs />
+
+      {/* Features Section */}
       <Features />
+
+      {/* Why Choose Us Section */}
+      <WhyChooseUs />
+
+      {/* Reviews Section */}
       <Reviews />
+
+      {/* Structured Data for SEO */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "LocalBusiness",
+            "name": "Pique Unique",
+            "description": "Prabangūs pikninkai paplūdimyje Klaipėdoje ir Neringoje",
+            "url": "https://piqueunique.lt",
+            "telephone": "+370-XXX-XXXXX",
+            "email": "info@piqueunique.lt",
+            "address": {
+              "@type": "PostalAddress",
+              "addressLocality": "Klaipėda",
+              "addressRegion": "Klaipėdos apskritis",
+              "addressCountry": "LT"
+            },
+            "geo": {
+              "@type": "GeoCoordinates",
+              "latitude": 55.7033,
+              "longitude": 21.1443
+            },
+            "openingHours": "Mo-Su 09:00-21:00",
+            "priceRange": "€€€",
+            "currenciesAccepted": "EUR",
+            "paymentAccepted": "Cash, Credit Card, Bank Transfer",
+            "serviceType": "Picnic Services",
+            "areaServed": ["Klaipėda", "Neringa", "Palanga"],
+            "hasOfferCatalog": {
+              "@type": "OfferCatalog",
+              "name": "Picnic Packages",
+              "itemListElement": [
+                {
+                  "@type": "Offer",
+                  "itemOffered": {
+                    "@type": "Service",
+                    "name": "Romantiškas Piknikas",
+                    "description": "Romantiškas piknikas poroms paplūdimyje"
+                  }
+                },
+                {
+                  "@type": "Offer",
+                  "itemOffered": {
+                    "@type": "Service",
+                    "name": "Šeimos Piknikas",
+                    "description": "Šeimos piknikas su vaikais paplūdimyje"
+                  }
+                }
+              ]
+            },
+            "image": "https://piqueunique.lt/images/hero-picnic.webp",
+            "logo": "https://piqueunique.lt/logo.png"
+          })
+        }}
+      />
     </main>
   );
 }
