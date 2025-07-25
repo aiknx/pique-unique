@@ -1,6 +1,6 @@
 import { cache } from 'react';
 import { cookies } from 'next/headers';
-import { getAdminAuth, getAdminDb } from '../server/firebase-admin';
+import { getAdminAuth, getFirebaseAdmin } from '../server/firebase-admin';
 import { COLLECTIONS } from '../firebase/schema';
 
 const SESSION_COOKIE_NAME = 'session';
@@ -35,7 +35,7 @@ export const getUser = cache(async () => {
   }
 
   try {
-    const adminDb = await getAdminDb();
+    const adminDb = getFirebaseAdmin();
     if (!adminDb) {
       throw new Error('Firebase Admin not available');
     }

@@ -36,22 +36,6 @@ export default function AdminBookingDetailsPage({ params }: { params: { id: stri
   const [loadingBooking, setLoadingBooking] = useState(true);
   const [updating, setUpdating] = useState(false);
 
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push('/signin');
-      return;
-    }
-
-    if (!loading && !isAdmin) {
-      router.push('/');
-      return;
-    }
-
-    if (isAdmin && user) {
-      fetchBooking();
-    }
-  }, [user, isAdmin, loading, router, params.id]);
-
   const fetchBooking = useCallback(async () => {
     try {
       const idToken = await user?.getIdToken();
@@ -81,6 +65,22 @@ export default function AdminBookingDetailsPage({ params }: { params: { id: stri
       setLoadingBooking(false);
     }
   }, [user, params.id]);
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/signin');
+      return;
+    }
+
+    if (!loading && !isAdmin) {
+      router.push('/');
+      return;
+    }
+
+    if (isAdmin && user) {
+      fetchBooking();
+    }
+  }, [user, isAdmin, loading, router, params.id, fetchBooking]);
 
   const updateBookingStatus = async (status: string) => {
     if (!booking) return;

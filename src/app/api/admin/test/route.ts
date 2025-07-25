@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { getAdminAuth, getAdminDb } from '@/lib/server/firebase-admin';
+import { getAdminAuth, getFirebaseAdmin } from '@/lib/server/firebase-admin';
 import { COLLECTIONS } from '@/lib/firebase/schema';
 
 const SESSION_COOKIE_NAME = 'session';
@@ -23,7 +23,7 @@ export async function GET() {
     const decodedClaims = await adminAuth.verifySessionCookie(sessionCookie, true);
     
     // Check if user is admin using Firestore
-    const adminDb = await getAdminDb();
+    const adminDb = getFirebaseAdmin();
     if (!adminDb) {
       return NextResponse.json({ error: 'Firebase Admin not available' }, { status: 500 });
     }

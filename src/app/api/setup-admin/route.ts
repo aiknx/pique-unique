@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getAdminAuth, getAdminDb } from '@/lib/server/firebase-admin';
+import { getFirebaseAdmin, getAdminAuth } from '@/lib/server/firebase-admin';
 import { COLLECTIONS } from '@/lib/firebase/schema';
 
 interface FirebaseError {
@@ -9,8 +9,8 @@ interface FirebaseError {
 
 export async function POST() {
   try {
-    const adminAuth = await getAdminAuth();
-    const adminDb = await getAdminDb();
+    const adminAuth = getAdminAuth();
+    const adminDb = getFirebaseAdmin();
     
     if (!adminAuth || !adminDb) {
       return NextResponse.json(

@@ -72,6 +72,109 @@ export default function AboutPage() {
         </div>
       </section>
 
+      {/* FAQ Section */}
+      <section className="py-16 bg-white">
+        <div className="container-custom">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="text-3xl font-bold text-hunter-green text-center mb-12">
+              Dažnai Užduodami Klausimai
+            </h2>
+            
+            <div className="space-y-6">
+              <div className="bg-sand/30 rounded-lg p-6">
+                <h3 className="text-xl font-semibold text-hunter-green mb-3">
+                  Kas yra Pique Unique?
+                </h3>
+                <p className="text-gray-700">
+                  Pique Unique – tai išskirtinių piknikų patirtis po atviru dangumi, skirta švęsti ypatingas gyvenimo akimirkas: gimtadienius, mergvakarius, pasipiršimus ar tiesiog gražią dieną su brangiais žmonėmis. Mes pasirūpiname viskuo – nuo gėlių puokštės iki kruopščiai parinktų dekoracijų.
+                </p>
+              </div>
+
+              <div className="bg-sand/30 rounded-lg p-6">
+                <h3 className="text-xl font-semibold text-hunter-green mb-3">
+                  Kas įskaičiuota į pikniką?
+                </h3>
+                <p className="text-gray-700">
+                  Kiekviename piknike rasite: stilingą stalą ir sėdėjimo vietas, dekoracijas ir indus, pledus, papildomas pagalvėles ir jaukumą, teminius žaidimus, gėlių dekorą, pakvietimus, muziką, BOSE kolonėlę, Spotify grojaraštį, &ldquo;atsiminimų telefoną&rdquo; skirta įrašyti palinkėjimus jubiliatei ar būsimai nuotakai. Maisto netiekiame, tačiau galime pasirūpinti sezoniniais, teminiais užkandžiais ir gražiomis serviravimo lėkštėmis už papildomą 30€/5asm.
+                </p>
+              </div>
+
+              <div className="bg-sand/30 rounded-lg p-6">
+                <h3 className="text-xl font-semibold text-hunter-green mb-3">
+                  Kaip rezervuoti pikniką?
+                </h3>
+                <p className="text-gray-700">
+                  Užsakymus priimame per svetainę arba rašant mums per Instagram ar Facebook. Rekomenduojame rezervuoti bent prieš 5 dienas, ypač savaitgaliais.
+                </p>
+              </div>
+
+              <div className="bg-sand/30 rounded-lg p-6">
+                <h3 className="text-xl font-semibold text-hunter-green mb-3">
+                  Kiek kainuoja piknikas?
+                </h3>
+                <p className="text-gray-700">
+                  Kaina priklauso nuo žmonių skaičiaus ir pasirinktų papildomų paslaugų. Turime skirtingus pasiūlymus nuo €200 dviem asmenims. (Tikslias kainas rasite skyriuje &ldquo;Paketai&rdquo;.)
+                </p>
+              </div>
+
+              <div className="bg-sand/30 rounded-lg p-6">
+                <h3 className="text-xl font-semibold text-hunter-green mb-3">
+                  Ką daryti, jei prognozuojamas lietus?
+                </h3>
+                <p className="text-gray-700">
+                  Jei artėja lietus – susisieksime ir pasiūlysime perkelti datą arba grąžinsime pinigus. Galime padėti rasti dengtas vietas.
+                </p>
+              </div>
+
+              <div className="bg-sand/30 rounded-lg p-6">
+                <h3 className="text-xl font-semibold text-hunter-green mb-3">
+                  Ar galiu atsinešti savo maistą ir gėrimus?
+                </h3>
+                <p className="text-gray-700">
+                  Taip! Atsineškite savo mėgstamų užkandžių, tortą ar gėrimų – mes pasirūpinsime jaukia aplinka. (Svarbu: neteikiame maisto ar alkoholio.)
+                </p>
+              </div>
+
+              <div className="bg-sand/30 rounded-lg p-6">
+                <h3 className="text-xl font-semibold text-hunter-green mb-3">
+                  Kiek laiko trunka piknikas?
+                </h3>
+                <p className="text-gray-700">
+                  Standartinis piknikas trunka 2 valandas, tačiau galima užsisakyti ilgesnį laiką už papildomą mokestį (€50).
+                </p>
+              </div>
+
+              <div className="bg-sand/30 rounded-lg p-6">
+                <h3 className="text-xl font-semibold text-hunter-green mb-3">
+                  Ar galima pasirinkti teminį pikniką?
+                </h3>
+                <p className="text-gray-700">
+                  Žinoma! Jei turite ypatingą idėją ar temą – pasidalinkite, ir mes padarysime viską, kad ją įgyvendintume.
+                </p>
+              </div>
+
+              <div className="bg-sand/30 rounded-lg p-6">
+                <h3 className="text-xl font-semibold text-hunter-green mb-3">
+                  Ar piknikai tinkami vaikams?
+                </h3>
+                <p className="text-gray-700">
+                  Taip! Galime pritaikyti aplinką šeimai ar vaikams – tereikia iš anksto informuoti.
+                </p>
+              </div>
+
+              <div className="bg-sand/30 rounded-lg p-6">
+                <h3 className="text-xl font-semibold text-hunter-green mb-3">
+                  Ar važiuojate į kitus miestus?
+                </h3>
+                <p className="text-gray-700">
+                  Esame įsikūrę Klaipėdos/Neringos regionuose. Dėl kitų vietovių – parašykite, įvertinsime galimybę!
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Structured Data for SEO */}
       <script
         type="application/ld+json"

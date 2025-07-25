@@ -27,22 +27,6 @@ export default function AdminBookingsPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loadingBookings, setLoadingBookings] = useState(true);
 
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push('/signin');
-      return;
-    }
-
-    if (!loading && !isAdmin) {
-      router.push('/');
-      return;
-    }
-
-    if (isAdmin && user) {
-      fetchBookings();
-    }
-  }, [user, isAdmin, loading, router]);
-
   const fetchBookings = useCallback(async () => {
     try {
       // Get Firebase ID token
@@ -73,6 +57,22 @@ export default function AdminBookingsPage() {
       setLoadingBookings(false);
     }
   }, [user]);
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/signin');
+      return;
+    }
+
+    if (!loading && !isAdmin) {
+      router.push('/');
+      return;
+    }
+
+    if (isAdmin && user) {
+      fetchBookings();
+    }
+  }, [user, isAdmin, loading, router, fetchBookings]);
 
   const updateBookingStatus = async (bookingId: string, status: string) => {
     try {
