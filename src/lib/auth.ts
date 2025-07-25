@@ -80,12 +80,16 @@ const isUserAdmin = async (user: AuthUser | null): Promise<boolean> => {
 // Function to save user data to Firestore
 const saveUserToFirestore = async (user: AuthUser) => {
   try {
+    // Check if user already exists
+    const userDoc = await getDoc(doc(db, COLLECTIONS.USERS, user.uid));
+    const existingData = userDoc.data();
+    
     const userData = {
       email: user.email,
       displayName: user.displayName || null,
       photoURL: user.photoURL || null,
-      isAdmin: false, // Default to regular user
-      createdAt: new Date(),
+      isAdmin: existingData?.isAdmin || false, // Keep existing admin status
+      createdAt: existingData?.createdAt || new Date(),
       updatedAt: new Date(),
       lastLoginAt: new Date(),
     };

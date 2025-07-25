@@ -94,11 +94,6 @@ export default function Navbar() {
             {/* Desktop Authentication */}
             {user ? (
               <div className="flex items-center space-x-3">
-                {isAdmin && (
-                  <Link href="/admin/bookings" className="bg-verdigris text-white px-4 py-2 rounded-lg hover:bg-opacity-90 transition-all duration-200">
-                    Admin
-                  </Link>
-                )}
                 <div className="relative group">
                   <button className="text-hunter-green hover:text-cambridge-blue transition-colors">
                     {user.email}
@@ -112,22 +107,18 @@ export default function Navbar() {
                         Admin Panelis
                       </Link>
                     )}
-                    {!isAdmin && (
-                      <>
-                        <Link
-                          href="/my-bookings"
-                          className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        >
-                          Mano Užsakymai
-                        </Link>
-                        <Link
-                          href="/booking"
-                          className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        >
-                          Rezervuoti Pikniką
-                        </Link>
-                      </>
-                    )}
+                    <Link
+                      href="/my-bookings"
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      Mano Užsakymai
+                    </Link>
+                    <Link
+                      href="/booking"
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      Rezervuoti Pikniką
+                    </Link>
                     <button
                       onClick={handleSignOut}
                       className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -200,53 +191,45 @@ export default function Navbar() {
               <Link
                 href="/booking"
                 onClick={closeMobileMenu}
-                className="block bg-hunter text-white px-4 py-2 rounded-lg hover:bg-hunter-dark transition-all duration-200 text-center"
+                className="block text-hunter-green hover:text-cambridge-blue transition-colors py-2"
               >
                 Rezervuoti
               </Link>
 
               {/* Mobile Authentication */}
               {user ? (
-                <div className="space-y-3 pt-4 border-t border-gray-200">
+                <div className="pt-4 border-t border-gray-200">
+                  <div className="text-sm text-gray-600 mb-3">
+                    {user.email}
+                  </div>
                   {isAdmin && (
                     <Link
                       href="/admin/bookings"
                       onClick={closeMobileMenu}
-                      className="block bg-verdigris text-white px-4 py-2 rounded-lg hover:bg-opacity-90 transition-all duration-200 text-center"
+                      className="block text-hunter-green hover:text-cambridge-blue transition-colors py-2"
                     >
-                      Admin
+                      Admin Panelis
                     </Link>
                   )}
-                  <div className="text-center">
-                    <p className="text-sm text-gray-600 mb-2">{user.email}</p>
-                    {!isAdmin && (
-                      <>
-                        <Link
-                          href="/my-bookings"
-                          onClick={closeMobileMenu}
-                          className="block text-hunter-green hover:text-cambridge-blue transition-colors py-1"
-                        >
-                          Mano Užsakymai
-                        </Link>
-                        <Link
-                          href="/booking"
-                          onClick={closeMobileMenu}
-                          className="block text-hunter-green hover:text-cambridge-blue transition-colors py-1"
-                        >
-                          Rezervuoti Pikniką
-                        </Link>
-                      </>
-                    )}
-                    <button
-                      onClick={handleSignOut}
-                      className="block w-full text-hunter-green hover:text-cambridge-blue transition-colors py-1"
-                    >
-                      Atsijungti
-                    </button>
-                  </div>
+                  <Link
+                    href="/my-bookings"
+                    onClick={closeMobileMenu}
+                    className="block text-hunter-green hover:text-cambridge-blue transition-colors py-2"
+                  >
+                    Mano Užsakymai
+                  </Link>
+                  <button
+                    onClick={() => {
+                      handleSignOut();
+                      closeMobileMenu();
+                    }}
+                    className="block w-full text-left text-hunter-green hover:text-cambridge-blue transition-colors py-2"
+                  >
+                    Atsijungti
+                  </button>
                 </div>
               ) : (
-                <div className="space-y-3 pt-4 border-t border-gray-200">
+                <div className="pt-4 border-t border-gray-200 space-y-2">
                   <Link
                     href="/auth/signin"
                     onClick={closeMobileMenu}
@@ -257,7 +240,7 @@ export default function Navbar() {
                   <Link
                     href="/auth/signup"
                     onClick={closeMobileMenu}
-                    className="block bg-hunter text-white px-4 py-2 rounded-lg hover:bg-hunter-dark transition-all duration-200 text-center"
+                    className="block text-hunter-green hover:text-cambridge-blue transition-colors py-2"
                   >
                     Registruotis
                   </Link>
