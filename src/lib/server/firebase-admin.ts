@@ -7,19 +7,38 @@ let firestoreInstance: Firestore | null = null;
 let authInstance: Auth | null = null;
 
 const getFirebaseAdminConfig = () => {
-  const projectId = process.env.FIREBASE_PROJECT_ID;
-  const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
-  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+  // Try new Firebase Admin variables first, then fall back to old ones
+  const projectId = process.env.FIREBASE_ADMIN_PROJECT_ID || process.env.FIREBASE_PROJECT_ID || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+  const privateKeyId = process.env.FIREBASE_ADMIN_PRIVATE_KEY_ID || process.env.FIREBASE_PRIVATE_KEY_ID;
+  const privateKey = (process.env.FIREBASE_ADMIN_PRIVATE_KEY || process.env.FIREBASE_PRIVATE_KEY)?.replace(/\\n/g, '\n');
+  const clientEmail = process.env.FIREBASE_ADMIN_CLIENT_EMAIL || process.env.FIREBASE_CLIENT_EMAIL;
+  const clientId = process.env.FIREBASE_ADMIN_CLIENT_ID || process.env.FIREBASE_CLIENT_ID;
+  const clientCertUrl = process.env.FIREBASE_ADMIN_CLIENT_CERT_URL || process.env.FIREBASE_CLIENT_CERT_URL;
 
+  // Check if we have the minimum required configuration
   if (!projectId || !privateKey || !clientEmail) {
-    console.error('Missing Firebase Admin configuration');
+    console.error('Missing Firebase Admin configuration:', {
+      projectId: !!projectId,
+      privateKey: !!privateKey,
+      clientEmail: !!clientEmail,
+      privateKeyId: !!privateKeyId,
+      clientId: !!clientId,
+      clientCertUrl: !!clientCertUrl
+    });
     return null;
   }
 
   return {
-    projectId,
-    privateKey,
-    clientEmail,
+    type: "service_account",
+    project_id: projectId,
+    private_key_id: privateKeyId || undefined,
+    private_key: privateKey,
+    client_email: clientEmail,
+    client_id: clientId || undefined,
+    auth_uri: "https://accounts.google.com/o/oauth2/auth",
+    token_uri: "https://oauth2.googleapis.com/token",
+    auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs",
+    client_x509_cert_url: clientCertUrl || undefined,
   };
 };
 

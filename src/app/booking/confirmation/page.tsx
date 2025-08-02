@@ -152,8 +152,8 @@ export default function ConfirmationPage() {
         contactInfo
       };
 
-      // Get ID token for authentication
-      const idToken = await user?.getIdToken();
+      // Get ID token for authentication (optional)
+      const idToken = user ? await user.getIdToken() : null;
       
       // Send to API
       const response = await fetch('/api/bookings', {
@@ -171,9 +171,8 @@ export default function ConfirmationPage() {
         alert('Rezervacija sėkmingai išsaugota! Netrukus gausite patvirtinimo el. laišką.');
         router.push('/');
       } else if (response.status === 401) {
-        // Redirect to sign in if unauthorized
-        const returnUrl = `/booking/confirmation?${searchParams.toString()}`;
-        router.push(`/auth/signin?from=${encodeURIComponent(returnUrl)}`);
+        // Show error message instead of redirecting
+        throw new Error('Autentifikacijos klaida. Bandykite dar kartą.');
       } else {
         throw new Error(result.error || 'Nepavyko išsaugoti rezervacijos');
       }
@@ -185,14 +184,7 @@ export default function ConfirmationPage() {
     }
   };
 
-  // Check authentication and redirect if needed
-  useEffect(() => {
-    if (!authLoading && !user) {
-      const returnUrl = `/booking/confirmation?${searchParams.toString()}`;
-      router.push(`/auth/signin?from=${encodeURIComponent(returnUrl)}`);
-    }
-  }, [user, authLoading, router, searchParams]);
-
+  // Authentication is optional - show form even without user
   if (authLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
@@ -202,10 +194,6 @@ export default function ConfirmationPage() {
         </div>
       </div>
     );
-  }
-
-  if (!user) {
-    return null; // Will redirect to signin
   }
 
   if (!location || !date || !theme || !time) {

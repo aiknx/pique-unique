@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get user from session cookie or ID token - REQUIRE AUTHENTICATION
+    // Get user from session cookie or ID token - AUTHENTICATION OPTIONAL
     const sessionCookie = request.cookies.get('session')?.value;
     const authHeader = request.headers.get('authorization');
     let userId = null;
@@ -62,9 +62,10 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Require authentication for booking
     if (!userId || !userEmail) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
+        { error: 'Turite prisijungti, kad galėtumėte atlikti rezervaciją' },
         { status: 401 }
       );
     }
