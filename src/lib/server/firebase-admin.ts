@@ -57,7 +57,7 @@ export const getFirebaseAdmin = (): Firestore | null => {
       adminApp = getApps().length === 0 
         ? initializeApp({
             credential: cert(config),
-            projectId: config.projectId,
+            projectId: config.project_id,
           })
         : getApps()[0];
     }
@@ -85,7 +85,7 @@ export const getAdminAuth = (): Auth | null => {
       adminApp = getApps().length === 0 
         ? initializeApp({
             credential: cert(config),
-            projectId: config.projectId,
+            projectId: config.project_id,
           })
         : getApps()[0];
     }
