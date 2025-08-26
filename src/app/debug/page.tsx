@@ -2,8 +2,31 @@
 
 import { useState } from 'react';
 
+interface DebugData {
+  success: boolean;
+  timestamp: string;
+  environment: {
+    node_env?: string;
+    vercel_env?: string;
+    vercel_url?: string;
+  };
+  firebase_config: {
+    [key: string]: boolean;
+  };
+  firebase_status: {
+    firestore: string;
+    auth: string;
+    test_document: string;
+  };
+  debug_info: {
+    has_db: boolean;
+    has_auth: boolean;
+    error_details: string | null;
+  };
+}
+
 export default function DebugPage() {
-  const [debugData, setDebugData] = useState<any>(null);
+  const [debugData, setDebugData] = useState<DebugData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
