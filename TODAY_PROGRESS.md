@@ -1,3 +1,24 @@
+# Today Progress
+
+Date: 2025-08-26
+
+## Changes
+
+- Booking creation now goes via server API `/api/bookings` (auth required). Ensures `userId`/`userEmail` are saved.
+- Added user booking update endpoint: `PUT /api/user/bookings/[id]` (contact info, special requests, reschedule note).
+- Updated `/my-bookings` to support editing and quick contact to admin.
+- Build fixed; removed unused imports; verified production build is green.
+- Docs updated (`README.md`, `FIREBASE_DOCUMENTATION.md`, `PROJECT_ARCHITECTURE.md`).
+
+## Known deferrals
+
+- Emails (Resend) disabled until domain + `RESEND_API_KEY` ready.
+- Old bookings created without `userId` won’t appear for users; either patch in Firestore or recreate via API.
+
+## Next
+
+- Connect custom domain, verify sender domain, add `RESEND_API_KEY`.
+- Light UX polish and admin quality-of-life tweaks.
 # Šiandienos Darbai - 2025-07-21
 
 ## ✅ **UŽBAIGTI DARBAI:**

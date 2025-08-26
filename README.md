@@ -12,24 +12,21 @@ Pique Unique yra moderni pikniko rezervacijos sistema, sukurta su Next.js 14, Re
 3. **Papildomos paslaugos** - ACALA, MAAR, tapymas, lėkštės
 4. **Autentifikacija** - prisijungimas/registracija
 5. **Rezervacijos patvirtinimas** - kontaktinė informacija, kainų skaičiavimas
-6. **El. laiškų notifikacijos** - klientui ir admin
+6. **El. laiškų notifikacijos** - (ATIDĖTA) bus įjungta su `RESEND_API_KEY` ir domenu
 
 ### **Admin Panelis:**
 1. **Rezervacijų valdymas** - peržiūra, redagavimas, trynimas
 2. **Statuso keitimas** - pending, confirmed, cancelled
 3. **Mokėjimų sekimas** - pending, paid, refunded
 
-## 📅 **Šiandienos Darbo Suvestinė (2024-07-20)**
+## ✅ **Esminės Funkcijos (dabartinė būklė)**
 
-### ✅ **Sėkmingai Padaryta:**
-- **Rezervacijos API endpoint'ai** - `/api/bookings`, `/api/send-admin-notification`
-- **Confirmation puslapis** - autentifikacija, kontaktinė forma, papildomos paslaugos
-- **Autentifikacijos sistema** - ištaisyti konfliktai, pridėti API endpoint'ai
-- **Firebase konfigūracija** - server-side admin, emulator palaikymas
-
-### ❌ **Reikia Ištaisyti Rytdien:**
-- **Firebase emuliatorius** - nėra paleistas, rezervacijos neišsaugos
-- **UI/UX problemos** - meniu per mažas, puslapis lagina
+- Vartotojas gali registruotis/prisijungti (el. paštas ir Google)
+- Rezervacija sukuriama per serverio API `/api/bookings` su privaloma autentifikacija
+- „Mano Užsakymai“ (`/my-bookings`) rodo prisijungusio vartotojo rezervacijas
+- Vartotojas gali redaguoti rezervacijos kontaktus ir pageidavimus per `PUT /api/user/bookings/[id]`
+- Admin panelė: rezervacijų ir vartotojų peržiūra, statusų valdymas (su admin teise)
+- El. laiškai: ATIDĖTA iki domeno konfigūracijos (`RESEND_API_KEY` ir siuntėjo domenas)
 
 ## 🔧 **Diegimo Instrukcijos**
 
@@ -43,9 +40,7 @@ Pique Unique yra moderni pikniko rezervacijos sistema, sukurta su Next.js 14, Re
 2. Pridėkite visus reikalingus aplinkos kintamuosius
 3. **BŪTINAI** nustatykite `NEXT_PUBLIC_USE_FIREBASE_EMULATOR=false`
 4. Įveskite Firebase konfigūracijos parametrus
-5. Admin prisijungimo duomenys:
-   - El. paštas: admin@test.com
-   - Slaptažodis: test123
+5. Admin vartotojas: galima sukurti per `POST /api/setup-admin` (sukuria `admin@test.com` / `test123`)
 
 ## 🌍 **Aplinkos Kintamieji**
 
@@ -68,8 +63,8 @@ NEXT_PUBLIC_FIREBASE_FIRESTORE_EMULATOR_URL=http://127.0.0.1:8080
 ADMIN_EMAIL=admin@test.com
 ADMIN_PASSWORD=test123
 
-# Email Service (Resend) - opcionalus
-RESEND_API_KEY=
+# Email Service (Resend) - ATIDĖTA iki domeno
+# RESEND_API_KEY=
 
 # Weather API
 # Naudojame meteo.lt API (nereikia API rakto)
@@ -101,11 +96,11 @@ NEXT_PUBLIC_USE_FIREBASE_EMULATOR=false
 ADMIN_EMAIL=admin@test.com
 ADMIN_PASSWORD=test123
 
-# Email Service (Resend) - opcionalus
-RESEND_API_KEY=
+# Email Service (Resend) - ATIDĖTA iki domeno
+# RESEND_API_KEY=
 
 # Site Configuration
-NEXT_PUBLIC_SITE_URL=https://your-domain.vercel.app
+NEXT_PUBLIC_SITE_URL=https://pique-unique.vercel.app
 ```
 
 ## 📁 **Projekto Struktūra**
@@ -114,7 +109,9 @@ NEXT_PUBLIC_SITE_URL=https://your-domain.vercel.app
 src/
 ├── app/
 │   ├── api/
-│   │   ├── bookings/route.ts              # Rezervacijų API
+│   │   ├── bookings/route.ts              # Rezervacijų API (POST, auth required)
+│   │   ├── user/bookings/route.ts         # Vartotojo rezervacijų sąrašas (GET)
+│   │   ├── user/bookings/[id]/route.ts    # Vartotojo rezervacijos atnaujinimas (PUT)
 │   │   ├── send-admin-notification/route.ts # Admin notifikacijos
 │   │   └── auth/
 │   │       ├── session/route.ts           # Sesijos API
@@ -122,7 +119,7 @@ src/
 │   ├── booking/
 │   │   ├── page.tsx                       # Rezervacijos puslapis
 │   │   └── confirmation/page.tsx          # Patvirtinimo puslapis
-│   ├── admin/                             # Admin panelis (bus pridėtas)
+│   ├── admin/                             # Admin panelis
 │   └── signin/signup/                     # Autentifikacija
 ├── lib/
 │   ├── auth.ts                            # Auth hook'ai
@@ -132,27 +129,6 @@ src/
 └── components/                            # React komponentai
 ```
 
-## 🎯 **Rytdienos Planas (2024-07-21)**
-
-### **1. Firebase Emuliatoriaus Paleidimas (10 min)**
-```bash
-firebase emulators:start
-```
-
-### **2. UI/UX Problemų Ištaisymas (30 min)**
-- Ištaisyti meniu dydį
-- Optimizuoti puslapio veikimą
-- Ištaisyti CSS problemas
-
-### **3. Sistemos Testavimas (20 min)**
-- Išbandyti visą rezervacijos procesą
-- Patikrinti duomenų išsaugojimą
-- Patikrinti el. laiškų siuntimą
-
-### **4. Admin Panelio Pabaigimas (60 min)**
-- Sukurti rezervacijų peržiūros puslapį
-- Pridėti rezervacijų valdymo funkcijas
-
 ## 📚 **Dokumentacija**
 
 - **`TODAY_PROGRESS.md`** - Šiandienos darbo suvestinė
@@ -161,10 +137,8 @@ firebase emulators:start
 
 ## 🚨 **Žinomi Apribojimai**
 
-1. **Firebase emuliatorius** - reikia paleisti lokaliai
-2. **UI problemos** - meniu per mažas, puslapis lagina
-3. **Admin panelis** - dar nebaigtas
-4. **Galerijos funkcionalumas** - bus pridėtas vėliau
+1. **El. laiškai** - atidėta iki domeno ir `RESEND_API_KEY` paruošimo
+2. **Seni įrašai be userId** - jei rezervacija sukurta per seną kelią be `userId`, ji nematysis vartotojui (admin mato). Reikia pridėti `userId`/`userEmail` rankiniu būdu ar sukurti iš naujo per API.
 
 ## 🔗 **Naudingi Nuorodos**
 
@@ -175,5 +149,5 @@ firebase emulators:start
 
 ---
 
-**Projekto Statusas:** 🟡 **Development** (90% baigta)
-**Kitas Žingsnis:** Firebase emuliatoriaus paleidimas ir UI ištaisymas
+**Projekto Statusas:** 🟢 **Paruošta demonstracijai** (esmė veikia, el. laiškai atidėti)
+**Kitas Žingsnis:** Domenas + el. laiškai (Resend) ir smulkūs UI/UX poliravimai

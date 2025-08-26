@@ -66,6 +66,10 @@ export default function MyBookingsPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [contactDraft, setContactDraft] = useState<{ name?: string; email?: string; phone?: string }>({});
+  const [requestsDraft, setRequestsDraft] = useState<string>('');
+  const [saving, setSaving] = useState(false);
 
   const fetchBookings = useCallback(async () => {
     try {
@@ -275,8 +279,28 @@ export default function MyBookingsPage() {
                         <p>Atnaujinta: {formatDateTime(booking.updatedAt)}</p>
                       )}
                     </div>
-                    <div className="mt-2 sm:mt-0">
-                      <p>Užsakymo ID: {booking.id}</p>
+                    <div className="mt-3 sm:mt-0 flex items-center gap-3">
+                      <p className="text-gray-600">Užsakymo ID: {booking.id}</p>
+                      <button
+                        onClick={() => {
+                          setEditingId(booking.id);
+                          setContactDraft({
+                            name: booking.contactInfo?.name,
+                            email: booking.contactInfo?.email,
+                            phone: booking.contactInfo?.phone,
+                          });
+                          setRequestsDraft(booking.specialRequests || '');
+                        }}
+                        className="px-4 py-2 bg-hunter text-white rounded-lg hover:bg-hunter-dark"
+                      >
+                        Redaguoti
+                      </button>
+                      <a
+                        href={`mailto:info@pique-unique.lt?subject=Klausimas%20dėl%20rezervacijos%20${encodeURIComponent(booking.id)}&body=Sveiki,%20norėčiau%20pakoreguoti%20savo%20rezervaciją.%20Rezervacijos%20ID:%20${encodeURIComponent(booking.id)}%0AData:%20${encodeURIComponent(formatDate(booking.date))}%20${encodeURIComponent(TIME_SLOTS[booking.time as keyof typeof TIME_SLOTS] || booking.time)}%0ATema:%20${encodeURIComponent(THEMES[booking.theme as keyof typeof THEMES] || booking.theme)}`}
+                        className="px-4 py-2 border border-hunter text-hunter rounded-lg hover:bg-linen"
+                      >
+                        Susisiekti
+                      </a>
                     </div>
                   </div>
                 </div>
@@ -297,6 +321,87 @@ export default function MyBookingsPage() {
           </div>
         )}
       </div>
+      {editingId && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg p-6">
+            <h3 className="text-2xl font-semibold text-hunter mb-4">Redaguoti rezervaciją</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm text-gray-700 mb-1">Vardas</label>
+                <input
+                  className="w-full border rounded-lg px-3 py-2"
+                  value={contactDraft.name || ''}
+                  onChange={e => setContactDraft(prev => ({ ...prev, name: e.target.value }))}
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-gray-700 mb-1">El. paštas</label>
+                <input
+                  className="w-full border rounded-lg px-3 py-2"
+                  value={contactDraft.email || ''}
+                  onChange={e => setContactDraft(prev => ({ ...prev, email: e.target.value }))}
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-gray-700 mb-1">Telefonas</label>
+                <input
+                  className="w-full border rounded-lg px-3 py-2"
+                  value={contactDraft.phone || ''}
+                  onChange={e => setContactDraft(prev => ({ ...prev, phone: e.target.value }))}
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-gray-700 mb-1">Papildomi pageidavimai</label>
+                <textarea
+                  className="w-full border rounded-lg px-3 py-2"
+                  rows={4}
+                  value={requestsDraft}
+                  onChange={e => setRequestsDraft(e.target.value)}
+                />
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                onClick={() => setEditingId(null)}
+                className="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50"
+                disabled={saving}
+              >
+                Atšaukti
+              </button>
+              <button
+                onClick={async () => {
+                  try {
+                    setSaving(true);
+                    const idToken = await user?.getIdToken();
+                    const res = await fetch(`/api/user/bookings/${editingId}`, {
+                      method: 'PUT',
+                      headers: {
+                        'Content-Type': 'application/json',
+                        ...(idToken && { 'Authorization': `Bearer ${idToken}` }),
+                      },
+                      body: JSON.stringify({
+                        contactInfo: contactDraft,
+                        specialRequests: requestsDraft,
+                      }),
+                    });
+                    if (!res.ok) throw new Error('Nepavyko išsaugoti pakeitimų');
+                    await fetchBookings();
+                    setEditingId(null);
+                  } catch (e) {
+                    alert(e instanceof Error ? e.message : 'Klaida');
+                  } finally {
+                    setSaving(false);
+                  }
+                }}
+                className="px-4 py-2 rounded-lg bg-hunter text-white hover:bg-hunter-dark"
+                disabled={saving}
+              >
+                Išsaugoti
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 } 

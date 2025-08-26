@@ -127,7 +127,7 @@ service cloud.firestore {
 
 2. Booking System
    - Calendar
-   - BookingForm
+   - BookingForm (kreipiasi į `/api/bookings` su auth; nebe rašo tiesiai į Firestore)
    - ServiceSelector
    - TimeSlotPicker
 
@@ -166,10 +166,10 @@ service cloud.firestore {
 2. Environment configuration
 3. Local testing workflow
 
-### Staging
-1. Automated deployments to staging environment
-2. Integration testing
-3. Performance monitoring
+### Staging / Production (Vercel)
+1. Deploy per GitHub push į `main`
+2. `NEXT_PUBLIC_*` ir `FIREBASE_ADMIN_*` kintamieji Vercel aplinkoje
+3. (Pasirinktinai) `RESEND_API_KEY` + domeno verifikacija el. laiškams
 
 ### Production
 1. GitHub Actions CI/CD pipeline
@@ -220,10 +220,9 @@ service cloud.firestore {
 3. Setup guides
 4. Troubleshooting guides
 
-## Next Steps
-1. Firebase project setup
-2. Environment configuration
-3. Authentication implementation
-4. Basic component development
-5. Testing setup
-6. CI/CD pipeline configuration 
+## Current Endpoints (core)
+
+- POST `/api/bookings`: sukuria rezervaciją (reikia auth; rašo `userId`/`userEmail`)
+- GET `/api/user/bookings`: grąžina prisijungusio vartotojo rezervacijas
+- PUT `/api/user/bookings/[id]`: atnaujina savo rezervacijos kontaktus/pageidavimus
+- Admin GET `/api/admin/bookings`, `/api/admin/users` (reikia admin teisių)

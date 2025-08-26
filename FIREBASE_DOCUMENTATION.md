@@ -279,8 +279,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get user from session cookie
+    // Get user from session cookie or Authorization header (ID token)
     const sessionCookie = request.cookies.get('session')?.value;
+    const authHeader = request.headers.get('authorization');
     let userId = null;
     let userEmail = null;
 
@@ -289,8 +290,17 @@ export async function POST(request: NextRequest) {
         const decodedClaims = await adminAuth.verifySessionCookie(sessionCookie);
         userId = decodedClaims.uid;
         userEmail = decodedClaims.email;
-      } catch (error) {
-        console.log('Invalid session cookie, proceeding without user');
+      } catch {
+        // ignore
+      }
+    } else if (authHeader && authHeader.startsWith('Bearer ')) {
+      try {
+        const idToken = authHeader.substring(7);
+        const decodedClaims = await adminAuth.verifyIdToken(idToken);
+        userId = decodedClaims.uid;
+        userEmail = decodedClaims.email;
+      } catch {
+        // ignore
       }
     }
 
@@ -308,8 +318,8 @@ export async function POST(request: NextRequest) {
       contactInfo: contactInfo || {},
       status: 'pending',
       paymentStatus: 'pending',
-      userId: userId || null,
-      userEmail: userEmail || null,
+      userId: userId,
+      userEmail: userEmail,
       createdAt: new Date(),
       updatedAt: new Date()
     };

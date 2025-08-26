@@ -2,9 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { addDoc, collection } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
-import { COLLECTIONS } from '@/lib/firebase/schema';
+import { useAuth } from '@/lib/auth';
 import ThemeSelection from './ThemeSelection';
 
 interface BookingFormProps {
@@ -21,6 +19,7 @@ export default function BookingForm({ selectedDate, selectedLocation, selectedTi
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { user } = useAuth();
 
   const [formData, setFormData] = useState({
     guests: 2,
@@ -91,26 +90,38 @@ export default function BookingForm({ selectedDate, selectedLocation, selectedTi
         throw new Error('Svečių skaičius turi būti nuo 2 iki 8');
       }
 
-      // Create booking in Firestore
-      const bookingData = {
-        date: selectedDate,
-        timeSlot: selectedTimeSlot,
+      // Prefer server API to ensure userId/userEmail are set and emails sent
+      const apiPayload = {
         location: selectedLocation,
-        guests: formData.guests,
+        date: selectedDate,
+        theme: formData.selectedTheme.id,
+        time: selectedTimeSlot.start,
+        guestCount: formData.guests,
+        basePrice: formData.selectedTheme.price,
+        additionalServices: [],
+        additionalPrice: 0,
+        totalPrice: formData.selectedTheme.price,
         contactInfo: formData.contactInfo,
         specialRequests: formData.specialRequests,
-        themeId: formData.selectedTheme.id,
-        themeName: formData.selectedTheme.name,
-        themePrice: formData.selectedTheme.price,
-        status: 'pending',
-        createdAt: new Date(),
-        updatedAt: new Date()
-      };
+      } as Record<string, unknown>;
 
-      const docRef = await addDoc(collection(db, COLLECTIONS.BOOKINGS), bookingData);
-      
-      // Redirect to confirmation page
-      router.push(`/booking/confirmation/${docRef.id}`);
+      const idToken = user ? await user.getIdToken() : null;
+      const resp = await fetch('/api/bookings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(idToken && { 'Authorization': `Bearer ${idToken}` }),
+        },
+        body: JSON.stringify(apiPayload),
+      });
+
+      if (!resp.ok) {
+        const data = await resp.json().catch(() => ({}));
+        throw new Error((data && data.error) || 'Nepavyko išsaugoti rezervacijos');
+      }
+      const data = await resp.json();
+      const bookingId = data.bookingId as string;
+      router.push(`/booking/confirmation/${bookingId}`);
     } catch (err) {
       console.error('Error creating booking:', err);
       setError(err instanceof Error ? err.message : 'Įvyko klaida kuriant rezervaciją');
