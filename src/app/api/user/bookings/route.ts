@@ -46,20 +46,25 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Fetch user's bookings
+    // Fetch user's bookings (avoid composite index by sorting in memory)
     const bookingsSnapshot = await db
       .collection('bookings')
       .where('userId', '==', userId)
-      .orderBy('createdAt', 'desc')
       .get();
 
-    const bookings = bookingsSnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-      date: doc.data().date?.toDate?.() || doc.data().date,
-      createdAt: doc.data().createdAt?.toDate?.() || doc.data().createdAt,
-      updatedAt: doc.data().updatedAt?.toDate?.() || doc.data().updatedAt,
-    }));
+    const bookings = bookingsSnapshot.docs
+      .map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        date: doc.data().date?.toDate?.() || doc.data().date,
+        createdAt: doc.data().createdAt?.toDate?.() || doc.data().createdAt,
+        updatedAt: doc.data().updatedAt?.toDate?.() || doc.data().updatedAt,
+      }))
+      .sort((a, b) => {
+        const aTime = (a.createdAt instanceof Date) ? a.createdAt.getTime() : new Date(a.createdAt).getTime();
+        const bTime = (b.createdAt instanceof Date) ? b.createdAt.getTime() : new Date(b.createdAt).getTime();
+        return bTime - aTime; // desc
+      });
 
     return NextResponse.json({
       success: true,
