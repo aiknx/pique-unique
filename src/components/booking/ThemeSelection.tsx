@@ -54,10 +54,11 @@ interface ThemeSelectionProps {
 
 interface ThemeIconProps {
   themeId: string;
+  label: string;
   className?: string;
 }
 
-const ThemeIcon = ({ themeId, className = "w-8 h-8" }: ThemeIconProps) => {
+const ThemeIcon = ({ themeId, label, className = "w-8 h-8" }: ThemeIconProps) => {
   const iconMap = {
     'undiniu': '/icons/undine.png',
     'feju': '/icons/feja.png', 
@@ -75,7 +76,7 @@ const ThemeIcon = ({ themeId, className = "w-8 h-8" }: ThemeIconProps) => {
     <div className={`${className} relative overflow-hidden rounded-lg bg-white shadow-sm border border-gray-200`}>
       <Image
         src={iconPath}
-        alt={`${themeId} tema`}
+        alt={`${label} tema`}
         fill
         className="object-contain p-0.5"
         sizes="(max-width: 768px) 48px, 64px"
@@ -101,7 +102,7 @@ export default function ThemeSelection({ selectedTheme, onThemeSelect }: ThemeSe
             `}
           >
             <div className="flex items-center space-x-4">
-              <ThemeIcon themeId={theme.id} className="w-24 h-24" />
+              <ThemeIcon themeId={theme.id} label={theme.name} className="w-24 h-24" />
               <div className="flex-1">
                 <h3 className="font-semibold text-gray-900 text-lg">{theme.name}</h3>
                 <p className="text-sm text-gray-600">{theme.description}</p>
