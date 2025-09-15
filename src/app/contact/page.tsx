@@ -6,6 +6,8 @@ export const metadata: Metadata = {
   description: 'Susisiekite su mumis dėl paplūdimio pikniko rezervacijos ar kitų klausimų. Esame pasiruošę padėti sukurti jūsų ypatingą momentą.',
 };
 
+export const revalidate = 86400;
+
 export default function ContactPage() {
   return (
     <main className="py-16 bg-sand">

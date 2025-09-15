@@ -7,6 +7,8 @@ export const metadata: Metadata = {
   description: 'Išsirinkite savo pikniko temą - Undinių, Fejų, Laumių ar Disco pikniką. Kiekviena tema sukuria unikalią atmosferą jūsų ypatingai progai.',
 };
 
+export const revalidate = 86400;
+
 const themes = [
   {
     id: 'undiniu',

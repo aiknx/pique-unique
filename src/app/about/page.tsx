@@ -24,6 +24,8 @@ export const metadata: Metadata = {
   },
 };
 
+export const revalidate = 86400;
+
 export default function AboutPage() {
   return (
     <main className="bg-sand">
@@ -113,7 +115,7 @@ export default function AboutPage() {
                   Kiek kainuoja piknikas?
                 </h3>
                 <p className="text-gray-700">
-                  Kaina priklauso nuo žmonių skaičiaus ir pasirinktų papildomų paslaugų. Turime skirtingus pasiūlymus nuo €200 dviem asmenims. (Tikslias kainas rasite skyriuje &ldquo;Paketai&rdquo;.)
+                  Kaina priklauso nuo žmonių skaičiaus ir pasirinktų papildomų paslaugų. Turime skirtingus pasiūlymus nuo €200 dviem asmenims. Tiksli kaina pateikiama rezervacijos metu prieš patvirtinimą.
                 </p>
               </div>
 

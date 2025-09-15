@@ -78,10 +78,12 @@ export async function POST(request: NextRequest) {
 export async function GET() {
   try {
     // For now, always return sample reviews to avoid Firebase issues
-    return NextResponse.json({
+    const res = NextResponse.json({
       reviews: SAMPLE_REVIEWS,
       total: SAMPLE_REVIEWS.length
     });
+    res.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=86400');
+    return res;
   } catch (error) {
     console.error('Error fetching reviews:', error);
     return NextResponse.json(

@@ -23,7 +23,7 @@ const additionalServices = [
     price: '45€',
     pricePer: 'vienkartinė',
     image: '/images/services/maar.webp',
-    details: 'Suteikite savo šventei subtilios prabangos su MAAR kvapų degustaciją, kur kiekvienas dalyvis galės pasinerti į prabangių kvapų pasaulį ir atrasti sau tinkamiausią aromatą. Turtingi ir ypatingi kvepalai yra tie, kurie spinduliuoja kompleksiškumu, ilgam įsirašo atmintyje ir yra sukurti, naudojant kokybiškus ingredientus. Degustacija idealiai tinka mergvakariams, ieškant vestuvių kvapo!',
+    details: 'Suteikite savo šventei subtilios prabangos su MAAR kvapų degustacija, kur kiekvienas dalyvis galės pasinerti į prabangių kvapų pasaulį ir atrasti sau tinkamiausią aromatą. Turtingi ir ypatingi kvepalai yra tie, kurie spinduliuoja kompleksiškumu, ilgam įsirašo atmintyje ir yra sukurti, naudojant kokybiškus ingredientus. Degustacija idealiai tinka mergvakariams, ieškant vestuvių kvapo!',
     icon: '🌸'
   },
   {
@@ -61,7 +61,7 @@ export default function GalleryContent() {
           </h1>
           <p className="text-xl text-gray-700 text-center max-w-3xl mx-auto mb-12">
             Pasirūpinkime, kad jūsų piknikas būtų dar ypatingesnis. 
-            Pasiūlome įvairias papildomas paslaugas, kurios padarys jūsų dieną nepamirštamą.
+            Siūlome įvairias papildomas paslaugas, kurios padarys jūsų dieną nepamirštamą.
           </p>
         </div>
       </section>

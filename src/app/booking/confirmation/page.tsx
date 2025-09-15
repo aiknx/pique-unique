@@ -38,7 +38,7 @@ const ADDITIONAL_SERVICES = [
   {
     id: 'maar',
     name: 'MAAR kvapų degustacija',
-    description: 'Suteikite savo šventei subtilios prabangos su MAAR kvapų degustaciją, kur kiekvienas dalyvis galės pasinerti į prabangių kvapų pasaulį ir atrasti sau tinkamiausią aromatą. Turtingi ir ypatingi kvepalai yra tie, kurie spinduliuoja kompleksiškumu, ilgam įsirašo atmintyje ir yra sukurti, naudojant kokybiškus ingredientus. Degustacija idealiai tinka mergvakariams, ieškant vestuvių kvapo!',
+    description: 'Suteikite savo šventei subtilios prabangos su MAAR kvapų degustacija, kur kiekvienas dalyvis galės pasinerti į prabangių kvapų pasaulį ir atrasti sau tinkamiausią aromatą. Turtingi ir ypatingi kvepalai yra tie, kurie spinduliuoja kompleksiškumu, ilgam įsirašo atmintyje ir yra sukurti, naudojant kokybiškus ingredientus. Degustacija idealiai tinka mergvakariams, ieškant vestuvių kvapo!',
     price: 45,
     pricePer: 'vienkartinė',
     icon: '🌸'
