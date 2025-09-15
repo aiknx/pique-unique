@@ -36,7 +36,7 @@ const LOCATIONS = {
 
 const THEMES = {
   'undiniu': 'Undinių',
-  'feju': 'Fejų',
+  'feju': 'Fėjų',
   'laumiu': 'Laumių',
   'disco': 'Disco'
 };

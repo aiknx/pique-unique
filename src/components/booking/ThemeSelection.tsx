@@ -23,7 +23,7 @@ const themes: Theme[] = [
   },
   {
     id: 'feju',
-    name: 'Fejų',
+    name: 'Fėjų',
     description: 'Žalios spalvos tema su gamtos elementais - idealus gimtadieniam ir mergvakariam',
     icon: '🧚‍♀️',
     price: 0,

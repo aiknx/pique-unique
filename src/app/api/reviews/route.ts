@@ -1,42 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 // import { getFirebaseAdmin, getAdminAuth } from '@/lib/server/firebase-admin';
-
-// Sample reviews from main page
-const SAMPLE_REVIEWS = [
-  {
-    id: 'sample-1',
-    name: 'Simona M.',
-    rating: 5,
-    comment: 'Absoliučiai magiška patirtis! Apipavidalinimas buvo nuostabus, o dėmesys detalėms - neįtikėtinas. Padarė mūsų metines ypatingas.',
-    date: '2024-02-15',
-    image: '/images/reviews/sarah.jpg',
-    isPublic: true,
-    status: 'approved',
-    createdAt: new Date('2024-02-15')
-  },
-  {
-    id: 'sample-2',
-    name: 'Jonas K.',
-    rating: 5,
-    comment: 'Tobula vieta piršlyboms! Komanda padarė viską ir dar daugiau, kad viskas būtų tobula. Ji pasakė taip!',
-    date: '2024-02-10',
-    image: '/images/reviews/james.jpg',
-    isPublic: true,
-    status: 'approved',
-    createdAt: new Date('2024-02-10')
-  },
-  {
-    id: 'sample-3',
-    name: 'Emilija R.',
-    rating: 5,
-    comment: 'Toks unikalus būdas atšvęsti gimtadienį. Maistas buvo skanus, o apipavidalinimas - vertas Instagramo!',
-    date: '2024-02-01',
-    image: '/images/reviews/emily.jpg',
-    isPublic: true,
-    status: 'approved',
-    createdAt: new Date('2024-02-01')
-  }
-];
+import { SAMPLE_REVIEWS, type PublicReview } from './sample-data';
 
 export async function POST(request: NextRequest) {
   try {
@@ -59,11 +23,26 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // For now, just return success without saving to Firebase
+    // For now: simulate persistence by appending to in-memory list
+    const newReview: PublicReview = {
+      id: 'temp-' + Date.now(),
+      name: body.name || 'Svečių atsiliepimas',
+      rating,
+      comment,
+      date: new Date().toISOString().slice(0, 10),
+      image: body.image || undefined,
+      isPublic: false,
+      status: 'pending',
+      createdAt: new Date(),
+    };
+
+    // Mutate local array so that GET returns it (ephemeral per instance)
+    SAMPLE_REVIEWS.unshift(newReview);
+
     return NextResponse.json({
       success: true,
-      reviewId: 'temp-' + Date.now(),
-      message: 'Atsiliepimas sėkmingai išsaugotas ir laukia patvirtinimo'
+      reviewId: newReview.id,
+      message: 'Atsiliepimas sėkmingai priimtas ir laukia patvirtinimo'
     });
 
   } catch (error) {
@@ -77,7 +56,6 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
   try {
-    // For now, always return sample reviews to avoid Firebase issues
     const res = NextResponse.json({
       reviews: SAMPLE_REVIEWS,
       total: SAMPLE_REVIEWS.length
@@ -91,4 +69,4 @@ export async function GET() {
       { status: 500 }
     );
   }
-} 
+}

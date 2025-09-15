@@ -21,7 +21,7 @@ const TIME_SLOTS = {
 
 const THEMES = {
   'undiniu': 'Undinių',
-  'feju': 'Fejų',
+  'feju': 'Fėjų',
   'laumiu': 'Laumių',
   'disco': 'Disco'
 };
@@ -132,6 +132,18 @@ export default function ConfirmationPage() {
     setIsSubmitting(true);
     
     try {
+      // Require authentication: if not logged in, redirect to signin and then return back here with params
+      if (!user) {
+        const returnUrl = `/booking/confirmation?${new URLSearchParams({
+          location: location || '',
+          date: date || '',
+          theme: theme || '',
+          time: time || ''
+        }).toString()}`;
+        window.location.href = `/auth/signin?callbackUrl=${encodeURIComponent(returnUrl)}`;
+        return;
+      }
+
       // Validate contact info
       if (!contactInfo.name || !contactInfo.email || !contactInfo.phone) {
         alert('Prašome užpildyti visus kontaktinius duomenis');
@@ -171,8 +183,15 @@ export default function ConfirmationPage() {
         alert('Rezervacija sėkmingai išsaugota! Netrukus gausite patvirtinimo el. laišką.');
         router.push('/');
       } else if (response.status === 401) {
-        // Show error message instead of redirecting
-        throw new Error('Autentifikacijos klaida. Bandykite dar kartą.');
+        // If token expired, send user to login and come back
+        const returnUrl = `/booking/confirmation?${new URLSearchParams({
+          location: location || '',
+          date: date || '',
+          theme: theme || '',
+          time: time || ''
+        }).toString()}`;
+        window.location.href = `/auth/signin?callbackUrl=${encodeURIComponent(returnUrl)}`;
+        return;
       } else {
         throw new Error(result.error || 'Nepavyko išsaugoti rezervacijos');
       }

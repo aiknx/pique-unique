@@ -4,7 +4,7 @@ import Image from 'next/image';
 
 export const metadata: Metadata = {
   title: 'Temos | Pique Unique',
-  description: 'Išsirinkite savo pikniko temą - Undinių, Fejų, Laumių ar Disco pikniką. Kiekviena tema sukuria unikalią atmosferą jūsų ypatingai progai.',
+  description: 'Išsirinkite savo pikniko temą - Undinių, Fėjų, Laumių ar Disco pikniką. Kiekviena tema sukuria unikalią atmosferą jūsų ypatingai progai.',
 };
 
 export const revalidate = 86400;
@@ -18,7 +18,7 @@ const themes = [
   },
   {
     id: 'feju',
-    title: 'Fejų Piknikai',
+    title: 'Fėjų Piknikai',
     description: 'Ši tema – tarsi pasivaikščiojimas stebuklingame miške. Fėjų piknikas kupinas pastelinių spalvų, lengvų audinių ir gėlių žiedų. Jauki, romantiška, švelni atmosfera – idealiai tinka fotosesijoms, seserystės šventėms ar laikui su mylimomis draugėmis.',
     icon: '/icons/feja.png'
   },
