@@ -11,7 +11,7 @@ export default function SignInForm() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const from = searchParams.get('from') || '/';
+  const callbackUrl = searchParams.get('callbackUrl') || searchParams.get('from') || '/';
   const { signIn, signInWithGoogle, error, clearError } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -22,7 +22,7 @@ export default function SignInForm() {
     try {
       await signIn(email, password);
       // Nukreipimas į originalų puslapį arba pagrindinį
-      router.push(from);
+      router.replace(callbackUrl);
     } catch (error) {
       console.error('Sign in error:', error);
     } finally {
@@ -37,7 +37,7 @@ export default function SignInForm() {
     try {
       await signInWithGoogle();
       // Nukreipimas į originalų puslapį arba pagrindinį
-      router.push(from);
+      router.replace(callbackUrl);
     } catch (error) {
       console.error('Google sign in error:', error);
     } finally {

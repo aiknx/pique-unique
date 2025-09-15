@@ -2,6 +2,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
 type Review = {
   id: string
@@ -18,7 +19,7 @@ const SAMPLE_REVIEWS: Review[] = [
     name: 'Simona M.',
     rating: 5,
     comment: 'Absoliučiai magiška patirtis! Apipavidalinimas buvo nuostabus, o dėmesys detalėms - neįtikėtinas. Padarė mūsų metines ypatingas.',
-    date: '2024-02-15',
+    date: '2025-07-15',
     image: '/images/reviews/sarah.jpg'
   },
   {
@@ -26,7 +27,7 @@ const SAMPLE_REVIEWS: Review[] = [
     name: 'Jonas K.',
     rating: 5,
     comment: 'Tobula vieta piršlyboms! Komanda padarė viską ir dar daugiau, kad viskas būtų tobula. Ji pasakė taip!',
-    date: '2024-02-10',
+    date: '2025-07-10',
     image: '/images/reviews/james.jpg'
   },
   {
@@ -34,7 +35,7 @@ const SAMPLE_REVIEWS: Review[] = [
     name: 'Emilija R.',
     rating: 5,
     comment: 'Toks unikalus būdas atšvęsti gimtadienį. Maistas buvo skanus, o apipavidalinimas - vertas Instagramo!',
-    date: '2024-02-01',
+    date: '2025-07-01',
     image: '/images/reviews/emily.jpg'
   }
 ]
@@ -59,6 +60,31 @@ function StarRating({ rating }: { rating: number }) {
 }
 
 export default function Reviews() {
+  const [reviews, setReviews] = useState<Review[]>(SAMPLE_REVIEWS);
+
+  useEffect(() => {
+    let isMounted = true;
+    (async () => {
+      try {
+        const res = await fetch('/api/reviews');
+        if (!res.ok) return;
+        const data: { reviews?: Partial<Review & { createdAt?: string | Date }>[]} = await res.json();
+        const apiReviews: Review[] = (data.reviews || []).map((r, idx: number) => ({
+          id: r.id || String(idx),
+          name: r.name as string,
+          rating: r.rating as number,
+          comment: r.comment as string,
+          date: (r.date as string) || new Date(r.createdAt as string | Date).toISOString().slice(0, 10),
+          image: r.image as string | undefined,
+        }));
+        if (isMounted && apiReviews.length) setReviews(apiReviews);
+      } catch {}
+    })();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   return (
     <section className="py-12 bg-white">
       <div className="container mx-auto px-4">
@@ -72,7 +98,7 @@ export default function Reviews() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {SAMPLE_REVIEWS.map(review => (
+          {reviews.map(review => (
             <div key={review.id} className="card">
               <div className="flex items-center mb-4">
                 <div className="w-12 h-12 rounded-full bg-neutral-100 mr-4">
