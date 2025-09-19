@@ -17,6 +17,7 @@ export default function WhyChooseUs() {
                 width={48}
                 height={48}
                 className="object-contain"
+                loading="lazy"
               />
             </div>
             <h3 className="text-xl font-semibold text-hunter-green mb-3">
@@ -35,6 +36,7 @@ export default function WhyChooseUs() {
                 width={48}
                 height={48}
                 className="object-contain"
+                loading="lazy"
               />
             </div>
             <h3 className="text-xl font-semibold text-hunter-green mb-3">
@@ -53,6 +55,7 @@ export default function WhyChooseUs() {
                 width={48}
                 height={48}
                 className="object-contain"
+                loading="lazy"
               />
             </div>
             <h3 className="text-xl font-semibold text-hunter-green mb-3">

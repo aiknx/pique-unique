@@ -1,5 +1,9 @@
 import { Metadata } from 'next';
-import GalleryContent from '@/components/GalleryContent';
+import dynamic from 'next/dynamic';
+
+const GalleryContent = dynamic(() => import('@/components/GalleryContent'), {
+  loading: () => <div className="py-16 text-center">Kraunama galerija...</div>
+});
 
 export const metadata: Metadata = {
   title: 'Papildomos Paslaugos - ACALA, MAAR, Tapymas | Pique Unique',

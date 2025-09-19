@@ -36,6 +36,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="lt">
+      <head>
+        <meta charSet="UTF-8" />
+      </head>
       <body className={`${quicksand.variable} ${playfair.variable}`}>
         <Providers>
           <div className="flex flex-col min-h-screen">

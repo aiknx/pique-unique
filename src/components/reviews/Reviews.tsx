@@ -94,6 +94,7 @@ export default function Reviews() {
                     fill
                     className="object-cover rounded"
                     sizes="80px"
+                    loading="lazy"
                   />
                 </div>
               )}
@@ -117,6 +118,7 @@ export default function Reviews() {
                       fill
                       className="object-cover rounded"
                       sizes="(max-width: 768px) 33vw, 80px"
+                      loading="lazy"
                     />
                     {review.images && index === 2 && review.images.length > 4 && (
                       <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded">

@@ -84,6 +84,8 @@ export default function GalleryContent() {
                     alt={service.title}
                     fill
                     className="object-cover transition-transform duration-300 group-hover:scale-110"
+                    loading="lazy"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   />
                   <div className="absolute top-4 right-4 bg-hunter-green text-white px-3 py-1 rounded-full text-sm font-medium">
                     {service.price}
@@ -120,6 +122,8 @@ export default function GalleryContent() {
                 alt={selectedService.title}
                 fill
                 className="object-cover"
+                loading="lazy"
+                sizes="(max-width: 768px) 100vw, 50vw"
               />
               <button
                 className="absolute top-4 right-4 text-white hover:text-gray-300 bg-black/50 rounded-full p-2"

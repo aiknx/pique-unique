@@ -1,10 +1,14 @@
 import { Metadata } from 'next';
 import Image from 'next/image';
+import dynamic from 'next/dynamic';
 // import { Hero } from '@/components/Hero';
-import Reviews from '@/components/Reviews';
 import WhyChooseUs from '@/components/WhyChooseUs';
 import Features from '@/components/Features';
 import Link from 'next/link';
+
+const Reviews = dynamic(() => import('@/components/Reviews'), {
+  loading: () => <div className="py-16 text-center">Kraunami atsiliepimai...</div>
+});
 
 export const metadata: Metadata = {
   title: 'Pique Unique - Prabangūs Piknikai Paplūdimyje Klaipėdoje ir Neringoje | Romantiški & Šeimos Piknikai',

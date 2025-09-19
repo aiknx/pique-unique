@@ -85,6 +85,7 @@ export default function AddOns({ onSelect }: AddOnsProps) {
                   fill
                   className="object-cover rounded"
                   sizes="80px"
+                  loading="lazy"
                 />
               </div>
               <div>
