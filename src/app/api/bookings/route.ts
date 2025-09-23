@@ -70,43 +70,101 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create booking document
-    const bookingData = {
-      location,
-      date: new Date(date),
-      theme,
-      time,
-      guestCount,
-      basePrice,
-      additionalServices: additionalServices || [],
-      additionalPrice: additionalPrice || 0,
-      totalPrice,
-      contactInfo: contactInfo || {},
-      status: 'pending',
-      paymentStatus: 'pending',
-      userId: userId,
-      userEmail: userEmail,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
+    if (finalize) {
+      // Create final booking document
+      const finalBookingData = {
+        location,
+        date: new Date(date),
+        theme,
+        time,
+        guestCount,
+        basePrice,
+        additionalServices: additionalServices || [],
+        additionalPrice: additionalPrice || 0,
+        totalPrice,
+        contactInfo: contactInfo || {},
+        status: 'pending',
+        paymentStatus: 'pending',
+        userId: userId,
+        userEmail: userEmail,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
 
-    // Add to Firestore
-    const bookingRef = await db.collection('bookings').add(bookingData);
-    const bookingId = bookingRef.id;
+      // Add to Firestore
+      const bookingRef = await db.collection('bookings').add(finalBookingData);
+      const bookingId = bookingRef.id;
 
-    // Send confirmation emails
-    try {
-      await sendConfirmationEmails(bookingId, bookingData);
-    } catch (emailError) {
-      console.error('Failed to send confirmation emails:', emailError);
-      // Don't fail the booking if email fails
+      // Delete draft if exists
+      try {
+        const existingDraft = await db.collection('bookings/drafts')
+          .where('userId', '==', userId)
+          .limit(1)
+          .get();
+        
+        if (!existingDraft.empty) {
+          await existingDraft.docs[0].ref.delete();
+        }
+      } catch (draftError) {
+        console.error('Failed to delete draft:', draftError);
+        // Don't fail the booking if draft deletion fails
+      }
+
+      // Send confirmation emails
+      try {
+        await sendConfirmationEmails(bookingId, finalBookingData);
+      } catch (emailError) {
+        console.error('Failed to send confirmation emails:', emailError);
+        // Don't fail the booking if email fails
+      }
+
+      return NextResponse.json({
+        success: true,
+        bookingId,
+        message: 'Rezervacija sėkmingai išsaugota'
+      });
+    } else {
+      // Save as draft
+      const draftData = {
+        location,
+        date: new Date(date),
+        theme,
+        time,
+        guestCount,
+        basePrice,
+        additionalServices: additionalServices || [],
+        additionalPrice: additionalPrice || 0,
+        totalPrice,
+        contactInfo: contactInfo || {},
+        userId: userId,
+        userEmail: userEmail,
+        isDraft: true,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+
+      // Check if draft already exists
+      const existingDraft = await db.collection('bookings/drafts')
+        .where('userId', '==', userId)
+        .limit(1)
+        .get();
+
+      let draftRef;
+      if (!existingDraft.empty) {
+        // Update existing draft
+        draftRef = existingDraft.docs[0].ref;
+        await draftRef.update(draftData);
+      } else {
+        // Create new draft
+        draftRef = await db.collection('bookings/drafts').add(draftData);
+      }
+
+      return NextResponse.json({
+        success: true,
+        draftId: draftRef.id,
+        message: 'Juodraštis išsaugotas'
+      });
     }
-
-    return NextResponse.json({
-      success: true,
-      bookingId,
-      message: 'Rezervacija sėkmingai išsaugota'
-    });
 
   } catch (error) {
     console.error('Error creating booking:', error);
@@ -117,40 +175,25 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function sendConfirmationEmails(bookingId: string, bookingData: Record<string, unknown> & { contactInfo?: { email?: string }, date: Date }) {
+async function sendConfirmationEmails(bookingId: string, bookingData: Record<string, unknown>) {
   try {
-    // Send email to customer
-    if (bookingData.contactInfo?.email) {
-      await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/send-booking-confirmation`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          customerEmail: bookingData.contactInfo.email,
-          bookingDetails: {
-            id: bookingId,
-            ...bookingData,
-            date: bookingData.date.toISOString()
-          }
-        }),
-      });
-    }
+    const { emailService } = await import('@/lib/email/email-service');
+    
+    const booking: Record<string, unknown> = {
+      id: bookingId,
+      location: bookingData.location,
+      date: bookingData.date,
+      time: bookingData.time,
+      theme: bookingData.theme,
+      guestCount: bookingData.guestCount,
+      contactInfo: bookingData.contactInfo,
+    };
 
+    // Send confirmation email to customer
+    await emailService.sendBookingConfirmation(booking);
+    
     // Send notification to admin
-    await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/send-admin-notification`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        bookingDetails: {
-          id: bookingId,
-          ...bookingData,
-          date: bookingData.date.toISOString()
-        }
-      }),
-    });
+    await emailService.sendAdminNotification(booking);
 
   } catch (error) {
     console.error('Error sending confirmation emails:', error);

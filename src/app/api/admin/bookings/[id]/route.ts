@@ -118,7 +118,18 @@ export async function PUT(
     }
 
     const body = await request.json();
-    const { status, ...updateData } = body;
+    const { status, auditLog, ...updateData } = body;
+
+    // Get current booking data for audit log
+    const bookingDoc = await db.collection('bookings').doc(params.id).get();
+    if (!bookingDoc.exists) {
+      return NextResponse.json(
+        { error: 'Booking not found' },
+        { status: 404 }
+      );
+    }
+
+    const currentData = bookingDoc.data();
 
     // Update booking
     const bookingRef = db.collection('bookings').doc(params.id);
@@ -138,6 +149,25 @@ export async function PUT(
     });
 
     await bookingRef.update(updateFields);
+
+    // Create audit log entry if auditLog data is provided
+    if (auditLog) {
+      try {
+        const { auditLogger } = await import('@/lib/audit-logger');
+        await auditLogger.logAction({
+          actorUid: decodedToken.uid,
+          action: auditLog.action || 'booking_update',
+          bookingId: params.id,
+          before: auditLog.before || { status: currentData?.status },
+          after: auditLog.after || { status },
+          timestamp: new Date(),
+          metadata: auditLog.metadata
+        });
+      } catch (auditError) {
+        console.error('Failed to create audit log:', auditError);
+        // Don't fail the update if audit logging fails
+      }
+    }
 
     return NextResponse.json({
       success: true,
