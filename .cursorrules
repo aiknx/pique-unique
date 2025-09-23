@@ -1,0 +1,4 @@
+# Cursor taisyklės – Pique Unique
+- Daryk smulkius, saugius refaktorius, copy/UX pataisas ir PR review komentarus.
+- Nekeisk DB schemos ar viešų API be ADR (DECISIONS.md).
+- ESLint/Prettier; Conventional Commits; trumpi, aiškūs diffs; testai kritiniams srautams.

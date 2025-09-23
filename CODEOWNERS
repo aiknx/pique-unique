@@ -1,0 +1,4 @@
+# Adjust owners to your Git hosting handles
+/app/(admin)/* @you-or-team
+/app/api/* @you-or-team
+/prisma/* @you-or-team

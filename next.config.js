@@ -115,6 +115,12 @@ const nextConfig = {
       },
     ];
   },
+  async redirects() {
+    return [
+      { source: '/gallery', destination: '/services', permanent: true },
+      { source: '/gallery/:path*', destination: '/services/:path*', permanent: true },
+    ];
+  },
   async rewrites() {
     return [
       {
