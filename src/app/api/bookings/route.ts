@@ -1,10 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getFirebaseAdmin } from '@/lib/server/firebase-admin';
 import { getAdminAuth } from '@/lib/server/firebase-admin';
+import { bookingSchema } from '@/lib/validation/booking';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+    
+    // Validate with Zod schema
+    const validatedData = bookingSchema.parse(body);
     const {
       location,
       date,
@@ -16,15 +20,7 @@ export async function POST(request: NextRequest) {
       additionalPrice,
       totalPrice,
       contactInfo
-    } = body;
-
-    // Validate required fields
-    if (!location || !date || !theme || !time || !guestCount || !totalPrice) {
-      return NextResponse.json(
-        { error: 'Trūksta būtinų duomenų' },
-        { status: 400 }
-      );
-    }
+    } = validatedData;
 
     // Get Firebase Admin
     const db = getFirebaseAdmin();

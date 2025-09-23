@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { blurDataURL } from '@/lib/utils';
 
 // Tikrosios papildomos paslaugos iš rezervacijos formos
 const additionalServices = [
@@ -85,6 +86,8 @@ export default function GalleryContent() {
                     fill
                     className="object-cover transition-transform duration-300 group-hover:scale-110"
                     loading="lazy"
+                    placeholder="blur"
+                    blurDataURL={blurDataURL}
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   />
                   <div className="absolute top-4 right-4 bg-hunter-green text-white px-3 py-1 rounded-full text-sm font-medium">
@@ -123,6 +126,8 @@ export default function GalleryContent() {
                 fill
                 className="object-cover"
                 loading="lazy"
+                placeholder="blur"
+                blurDataURL={blurDataURL}
                 sizes="(max-width: 768px) 100vw, 50vw"
               />
               <button
