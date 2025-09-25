@@ -69,7 +69,7 @@ export default function ThemesPage() {
                       width={120}
                       height={120}
                       className="object-contain"
-                      quality={75} // Reduced quality for better compression
+                      quality={60} // Further reduced quality for better performance
                     />
                   </div>
                   <h2 className="text-3xl font-bold text-hunter-green">

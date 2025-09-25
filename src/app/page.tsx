@@ -58,7 +58,7 @@ export default function HomePage() {
             className="object-cover object-left md:object-center"
             priority
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 100vw" // Optimized sizes for responsive images
-            quality={75} // Reduced quality to 75 for smaller file size
+            quality={60} // Further reduced quality to 60 for better performance
           />
           {/* Overlay for better text readability */}
           <div className="absolute inset-0 bg-black/30" />

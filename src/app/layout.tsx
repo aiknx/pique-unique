@@ -24,8 +24,8 @@ export const metadata: Metadata = defaultMetadata
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
+  // maximumScale: 1, // Removed - violates accessibility guidelines
+  // userScalable: false, // Removed - violates accessibility guidelines
   themeColor: '#ffffff',
 }
 

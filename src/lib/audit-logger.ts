@@ -28,7 +28,9 @@ export class AuditLogger {
   async logAction(entry: AuditLogEntry): Promise<void> {
     try {
       if (!this.db) {
-        console.error('Firebase Admin not available for audit logging');
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Firebase Admin not available for audit logging');
+        }
         return;
       }
 
@@ -37,9 +39,13 @@ export class AuditLogger {
         timestamp: entry.timestamp || new Date(),
       });
 
-      console.log('Audit log entry created:', entry.action, entry.bookingId);
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Audit log entry created:', entry.action, entry.bookingId);
+      }
     } catch (error) {
-      console.error('Failed to create audit log entry:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Failed to create audit log entry:', error);
+      }
       // Don't throw - audit logging should not break the main flow
     }
   }
@@ -47,7 +53,9 @@ export class AuditLogger {
   async getAuditLogs(bookingId?: string, limit: number = 100): Promise<AuditLogEntry[]> {
     try {
       if (!this.db) {
-        console.error('Firebase Admin not available for audit logging');
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Firebase Admin not available for audit logging');
+        }
         return [];
       }
 
@@ -66,7 +74,9 @@ export class AuditLogger {
         timestamp: doc.data().timestamp.toDate(),
       })) as unknown as AuditLogEntry[];
     } catch (error) {
-      console.error('Failed to fetch audit logs:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Failed to fetch audit logs:', error);
+      }
       return [];
     }
   }
