@@ -24,6 +24,7 @@ export default function Logo({ className = '', variant = 'horizontal' }: LogoPro
           height: 'auto',
           maxHeight: variant === 'horizontal' ? '120px' : '300px'
         }}
+        quality={70}
         priority
       />
     </div>
