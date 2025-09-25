@@ -46,7 +46,9 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Error creating review:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Error creating review:', error);
+    }
     return NextResponse.json(
       { error: 'Nepavyko išsaugoti atsiliepimo' },
       { status: 500 }
@@ -63,7 +65,9 @@ export async function GET() {
     res.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=86400');
     return res;
   } catch (error) {
-    console.error('Error fetching reviews:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Error fetching reviews:', error);
+    }
     return NextResponse.json(
       { error: 'Failed to fetch reviews' },
       { status: 500 }

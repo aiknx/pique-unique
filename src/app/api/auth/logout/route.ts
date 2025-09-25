@@ -13,7 +13,9 @@ export async function POST() {
       message: 'Sėkmingai atsijungta' 
     });
   } catch (error) {
-    console.error('Logout error:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Logout error:', error);
+    }
     return NextResponse.json(
       { error: 'Nepavyko atsijungti' },
       { status: 500 }

@@ -10,7 +10,9 @@ export async function POST(request: Request) {
 
     // Check if Resend is available
     if (!resend) {
-      console.warn('Resend API key not configured, skipping email sending');
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('Resend API key not configured, skipping email sending');
+      }
       return NextResponse.json({ 
         success: true, 
         message: 'Booking created successfully (email service not configured)' 
@@ -71,7 +73,9 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Error sending email:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Error sending email:', error);
+    }
     return NextResponse.json(
       { error: 'Failed to send confirmation email' },
       { status: 500 }

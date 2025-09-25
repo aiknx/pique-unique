@@ -38,7 +38,9 @@ export async function GET(
         );
       }
     } catch (error) {
-      console.error('Token verification failed:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Token verification failed:', error);
+      }
       return NextResponse.json(
         { error: 'Invalid token' },
         { status: 401 }
@@ -65,7 +67,9 @@ export async function GET(
 
     return NextResponse.json({ booking });
   } catch (error) {
-    console.error('Error fetching booking:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Error fetching booking:', error);
+    }
     return NextResponse.json(
       { error: 'Failed to fetch booking' },
       { status: 500 }
@@ -98,9 +102,10 @@ export async function PUT(
     }
 
     const idToken = authHeader.split('Bearer ')[1];
+    let decodedToken;
     
     try {
-      const decodedToken = await adminAuth.verifyIdToken(idToken);
+      decodedToken = await adminAuth.verifyIdToken(idToken);
       const userDoc = await db.collection('users').doc(decodedToken.uid).get();
       
       if (!userDoc.exists || !userDoc.data()?.isAdmin) {
@@ -110,7 +115,9 @@ export async function PUT(
         );
       }
     } catch (error) {
-      console.error('Token verification failed:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Token verification failed:', error);
+      }
       return NextResponse.json(
         { error: 'Invalid token' },
         { status: 401 }
@@ -164,7 +171,9 @@ export async function PUT(
           metadata: auditLog.metadata
         });
       } catch (auditError) {
-        console.error('Failed to create audit log:', auditError);
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Failed to create audit log:', auditError);
+        }
         // Don't fail the update if audit logging fails
       }
     }
@@ -174,7 +183,9 @@ export async function PUT(
       message: 'Booking updated successfully'
     });
   } catch (error) {
-    console.error('Error updating booking:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Error updating booking:', error);
+    }
     return NextResponse.json(
       { error: 'Failed to update booking' },
       { status: 500 }
@@ -219,7 +230,9 @@ export async function DELETE(
         );
       }
     } catch (error) {
-      console.error('Token verification failed:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Token verification failed:', error);
+      }
       return NextResponse.json(
         { error: 'Invalid token' },
         { status: 401 }
@@ -234,7 +247,9 @@ export async function DELETE(
       message: 'Booking deleted successfully'
     });
   } catch (error) {
-    console.error('Error deleting booking:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Error deleting booking:', error);
+    }
     return NextResponse.json(
       { error: 'Failed to delete booking' },
       { status: 500 }

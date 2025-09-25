@@ -71,7 +71,7 @@ const nextConfig = {
         headers: [
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; img-src 'self' data: https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; font-src 'self' https:; connect-src 'self' https:; frame-src 'self'; object-src 'none'; base-uri 'self';",
+            value: "default-src 'self'; img-src 'self' data: https:; script-src 'self' 'nonce-{random}' https://www.gstatic.com https://www.google.com; style-src 'self' 'nonce-{random}' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https:; frame-src 'self'; object-src 'none'; base-uri 'self';",
           },
           {
             key: 'Strict-Transport-Security',

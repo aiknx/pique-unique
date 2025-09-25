@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
         userId = decodedClaims.uid;
         userEmail = decodedClaims.email;
       } catch {
-        console.log('Invalid session cookie');
+        // Invalid session cookie - continue without auth
       }
     } else if (authHeader && authHeader.startsWith('Bearer ')) {
       try {
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
         userId = decodedClaims.uid;
         userEmail = decodedClaims.email;
       } catch {
-        console.log('Invalid ID token');
+        // Invalid ID token - continue without auth
       }
     }
 
@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (finalize) {
+    if (body.finalize) {
       // Create final booking document
       const finalBookingData = {
         location,
@@ -106,7 +106,9 @@ export async function POST(request: NextRequest) {
           await existingDraft.docs[0].ref.delete();
         }
       } catch (draftError) {
-        console.error('Failed to delete draft:', draftError);
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Failed to delete draft:', draftError);
+        }
         // Don't fail the booking if draft deletion fails
       }
 
@@ -114,7 +116,9 @@ export async function POST(request: NextRequest) {
       try {
         await sendConfirmationEmails(bookingId, finalBookingData);
       } catch (emailError) {
-        console.error('Failed to send confirmation emails:', emailError);
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Failed to send confirmation emails:', emailError);
+        }
         // Don't fail the booking if email fails
       }
 
@@ -167,7 +171,9 @@ export async function POST(request: NextRequest) {
     }
 
   } catch (error) {
-    console.error('Error creating booking:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Error creating booking:', error);
+    }
     return NextResponse.json(
       { error: 'Nepavyko išsaugoti rezervacijos' },
       { status: 500 }
@@ -190,13 +196,15 @@ async function sendConfirmationEmails(bookingId: string, bookingData: Record<str
     };
 
     // Send confirmation email to customer
-    await emailService.sendBookingConfirmation(booking);
+    await emailService.sendBookingConfirmation(booking as any);
     
     // Send notification to admin
-    await emailService.sendAdminNotification(booking);
+    await emailService.sendAdminNotification(booking as any);
 
   } catch (error) {
-    console.error('Error sending confirmation emails:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Error sending confirmation emails:', error);
+    }
     throw error;
   }
 } 

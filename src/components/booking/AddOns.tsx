@@ -21,7 +21,9 @@ export default function AddOns({ onSelect }: AddOnsProps) {
         const addOnsData = await getCachedCollection<AddOn>(COLLECTIONS.ADD_ONS);
         setAddOns(addOnsData.filter(addon => addon.isAvailable));
       } catch (error) {
-        console.error('Error fetching add-ons:', error);
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Error fetching add-ons:', error);
+        }
       } finally {
         setLoading(false);
       }

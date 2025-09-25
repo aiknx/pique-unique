@@ -15,11 +15,13 @@ const getFirebaseAdminConfig = (): ServiceAccount | null => {
 
   // Check if we have the minimum required configuration
   if (!projectId || !privateKey || !clientEmail) {
-    console.error('Missing Firebase Admin configuration:', {
-      projectId: !!projectId,
-      privateKey: !!privateKey,
-      clientEmail: !!clientEmail
-    });
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Missing Firebase Admin configuration:', {
+        projectId: !!projectId,
+        privateKey: !!privateKey,
+        clientEmail: !!clientEmail
+      });
+    }
     return null;
   }
 
@@ -53,7 +55,9 @@ export const getFirebaseAdmin = (): Firestore | null => {
     firestoreInstance = getFirestore(adminApp);
     return firestoreInstance;
   } catch (error) {
-    console.error('Failed to initialize Firebase Admin:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Failed to initialize Firebase Admin:', error);
+    }
     return null;
   }
 };
@@ -81,7 +85,9 @@ export const getAdminAuth = (): Auth | null => {
     authInstance = getAuth(adminApp);
     return authInstance;
   } catch (error) {
-    console.error('Failed to initialize Firebase Admin Auth:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Failed to initialize Firebase Admin Auth:', error);
+    }
     return null;
   }
 };

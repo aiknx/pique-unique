@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
         userId = decodedClaims.uid;
         userEmail = decodedClaims.email;
       } catch {
-        console.log('Invalid session cookie');
+        // Invalid session cookie - continue without auth
       }
     } else if (authHeader && authHeader.startsWith('Bearer ')) {
       try {
@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
         userId = decodedClaims.uid;
         userEmail = decodedClaims.email;
       } catch {
-        console.log('Invalid ID token');
+        // Invalid ID token - continue without auth
       }
     }
 
@@ -71,7 +71,9 @@ export async function GET(request: NextRequest) {
       bookings
     });
   } catch (error) {
-    console.error('Error fetching user bookings:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Error fetching user bookings:', error);
+    }
     return NextResponse.json(
       { error: 'Nepavyko gauti užsakymų' },
       { status: 500 }

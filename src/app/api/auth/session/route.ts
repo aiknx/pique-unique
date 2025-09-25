@@ -23,7 +23,9 @@ export async function POST(request: NextRequest) {
     
     if (isEmulator) {
       // In emulator, just return success without creating session cookie
-      console.log('Emulator environment - skipping session cookie creation');
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Emulator environment - skipping session cookie creation');
+      }
       return NextResponse.json({ status: 'success' });
     }
 
@@ -52,7 +54,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ status: 'success' });
   } catch (error) {
-    console.error('Session creation error:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Session creation error:', error);
+    }
     return NextResponse.json(
       { error: 'Nepavyko sukurti sesijos' },
       { status: 401 }
@@ -69,7 +73,9 @@ export async function GET() {
     
     if (isEmulator) {
       // In emulator, return null user (client-side auth will handle it)
-      console.log('Emulator environment - returning null user for session check');
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Emulator environment - returning null user for session check');
+      }
       return NextResponse.json({ user: null });
     }
 
@@ -86,7 +92,9 @@ export async function GET() {
     const decodedClaims = await adminAuth.verifySessionCookie(sessionCookie, true);
     return NextResponse.json({ user: decodedClaims });
   } catch (error) {
-    console.error('Session verification error:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Session verification error:', error);
+    }
     return NextResponse.json({ user: null });
   }
 }
@@ -96,7 +104,9 @@ export async function DELETE() {
     cookies().delete(SESSION_COOKIE_NAME);
     return NextResponse.json({ status: 'success' });
   } catch (error) {
-    console.error('Session deletion error:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Session deletion error:', error);
+    }
     return NextResponse.json(
       { error: 'Nepavyko ištrinti sesijos' },
       { status: 500 }

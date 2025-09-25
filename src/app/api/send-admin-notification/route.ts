@@ -33,7 +33,9 @@ export async function POST(request: Request) {
 
     // Check if Resend is available
     if (!resend) {
-      console.warn('Resend API key not configured, skipping admin notification email');
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('Resend API key not configured, skipping admin notification email');
+      }
       return NextResponse.json({ 
         success: true, 
         message: 'Admin notification skipped (email service not configured)' 
@@ -109,7 +111,9 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error('Error sending admin notification email:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error sending admin notification email:', error);
+      }
     return NextResponse.json(
       { error: 'Failed to send admin notification email' },
       { status: 500 }

@@ -40,7 +40,9 @@ export async function GET() {
       total: reviews.length
     });
   } catch (error) {
-    console.error('Error fetching reviews:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Error fetching reviews:', error);
+    }
     return NextResponse.json(
       { error: 'Failed to fetch reviews' },
       { status: 500 }

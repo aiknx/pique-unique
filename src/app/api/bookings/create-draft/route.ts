@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
         userId = decodedClaims.uid;
         userEmail = decodedClaims.email;
       } catch {
-        console.log('Invalid session cookie');
+        // Invalid session cookie - continue without auth
       }
     } else if (authHeader && authHeader.startsWith('Bearer ')) {
       try {
@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
         userId = decodedClaims.uid;
         userEmail = decodedClaims.email;
       } catch {
-        console.log('Invalid ID token');
+        // Invalid ID token - continue without auth
       }
     }
 
@@ -88,7 +88,9 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Error creating/updating draft:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('Error creating/updating draft:', error);
+    }
     return NextResponse.json(
       { error: 'Nepavyko išsaugoti juodraščio' },
       { status: 500 }

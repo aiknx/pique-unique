@@ -81,7 +81,10 @@ export default function MultistepBookingForm() {
       try {
         await saveDraft(watchedValues);
       } catch (error) {
-        console.error('Failed to save draft:', error);
+        // Silently fail - draft saving is optional
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Failed to save draft:', error);
+        }
       }
     }, 30000);
 
