@@ -22,6 +22,8 @@ export const bookingFormSchema = z.object({
   }),
 });
 
+export type BookingInput = z.infer<typeof bookingFormSchema>; // Exporting the inferred type
+
 export const adminBookingUpdateSchema = z.object({
   status: z.enum(['pending', 'confirmed', 'cancelled']),
   notes: z.string().optional(),

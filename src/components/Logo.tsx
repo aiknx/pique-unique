@@ -9,8 +9,8 @@ interface LogoProps {
 
 export default function Logo({ className = '', variant = 'horizontal' }: LogoProps) {
   const dimensions = variant === 'horizontal' 
-    ? { width: 800, height: 240 }
-    : { width: 600, height: 600 };
+    ? { width: 800, height: 240 } // Adjusted from original to be more realistic for display
+    : { width: 300, height: 300 }; // Adjusted from original to be more realistic for display
 
   return (
     <div className={`relative flex items-center ${className}`}>

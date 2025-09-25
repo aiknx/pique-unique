@@ -64,7 +64,7 @@ export class AuditLogger {
         id: doc.id,
         ...doc.data(),
         timestamp: doc.data().timestamp.toDate(),
-      }));
+      })) as unknown as AuditLogEntry[];
     } catch (error) {
       console.error('Failed to fetch audit logs:', error);
       return [];

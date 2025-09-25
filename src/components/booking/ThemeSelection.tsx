@@ -3,7 +3,7 @@
 // import { useState } from 'react';
 import Image from 'next/image';
 
-interface Theme {
+export interface Theme {
   id: string;
   name: string;
   description: string;
@@ -12,7 +12,7 @@ interface Theme {
   color: string;
 }
 
-const themes: Theme[] = [
+export const themes: Theme[] = [
   {
     id: 'undiniu',
     name: 'Undinių',

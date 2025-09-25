@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getFirebaseAdmin } from '@/lib/server/firebase-admin';
-import { getAdminAuth } from '@/lib/server/firebase-admin';
+import { getFirebaseAdmin, getAdminAuth } from '@/lib/server/firebase-admin';
+import { BookingData } from '@/lib/email/ics-generator'; // Import BookingData interface
 
 export async function POST(request: NextRequest) {
   try {
@@ -185,21 +185,21 @@ async function sendConfirmationEmails(bookingId: string, bookingData: Record<str
   try {
     const { emailService } = await import('@/lib/email/email-service');
     
-    const booking: Record<string, unknown> = {
+    const emailBookingData: BookingData = {
       id: bookingId,
-      location: bookingData.location,
-      date: bookingData.date,
-      time: bookingData.time,
-      theme: bookingData.theme,
-      guestCount: bookingData.guestCount,
-      contactInfo: bookingData.contactInfo,
+      location: bookingData.location as string,
+      date: bookingData.date instanceof Date ? bookingData.date : new Date(bookingData.date as string),
+      time: (bookingData.timeSlot as { start: string; end: string; }).start, // Map timeSlot to time
+      theme: bookingData.theme as string, // Use theme string
+      guestCount: bookingData.guestCount as number,
+      contactInfo: bookingData.contactInfo as { name: string; email: string; phone: string; },
     };
 
     // Send confirmation email to customer
-    await emailService.sendBookingConfirmation(booking as any);
+    await emailService.sendBookingConfirmation(emailBookingData);
     
     // Send notification to admin
-    await emailService.sendAdminNotification(booking as any);
+    await emailService.sendAdminNotification(emailBookingData);
 
   } catch (error) {
     if (process.env.NODE_ENV === 'development') {

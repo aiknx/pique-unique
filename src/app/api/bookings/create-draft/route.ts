@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getFirebaseAdmin } from '@/lib/server/firebase-admin';
 import { getAdminAuth } from '@/lib/server/firebase-admin';
-import { bookingSchema } from '@/lib/validation/booking';
+import { bookingFormSchema } from '@/lib/validation'; // Corrected import path and schema name
 
 export async function POST(request: NextRequest) {
   try {
@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate partial data (only validate fields that are present)
-    const partialSchema = bookingSchema.partial();
+    const partialSchema = bookingFormSchema.partial();
     const validatedData = partialSchema.parse(body);
 
     // Create draft document

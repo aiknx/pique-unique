@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useAuth } from '@/lib/auth';
-import { bookingSchema, type BookingInput } from '@/lib/validation/booking';
+import { bookingFormSchema, type BookingInput } from '@/lib/validation'; // Corrected import path and schema name
+import { themes } from '@/components/booking/ThemeSelection';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 
@@ -49,19 +50,17 @@ export default function MultistepBookingForm() {
   const [currentStep, setCurrentStep] = useState<Step>('location');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [additionalServices, setAdditionalServices] = useState<string[]>([]);
+  const [additionalPrice, setAdditionalPrice] = useState(0);
 
   const methods = useForm<BookingInput>({
-    resolver: zodResolver(bookingSchema),
+    resolver: zodResolver(bookingFormSchema),
     defaultValues: {
       location: 'juodkrante',
       date: '',
-      theme: '',
-      time: '',
-      guestCount: 2,
-      basePrice: 0,
-      additionalServices: [],
-      additionalPrice: 0,
-      totalPrice: 0,
+      timeSlot: { start: '', end: '' },
+      selectedTheme: { id: '', name: '', price: 0 },
+      guests: 2,
       contactInfo: {
         name: '',
         email: '',
@@ -72,6 +71,35 @@ export default function MultistepBookingForm() {
 
   const { handleSubmit, watch, setValue, formState: { errors } } = methods;
   const watchedValues = watch();
+
+  const calculateTotal = useCallback(() => {
+    const basePrice = 50; // Base price per person
+    const guestCount = watchedValues.guests || 2;
+    return (basePrice * guestCount) + additionalPrice;
+  }, [watchedValues.guests, additionalPrice]);
+
+  const saveDraft = useCallback(async (data: Partial<BookingInput>) => {
+    if (!user) return;
+
+    const draftData = {
+      ...data,
+      additionalServices,
+      additionalPrice,
+      totalPrice: calculateTotal(),
+    };
+
+    const response = await fetch('/api/bookings/create-draft', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(draftData),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to save draft');
+    }
+  }, [user, additionalServices, additionalPrice, calculateTotal]);
 
   // Auto-save draft every 30 seconds
   useEffect(() => {
@@ -91,21 +119,6 @@ export default function MultistepBookingForm() {
     return () => clearTimeout(timer);
   }, [watchedValues, user, currentStep, saveDraft]);
 
-  const saveDraft = async (data: Partial<BookingInput>) => {
-    if (!user) return;
-
-    const response = await fetch('/api/bookings/create-draft', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to save draft');
-    }
-  };
 
   const onSubmit = async (data: BookingInput) => {
     if (!user) {
@@ -124,6 +137,9 @@ export default function MultistepBookingForm() {
         },
         body: JSON.stringify({
           ...data,
+          additionalServices,
+          additionalPrice,
+          totalPrice: calculateTotal(),
           finalize: true,
         }),
       });
@@ -145,12 +161,12 @@ export default function MultistepBookingForm() {
   const nextStep = () => {
     switch (currentStep) {
       case 'location':
-        if (watchedValues.location && watchedValues.date && watchedValues.time) {
+        if (watchedValues.location && watchedValues.date && watchedValues.timeSlot?.start) {
           setCurrentStep('theme');
         }
         break;
       case 'theme':
-        if (watchedValues.theme) {
+        if (watchedValues.selectedTheme.id) { // Changed from watchedValues.theme
           setCurrentStep('contact');
         }
         break;
@@ -171,9 +187,9 @@ export default function MultistepBookingForm() {
   const canProceed = () => {
     switch (currentStep) {
       case 'location':
-        return watchedValues.location && watchedValues.date && watchedValues.time;
+        return watchedValues.location && watchedValues.date && watchedValues.timeSlot?.start;
       case 'theme':
-        return watchedValues.theme;
+        return watchedValues.selectedTheme.id; // Changed from watchedValues.theme
       case 'contact':
         return watchedValues.contactInfo?.name && watchedValues.contactInfo?.email && watchedValues.contactInfo?.phone;
       default:
@@ -181,19 +197,13 @@ export default function MultistepBookingForm() {
     }
   };
 
-  const calculateTotal = () => {
-    const basePrice = 50; // Base price per person
-    const guestCount = watchedValues.guestCount || 2;
-    const additionalPrice = watchedValues.additionalPrice || 0;
-    return (basePrice * guestCount) + additionalPrice;
-  };
 
   // Update total price when dependencies change
   useEffect(() => {
-    const total = calculateTotal();
-    setValue('totalPrice', total);
-    setValue('basePrice', 50 * (watchedValues.guestCount || 2));
-  }, [watchedValues.guestCount, watchedValues.additionalPrice, setValue, calculateTotal]);
+    calculateTotal();
+    // Note: totalPrice, basePrice, additionalPrice are not part of bookingFormSchema
+    // They are calculated on the fly for display purposes
+  }, [watchedValues.guests, calculateTotal]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
@@ -290,13 +300,13 @@ export default function MultistepBookingForm() {
                     <div className="mb-6">
                       <label className="block text-sm font-medium text-gray-700 mb-3">Laikas</label>
                       <TimeSlots
-                        selectedTime={watchedValues.time}
-                        onTimeSelect={(time) => setValue('time', time)}
+                        selectedTime={watchedValues.timeSlot?.start}
+                        onTimeSelect={(time) => setValue('timeSlot', { start: time, end: time })}
                         date={watchedValues.date}
                         location={watchedValues.location}
                       />
-                      {errors.time && (
-                        <p className="mt-1 text-sm text-red-600">{errors.time.message}</p>
+                      {errors.timeSlot && (
+                        <p className="mt-1 text-sm text-red-600">{errors.timeSlot.message}</p>
                       )}
                     </div>
 
@@ -304,16 +314,16 @@ export default function MultistepBookingForm() {
                     <div className="mb-6">
                       <label className="block text-sm font-medium text-gray-700 mb-3">Svečių skaičius</label>
                       <select
-                        value={watchedValues.guestCount}
-                        onChange={(e) => setValue('guestCount', parseInt(e.target.value))}
+                        value={watchedValues.guests}
+                        onChange={(e) => setValue('guests', parseInt(e.target.value))}
                         className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       >
                         {Array.from({ length: 19 }, (_, i) => i + 2).map(num => (
                           <option key={num} value={num}>{num} asmenys</option>
                         ))}
                       </select>
-                      {errors.guestCount && (
-                        <p className="mt-1 text-sm text-red-600">{errors.guestCount.message}</p>
+                      {errors.guests && (
+                        <p className="mt-1 text-sm text-red-600">{errors.guests.message}</p>
                       )}
                     </div>
                   </div>
@@ -328,11 +338,16 @@ export default function MultistepBookingForm() {
                     <div className="mb-6">
                       <label className="block text-sm font-medium text-gray-700 mb-3">Tema</label>
                       <ThemeSelection
-                        selectedTheme={watchedValues.theme}
-                        onThemeSelect={(theme) => setValue('theme', theme)}
+                        selectedTheme={watchedValues.selectedTheme.id}
+                        onThemeSelect={(themeId) => {
+                          const theme = themes.find(t => t.id === themeId);
+                          if (theme) {
+                            setValue('selectedTheme', { id: theme.id, name: theme.name, price: theme.price });
+                          }
+                        }}
                       />
-                      {errors.theme && (
-                        <p className="mt-1 text-sm text-red-600">{errors.theme.message}</p>
+                      {errors.selectedTheme && ( // Changed from errors.theme
+                        <p className="mt-1 text-sm text-red-600">{errors.selectedTheme.message}</p> // Changed from errors.theme
                       )}
                     </div>
 
@@ -340,13 +355,12 @@ export default function MultistepBookingForm() {
                     <div className="mb-6">
                       <label className="block text-sm font-medium text-gray-700 mb-3">Papildomos paslaugos</label>
                       <AddOns
-                        selectedServices={watchedValues.additionalServices || []}
-                        onServicesChange={(services: string[]) => {
-                          setValue('additionalServices', services);
+                        onSelect={(services: string[]) => {
+                          setAdditionalServices(services);
                           // Calculate additional price
                           const prices: Record<string, number> = { acala: 25, maar: 45, painting: 10, plates: 30 };
                           const total = services.reduce((sum: number, service: string) => sum + (prices[service] || 0), 0);
-                          setValue('additionalPrice', total);
+                          setAdditionalPrice(total);
                         }}
                       />
                     </div>
@@ -469,30 +483,30 @@ export default function MultistepBookingForm() {
                         </span>
                       </div>
                     )}
-                    {watchedValues.time && (
+                    {watchedValues.timeSlot?.start && (
                       <div className="flex justify-between">
                         <span className="text-gray-600">Laikas:</span>
                         <span className="font-medium">
-                          {TIME_SLOTS[watchedValues.time as keyof typeof TIME_SLOTS]?.label} ({watchedValues.time})
+                          {TIME_SLOTS[watchedValues.timeSlot?.start as keyof typeof TIME_SLOTS]?.label} ({watchedValues.timeSlot?.start})
                         </span>
                       </div>
                     )}
-                    {watchedValues.guestCount && (
+                    {watchedValues.guests && (
                       <div className="flex justify-between">
                         <span className="text-gray-600">Svečiai:</span>
-                        <span className="font-medium">{watchedValues.guestCount} asmenys</span>
+                        <span className="font-medium">{watchedValues.guests} asmenys</span>
                       </div>
                     )}
-                    {watchedValues.theme && (
+                    {watchedValues.selectedTheme && ( // Changed from watchedValues.theme
                       <div className="flex justify-between">
                         <span className="text-gray-600">Tema:</span>
-                        <span className="font-medium">{watchedValues.theme}</span>
+                        <span className="font-medium">{watchedValues.selectedTheme.name}</span> {/* Changed from watchedValues.theme */}
                       </div>
                     )}
-                    {watchedValues.additionalServices && watchedValues.additionalServices.length > 0 && (
+                    {additionalServices && additionalServices.length > 0 && (
                       <div className="flex justify-between">
                         <span className="text-gray-600">Papildomos paslaugos:</span>
-                        <span className="font-medium">{watchedValues.additionalServices.length} paslaugos</span>
+                        <span className="font-medium">{additionalServices.length} paslaugos</span>
                       </div>
                     )}
                   </div>
@@ -502,17 +516,17 @@ export default function MultistepBookingForm() {
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
                         <span className="text-gray-600">Bazinė kaina:</span>
-                        <span className="font-medium">{watchedValues.basePrice || 0}€</span>
+                        <span className="font-medium">{50 * (watchedValues.guests || 2)}€</span>
                       </div>
-                      {watchedValues.additionalPrice && watchedValues.additionalPrice > 0 && (
+                      {additionalPrice && additionalPrice > 0 && (
                         <div className="flex justify-between">
                           <span className="text-gray-600">Papildomos paslaugos:</span>
-                          <span className="font-medium">{watchedValues.additionalPrice}€</span>
+                          <span className="font-medium">{additionalPrice}€</span>
                         </div>
                       )}
                       <div className="flex justify-between text-lg font-semibold pt-2 border-t border-gray-200">
                         <span>Iš viso:</span>
-                        <span className="text-green-600">{watchedValues.totalPrice || 0}€</span>
+                        <span className="text-green-600">{calculateTotal()}€</span>
                       </div>
                     </div>
                   </div>
