@@ -38,6 +38,8 @@ export default function RootLayout({
     <html lang="lt">
       <head>
         <meta charSet="UTF-8" />
+        <link rel="preload" href="/images/hero-picnic.webp" as="image" />
+        <link rel="preload" href="/images/logo-horizontal.png" as="image" />
       </head>
       <body className={`${quicksand.variable} ${playfair.variable}`}>
         <Providers>

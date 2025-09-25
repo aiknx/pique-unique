@@ -46,7 +46,7 @@ const nextConfig = {
   },
   experimental: {
     optimizeCss: true,
-    optimizePackageImports: ['@mui/material', '@mui/icons-material', 'lucide-react'],
+    optimizePackageImports: ['lucide-react'],
     turbo: {
       rules: {
         '*.svg': {
