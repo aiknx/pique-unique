@@ -40,6 +40,8 @@ export default function RootLayout({
         <meta charSet="UTF-8" />
         <link rel="preload" href="/images/hero-picnic.webp" as="image" />
         <link rel="preload" href="/images/logo-horizontal.png" as="image" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       <body className={`${quicksand.variable} ${playfair.variable}`}>
         <Providers>

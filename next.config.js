@@ -22,6 +22,22 @@ const nextConfig = {
         child_process: false,
         perf_hooks: false,
       };
+      
+      // Optimize chunk splitting - remove this as it's breaking the build
+      // config.optimization = {
+      //   ...config.optimization,
+      //   splitChunks: {
+      //     chunks: 'all',
+      //     cacheGroups: {
+      //       vendor: {
+      //         test: /[\\/]node_modules[\\/]/,
+      //         name: 'vendors',
+      //         chunks: 'all',
+      //         maxSize: 244000, // 244KB
+      //       },
+      //     },
+      //   },
+      // };
     }
     
     // Fix webpack cache warnings
@@ -71,7 +87,7 @@ const nextConfig = {
         headers: [
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; img-src 'self' data: https:; script-src 'self' 'nonce-{random}' https://www.gstatic.com https://www.google.com; style-src 'self' 'nonce-{random}' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https:; frame-src 'self' https://pique-unique.firebaseapp.com https://*.firebaseapp.com https://*.googleapis.com; object-src 'none'; base-uri 'self';",
+            value: "default-src 'self'; img-src 'self' data: https:; script-src 'self' 'nonce-{random}' https://www.gstatic.com https://www.google.com https://apis.google.com; style-src 'self' 'nonce-{random}' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https:; frame-src 'self' https://pique-unique.firebaseapp.com https://*.firebaseapp.com https://*.googleapis.com https://apis.google.com; object-src 'none'; base-uri 'self';",
           },
           {
             key: 'Strict-Transport-Security',

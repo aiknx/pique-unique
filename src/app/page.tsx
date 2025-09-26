@@ -1,7 +1,6 @@
 import { Metadata } from 'next';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
-// import { Hero } from '@/components/Hero';
 import WhyChooseUs from '@/components/WhyChooseUs';
 import Features from '@/components/Features';
 import Link from 'next/link';

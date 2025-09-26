@@ -268,7 +268,7 @@ export default function BookingForm({ selectedDate, selectedLocation, selectedTi
             className="mt-1 h-4 w-4 rounded border-gray-300 text-hunter focus:ring-hunter"
           />
           <label htmlFor="agreeToTerms" className="ml-2 block text-sm text-gray-700">
-            Sutinku su <a href="/terms" className="text-hunter hover:underline">taisyklėmis ir sąlygomis</a> *
+            Sutinku su <a href="/terms" className="text-hunter hover:underline" aria-label="Perskaityti taisyklėmis ir sąlygomis">taisyklėmis ir sąlygomis</a> *
           </label>
         </div>
       </div>
