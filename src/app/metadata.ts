@@ -122,6 +122,8 @@ const defaultMetadata: Metadata = {
     'DC.language': 'lt',
     'DC.coverage': 'Klaipėda, Neringa, Lietuva',
     'DC.rights': 'Copyright 2024 Pique Unique',
+    'cache-version': 'v3.0-optimized',
+    'deploy-timestamp': new Date().toISOString(),
   },
 };
 

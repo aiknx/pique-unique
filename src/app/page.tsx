@@ -5,6 +5,8 @@ import WhyChooseUs from '@/components/WhyChooseUs';
 import Features from '@/components/Features';
 import Link from 'next/link';
 
+// Cache bust: v3.0-optimized - Force deploy to clear CDN cache
+
 const Reviews = dynamic(() => import('@/components/Reviews'), {
   loading: () => <div className="py-16 text-center">Kraunami atsiliepimai...</div>
 });

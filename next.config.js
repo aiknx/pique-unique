@@ -1,4 +1,5 @@
 /** @type {import('next').NextConfig} */
+// Cache bust: v3.0-optimized - Force deploy to clear CDN cache
 const nextConfig = {
   webpack: (config, { isServer }) => {
     if (!isServer) {
